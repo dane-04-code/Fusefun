@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rewards - FUSE.FUN</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Press Start 2P', cursive; overflow-x: hidden; font-size: 12px; line-height: 1.8; }
+        
+        /* Animated Gradient Background */
+        .animated-bg {
+            background: linear-gradient(-45deg, #000000, #0a0a1a, #0f172a, #020617);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, #60a5fa, #3b82f6, #8b5cf6, #a855f7);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: textGradient 3s ease infinite;
+        }
+        
+        @keyframes textGradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        /* Glass Morphism */
+        .glass {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .glass-card {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .glass-card:hover {
+            border-color: rgba(59, 130, 246, 0.3);
+            background: rgba(15, 23, 42, 0.9);
+        }
+        
+        /* Glowing Effects */
+        .glow-blue {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4), 0 0 40px rgba(59, 130, 246, 0.2);
+        }
+        
+        .glow-purple {
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.4), 0 0 40px rgba(139, 92, 246, 0.2);
+        }
+        
+        .glow-pulse {
+            animation: glowPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes glowPulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); }
+            50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.6), 0 0 60px rgba(139, 92, 246, 0.3); }
+        }
+        
+        /* Button Shine Effect */
+        .btn-shine {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-shine::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% { left: -100%; }
+            50%, 100% { left: 100%; }
+        }
+        
+        .hover-lift {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-4px);
+        }
+        
+        /* Progress Ring */
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        
+        .progress-ring circle {
+            transition: stroke-dashoffset 0.5s ease;
+        }
+        
+        /* Particle Background */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(59, 130, 246, 0.5);
+            border-radius: 50%;
+            animation: particleFloat 20s infinite;
+        }
+        
+        @keyframes particleFloat {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+        
+        /* Tabs */
+        .tab-active {
+            border-bottom: 2px solid #3b82f6;
+            color: white;
+        }
+        
+        /* Chart bars */
+        .chart-bar {
+            transition: height 0.5s ease;
+        }
+        
+        /* Tier badge glow */
+        .tier-gold {
+            box-shadow: 0 0 20px rgba(234, 179, 8, 0.4);
+            border-color: rgba(234, 179, 8, 0.5);
+        }
+        
+        .tier-platinum {
+            box-shadow: 0 0 20px rgba(148, 163, 184, 0.4);
+            border-color: rgba(148, 163, 184, 0.5);
+        }
+        
+        /* Progress bar animation */
+        .progress-animate {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-animate::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: progressShine 2s infinite;
+        }
+        
+        @keyframes progressShine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+    </style>
+</head>
+<body class="min-h-screen animated-bg text-white">
+    <!-- Particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 glass">
+        <div class="w-full flex h-20 items-center px-6 lg:px-12">
+            <div class="flex items-center justify-between w-full">
+                <a href="index.html" class="flex items-center gap-3 group flex-shrink-0">
+                    <div class="relative h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center glow-pulse">
+                        <span class="text-white text-lg font-bold">F</span>
+                    </div>
+                    <span class="text-lg tracking-tight gradient-text hidden xl:block">FUSE.FUN</span>
+                </a>
+                
+                <div class="hidden lg:flex items-center justify-center flex-1 gap-6 xl:gap-10 mx-8">
+                    <a href="create.html" class="text-gray-400 hover:text-white px-3 py-2 transition-all duration-300 hover:text-blue-400">Create</a>
+                    <a href="index.html" class="text-gray-400 hover:text-white px-3 py-2 transition-all duration-300 hover:text-blue-400">Trade</a>
+                    <a href="index.html#my-tokens" class="text-gray-400 hover:text-white px-3 py-2 transition-all duration-300 hover:text-blue-400">My Tokens</a>
+                    <a href="index.html#" class="text-gray-400 hover:text-white px-3 py-2 transition-all duration-300 hover:text-yellow-400">King of Hill</a>
+                    <a href="index.html#how-it-works" class="text-gray-400 hover:text-white px-3 py-2 transition-all duration-300 hover:text-purple-400">How it Works</a>
+                    <a href="#" class="text-white px-3 py-2 transition-all duration-300 border-b-2 border-green-400">Rewards</a>
+                </div>
+
+                <!-- Right Side: Theme, Account & Wallet -->
+                <div class="flex items-center gap-3 flex-shrink-0">
+                    <!-- Theme Toggle -->
+                    <button id="themeToggle" class="p-2.5 rounded-lg bg-gray-800/50 border border-gray-700 hover:border-blue-500/50 hover:bg-gray-700/50 transition-all" title="Toggle Theme">
+                        <svg id="themeIcon" class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"/>
+                        </svg>
+                    </button>
+
+                    <!-- Account Button -->
+                    <button id="accountBtn" class="p-2.5 rounded-lg bg-gray-800/50 border border-gray-700 hover:border-blue-500/50 hover:bg-gray-700/50 transition-all" title="Account">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                    </button>
+
+                    <!-- Wallet Connect Button -->
+                    <button id="connectWalletBtn" class="flex items-center gap-2 bg-[#512da8] hover:bg-[#5e35b1] text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors" style="font-family: 'Inter', sans-serif;">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                        </svg>
+                        <span id="walletBtnText">Select Wallet</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sub Navigation Tabs -->
+    <div class="border-b border-gray-800">
+        <div class="container mx-auto px-4">
+            <div class="flex gap-8 max-w-6xl mx-auto">
+                <button class="tab-active py-4 text-[10px] transition-all">Rewards</button>
+                <button class="text-gray-500 py-4 text-[10px] hover:text-gray-300 transition-all">Leaderboard</button>
+                <button class="text-gray-500 py-4 text-[10px] hover:text-gray-300 transition-all">Benefits</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8 relative z-10">
+        <div class="max-w-6xl mx-auto">
+            
+            <!-- Info Banner -->
+            <div class="glass-card rounded-xl p-4 mb-8 border-l-4 border-purple-500">
+                <div class="flex items-center gap-3">
+                    <span class="text-purple-400">i</span>
+                    <p class="text-[10px] text-gray-300">
+                        Earn rewards by trading, creating tokens, and referring friends. Claim your SOL rewards daily!
+                    </p>
+                </div>
+            </div>
+
+            <!-- Profile Card -->
+            <div class="glass-card rounded-2xl p-8 mb-8 text-center">
+                <!-- Avatar -->
+                <div class="w-20 h-20 mx-auto mb-4 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 border-4 border-yellow-500/50 flex items-center justify-center tier-gold">
+                    <span class="text-3xl text-white/80">D</span>
+                </div>
+                
+                <!-- Username -->
+                <h2 class="text-lg mb-2">username</h2>
+                
+                <!-- Reward Multiplier -->
+                <div class="text-2xl gradient-text mb-2">3X Rewards</div>
+                
+                <!-- Stats -->
+                <div class="flex items-center justify-center gap-6 text-[10px] text-gray-400 mb-2">
+                    <span>30% Referral Rate</span>
+                    <span>R 0</span>
+                </div>
+                
+                <!-- Tier Badge -->
+                <div class="inline-flex items-center gap-2 bg-yellow-500/20 border border-yellow-500/30 rounded-full px-4 py-1.5">
+                    <span class="text-yellow-400 text-[10px]">* Gold</span>
+                </div>
+            </div>
+
+            <!-- Referral Code Section -->
+            <div class="glass-card rounded-2xl p-6 mb-8">
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="text-green-400">🔗</span>
+                    <span class="text-sm">Your Referral Code</span>
+                    <span class="ml-auto text-[8px] text-green-400 bg-green-400/10 px-2 py-1 rounded">10% Fee Share</span>
+                </div>
+                
+                <!-- Referral Code Display -->
+                <div class="flex flex-col md:flex-row items-center gap-4 mb-4">
+                    <div class="flex-1 w-full">
+                        <div id="referralCodeContainer" class="flex items-center gap-3">
+                            <!-- No Wallet Connected State -->
+                            <div id="noWalletReferral" class="flex-1 bg-gray-800/50 rounded-xl p-4 text-center">
+                                <p class="text-gray-400 text-[10px]">Connect your wallet to get your referral code</p>
+                            </div>
+                            
+                            <!-- Has Referral Code State (hidden by default) -->
+                            <div id="hasReferralCode" class="hidden flex-1 flex items-center gap-3">
+                                <div class="flex-1 bg-gray-800/50 rounded-xl px-4 py-3 flex items-center justify-between">
+                                    <span id="referralCodeDisplay" class="text-lg text-white font-mono">FUSE------</span>
+                                    <button onclick="copyReferralCode()" class="text-blue-400 hover:text-blue-300 transition-all" title="Copy Code">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-3">
+                        <button id="editReferralBtn" onclick="openEditReferralModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-[10px] hover:bg-blue-700 transition-all disabled:opacity-50" disabled>
+                            Edit Code
+                        </button>
+                        <button id="shareReferralBtn" onclick="shareReferral()" class="border border-gray-600 text-white px-4 py-2 rounded-lg text-[10px] hover:bg-white/5 transition-all disabled:opacity-50" disabled>
+                            Share Link
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Referral Link -->
+                <div id="referralLinkContainer" class="hidden">
+                    <div class="flex items-center gap-2 bg-gray-900/50 rounded-lg p-3">
+                        <span class="text-gray-500 text-[8px]">Your Link:</span>
+                        <input type="text" id="referralLinkInput" readonly class="flex-1 bg-transparent text-[10px] text-gray-300 outline-none" value="">
+                        <button onclick="copyReferralLink()" class="text-blue-400 hover:text-blue-300 text-[10px] transition-all">Copy</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Points & Earned Row -->
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
+                <div class="flex items-center gap-8">
+                    <div class="flex items-center gap-3">
+                        <span class="text-blue-400 text-lg">*</span>
+                        <div>
+                            <div id="totalPoints" class="text-xl text-white">0</div>
+                            <div class="text-[8px] text-gray-500">Points</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-purple-400 text-lg">=</span>
+                        <div>
+                            <div id="totalSolEarned" class="text-xl text-white">0.000</div>
+                            <div class="text-[8px] text-gray-500">SOL Earned</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-green-400 text-lg">👥</span>
+                        <div>
+                            <div id="totalReferrals" class="text-xl text-white">0</div>
+                            <div class="text-[8px] text-gray-500">Referrals</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <div class="text-right">
+                        <div class="text-[8px] text-gray-500">Pending Earnings</div>
+                        <div id="pendingEarnings" class="text-lg text-green-400">0.000 SOL</div>
+                    </div>
+                    <button id="claimReferralBtn" onclick="claimReferralEarnings()" class="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-lg text-[10px] hover:from-green-600 hover:to-emerald-700 transition-all disabled:opacity-50" disabled>
+                        Claim
+                    </button>
+                </div>
+            </div>
+
+            <!-- Progress to Next Level -->
+            <div class="glass-card rounded-xl p-6 mb-8">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
+                    <div class="flex items-center gap-3">
+                        <span class="text-blue-400">^</span>
+                        <span class="text-[10px]">Next Level:</span>
+                        <span class="text-[10px] text-blue-400">3.5X Rewards rate for Points and SOL</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-[10px] text-gray-400">
+                        <span class="text-purple-400">~</span>
+                        <span>You're almost there! Trade 35.765 SOL to reach</span>
+                        <span class="text-slate-300 font-bold">Platinum</span>
+                    </div>
+                </div>
+                
+                <!-- Progress Bar -->
+                <div class="relative w-full bg-gray-800 rounded-full h-3 overflow-hidden">
+                    <div class="progress-animate bg-gradient-to-r from-yellow-400 via-green-400 to-slate-400 h-3 rounded-full" style="width: 75%"></div>
+                </div>
+                
+                <div class="flex justify-between mt-2 text-[8px] text-gray-500">
+                    <span>Gold</span>
+                    <span>Platinum</span>
+                </div>
+            </div>
+
+            <!-- Claim Section Header -->
+            <h3 class="text-lg mb-6">Claim</h3>
+
+            <!-- Three Column Layout -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                
+                <!-- SOL Rewards Chart -->
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="flex items-center gap-2 mb-6">
+                        <span class="text-blue-400">$</span>
+                        <span class="text-[10px]">SOL Rewards</span>
+                    </div>
+                    
+                    <!-- Simple Chart -->
+                    <div class="relative h-32 mb-4">
+                        <div class="absolute bottom-0 left-0 right-0 h-full flex items-end justify-between gap-1">
+                            <div class="chart-bar flex-1 bg-blue-500/30 rounded-t" style="height: 40%"></div>
+                            <div class="chart-bar flex-1 bg-blue-500/40 rounded-t" style="height: 55%"></div>
+                            <div class="chart-bar flex-1 bg-blue-500/50 rounded-t" style="height: 65%"></div>
+                            <div class="chart-bar flex-1 bg-blue-500/60 rounded-t" style="height: 70%"></div>
+                            <div class="chart-bar flex-1 bg-blue-500/70 rounded-t" style="height: 75%"></div>
+                            <div class="chart-bar flex-1 bg-blue-500/80 rounded-t" style="height: 80%"></div>
+                            <div class="chart-bar flex-1 bg-blue-500 rounded-t" style="height: 85%"></div>
+                        </div>
+                        <!-- Chart Line -->
+                        <svg class="absolute inset-0 w-full h-full" preserveAspectRatio="none">
+                            <polyline points="0,80 30,70 60,55 90,50 120,45 150,40 180,35" fill="none" stroke="#60a5fa" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    
+                    <!-- Labels -->
+                    <div class="flex justify-between text-[6px] text-gray-500">
+                        <span>0.9 SOL</span>
+                        <span>0.45 SOL</span>
+                        <span>0 SOL</span>
+                    </div>
+                    <div class="flex justify-between text-[6px] text-gray-500 mt-2">
+                        <span>Dec 16</span>
+                        <span>Dec 19</span>
+                        <span>Dec 23</span>
+                    </div>
+                </div>
+
+                <!-- Claim Box -->
+                <div class="glass-card rounded-2xl p-6 flex flex-col items-center justify-center">
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="text-green-400">*</span>
+                        <span class="text-[10px]">Claim</span>
+                    </div>
+                    
+                    <div class="flex items-center gap-6 mb-6">
+                        <div class="flex items-center gap-2 bg-teal-500/20 border border-teal-500/30 rounded-xl px-4 py-3">
+                            <span class="text-teal-400">=</span>
+                            <span class="text-lg text-white">+0.01</span>
+                        </div>
+                        <div class="flex items-center gap-2 bg-gray-700/50 border border-gray-600/30 rounded-xl px-4 py-3">
+                            <span class="text-blue-400">*</span>
+                            <span class="text-lg text-white">+0</span>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-shine w-full bg-gradient-to-r from-teal-500 to-emerald-600 text-white py-3 rounded-xl text-[10px] hover:from-teal-600 hover:to-emerald-700 transition-all">
+                        Claim SOL
+                    </button>
+                </div>
+
+                <!-- Quests -->
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-2">
+                            <span class="text-purple-400">+</span>
+                            <span class="text-[10px]">Quests</span>
+                        </div>
+                        <button class="text-[8px] text-gray-400 hover:text-white transition-all">
+                            Points Breakdown
+                        </button>
+                    </div>
+                    
+                    <!-- Quest Circles -->
+                    <div class="flex items-center justify-around">
+                        <!-- Quest 1 -->
+                        <div class="text-center">
+                            <div class="relative w-16 h-16 mb-2">
+                                <svg class="progress-ring w-full h-full" viewBox="0 0 36 36">
+                                    <circle cx="18" cy="18" r="15" fill="none" stroke="#1e293b" stroke-width="3"/>
+                                    <circle cx="18" cy="18" r="15" fill="none" stroke="#3b82f6" stroke-width="3" 
+                                            stroke-dasharray="94.2" stroke-dashoffset="70" stroke-linecap="round"/>
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center text-[8px] text-white">
+                                    +1,500
+                                </div>
+                            </div>
+                            <div class="text-[6px] text-gray-400">Refer 3 more<br>people</div>
+                        </div>
+                        
+                        <!-- Quest 2 -->
+                        <div class="text-center">
+                            <div class="relative w-16 h-16 mb-2">
+                                <svg class="progress-ring w-full h-full" viewBox="0 0 36 36">
+                                    <circle cx="18" cy="18" r="15" fill="none" stroke="#1e293b" stroke-width="3"/>
+                                    <circle cx="18" cy="18" r="15" fill="none" stroke="#3b82f6" stroke-width="3" 
+                                            stroke-dasharray="94.2" stroke-dashoffset="47" stroke-linecap="round"/>
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center text-[8px] text-white">
+                                    +100,000
+                                </div>
+                            </div>
+                            <div class="text-[6px] text-gray-400">Trade 500 more<br>SOL in Volume</div>
+                        </div>
+                        
+                        <!-- Quest 3 -->
+                        <div class="text-center">
+                            <div class="relative w-16 h-16 mb-2">
+                                <svg class="progress-ring w-full h-full" viewBox="0 0 36 36">
+                                    <circle cx="18" cy="18" r="15" fill="none" stroke="#1e293b" stroke-width="3"/>
+                                    <circle cx="18" cy="18" r="15" fill="none" stroke="#3b82f6" stroke-width="3" 
+                                            stroke-dasharray="94.2" stroke-dashoffset="80" stroke-linecap="round"/>
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center text-[8px] text-white">
+                                    +100,000
+                                </div>
+                            </div>
+                            <div class="text-[6px] text-gray-400">Make 5000 more<br>transactions</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Section -->
+            <h3 class="text-lg mb-6">Activity</h3>
+
+            <!-- Referrals Table -->
+            <div class="glass-card rounded-2xl overflow-hidden mb-8">
+                <div class="p-6 border-b border-gray-800 flex items-center justify-between">
+                    <span class="text-[12px]">Your Referrals</span>
+                    <div class="flex items-center gap-2 text-[10px] text-gray-400">
+                        <span>Total:</span>
+                        <span id="referralCount">0</span>
+                    </div>
+                </div>
+                
+                <!-- Table Header -->
+                <div class="grid grid-cols-5 gap-4 px-6 py-3 text-[8px] text-gray-500 border-b border-gray-800">
+                    <span>Wallet</span>
+                    <span class="text-center">Date Joined</span>
+                    <span class="text-center">Action</span>
+                    <span class="text-center">Volume</span>
+                    <span class="text-right">Your Earnings</span>
+                </div>
+                
+                <!-- Referrals List -->
+                <div id="referralsList">
+                    <!-- Empty State -->
+                    <div id="noReferralsState" class="p-12 text-center">
+                        <div class="text-4xl mb-4">👥</div>
+                        <div class="text-gray-600 text-[10px] mb-2">No referrals yet</div>
+                        <p class="text-[8px] text-gray-500 mb-4">Share your referral link to start earning 10% of fees!</p>
+                        <button onclick="copyReferralLink()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-[8px] hover:bg-blue-700 transition-all">
+                            Copy Referral Link
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Referral Earnings History -->
+            <div class="glass-card rounded-2xl overflow-hidden mb-8">
+                <div class="p-6 border-b border-gray-800 flex items-center justify-between">
+                    <span class="text-[12px]">Referral Earnings History</span>
+                    <span class="text-[8px] text-green-400">10% of fees from referred users</span>
+                </div>
+                
+                <!-- Table Header -->
+                <div class="grid grid-cols-6 gap-4 px-6 py-3 text-[8px] text-gray-500 border-b border-gray-800">
+                    <span>Referred User</span>
+                    <span class="text-center">Action</span>
+                    <span class="text-center">Token</span>
+                    <span class="text-center">Fee Paid</span>
+                    <span class="text-center">Your 10%</span>
+                    <span class="text-right">Date</span>
+                </div>
+                
+                <!-- Earnings List -->
+                <div id="earningsHistoryList">
+                    <div id="noEarningsState" class="p-12 text-center">
+                        <div class="text-4xl mb-4">💰</div>
+                        <div class="text-gray-600 text-[10px] mb-2">No earnings yet</div>
+                        <p class="text-[8px] text-gray-500">When your referrals create or buy tokens, you'll earn 10% of the fees!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trading Activity -->
+            <div class="glass-card rounded-2xl overflow-hidden">
+                <div class="p-6 border-b border-gray-800 flex items-center justify-between">
+                    <span class="text-[12px]">Recent Trading Activity</span>
+                    <button class="text-[8px] text-blue-400 hover:text-blue-300 transition-all">View All</button>
+                </div>
+                
+                <!-- Table Header -->
+                <div class="grid grid-cols-6 gap-4 px-6 py-3 text-[8px] text-gray-500 border-b border-gray-800">
+                    <span>Token</span>
+                    <span class="text-center">Type</span>
+                    <span class="text-center">Amount</span>
+                    <span class="text-center">Points Earned</span>
+                    <span class="text-center">Date</span>
+                    <span class="text-right">Status</span>
+                </div>
+                
+                <!-- Example Rows -->
+                <div class="grid grid-cols-6 gap-4 px-6 py-4 text-[8px] border-b border-gray-800/50 hover:bg-white/5 transition-all">
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 rounded bg-gradient-to-br from-green-400 to-teal-500 flex items-center justify-center text-[6px]">P</div>
+                        <span>$PEPE</span>
+                    </div>
+                    <span class="text-center text-green-400">Buy</span>
+                    <span class="text-center">2.5 SOL</span>
+                    <span class="text-center text-purple-400">+2,500</span>
+                    <span class="text-center text-gray-500">Dec 23</span>
+                    <span class="text-right text-green-400">Completed</span>
+                </div>
+                
+                <div class="grid grid-cols-6 gap-4 px-6 py-4 text-[8px] border-b border-gray-800/50 hover:bg-white/5 transition-all">
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 rounded bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-[6px]">D</div>
+                        <span>$DOGE</span>
+                    </div>
+                    <span class="text-center text-red-400">Sell</span>
+                    <span class="text-center">1.2 SOL</span>
+                    <span class="text-center text-purple-400">+1,200</span>
+                    <span class="text-center text-gray-500">Dec 22</span>
+                    <span class="text-right text-green-400">Completed</span>
+                </div>
+                
+                <div class="grid grid-cols-6 gap-4 px-6 py-4 text-[8px] hover:bg-white/5 transition-all">
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 rounded bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-[6px]">M</div>
+                        <span>$MOON</span>
+                    </div>
+                    <span class="text-center text-green-400">Buy</span>
+                    <span class="text-center">0.8 SOL</span>
+                    <span class="text-center text-purple-400">+800</span>
+                    <span class="text-center text-gray-500">Dec 21</span>
+                    <span class="text-right text-green-400">Completed</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-12 border-t border-gray-800/50 glass mt-16">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="flex items-center gap-3">
+                    <div class="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                        <span class="text-sm font-bold">F</span>
+                    </div>
+                    <span class="text-sm gradient-text">FUSE.FUN</span>
+                </div>
+                
+                <p class="text-gray-400 text-[8px]">The fairest launchpad on Solana</p>
+                
+                <div class="flex gap-6">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors text-[10px]">X</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors text-[10px]">Discord</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors text-[10px]">Telegram</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Wallet Modal -->
+    <div id="walletModal" class="hidden fixed inset-0 z-50 flex items-center justify-center">
+        <div class="absolute inset-0 bg-black/60" onclick="closeWalletModal()"></div>
+        <div class="relative bg-[#1a1a2e] rounded-xl w-full max-w-sm mx-4 overflow-hidden shadow-2xl" style="font-family: 'Inter', sans-serif;">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between p-4 border-b border-white/10">
+                <h3 class="text-white text-base font-semibold">Connect a wallet</h3>
+                <button onclick="closeWalletModal()" class="text-gray-400 hover:text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <!-- Wallet List -->
+            <div class="p-2">
+                <button onclick="connectWallet('phantom')" class="wallet-option w-full flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors">
+                    <img src="https://raw.githubusercontent.com/solana-labs/wallet-adapter/master/packages/wallets/icons/phantom.svg" alt="Phantom" class="w-8 h-8 rounded-lg">
+                    <span class="text-white text-sm font-medium">Phantom</span>
+                    <span class="ml-auto text-xs text-gray-500">Detected</span>
+                </button>
+                <button onclick="connectWallet('solflare')" class="wallet-option w-full flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors">
+                    <img src="https://raw.githubusercontent.com/solana-labs/wallet-adapter/master/packages/wallets/icons/solflare.svg" alt="Solflare" class="w-8 h-8 rounded-lg">
+                    <span class="text-white text-sm font-medium">Solflare</span>
+                </button>
+                <button onclick="connectWallet('backpack')" class="wallet-option w-full flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors">
+                    <img src="https://raw.githubusercontent.com/solana-labs/wallet-adapter/master/packages/wallets/icons/backpack.svg" alt="Backpack" class="w-8 h-8 rounded-lg">
+                    <span class="text-white text-sm font-medium">Backpack</span>
+                </button>
+                <button onclick="connectWallet('coinbase')" class="wallet-option w-full flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors">
+                    <img src="https://raw.githubusercontent.com/solana-labs/wallet-adapter/master/packages/wallets/icons/coinbase.svg" alt="Coinbase Wallet" class="w-8 h-8 rounded-lg">
+                    <span class="text-white text-sm font-medium">Coinbase Wallet</span>
+                </button>
+                <button onclick="connectWallet('trust')" class="wallet-option w-full flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors">
+                    <img src="https://raw.githubusercontent.com/solana-labs/wallet-adapter/master/packages/wallets/icons/trust.svg" alt="Trust Wallet" class="w-8 h-8 rounded-lg">
+                    <span class="text-white text-sm font-medium">Trust Wallet</span>
+                </button>
+                <button onclick="connectWallet('ledger')" class="wallet-option w-full flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors">
+                    <img src="https://raw.githubusercontent.com/solana-labs/wallet-adapter/master/packages/wallets/icons/ledger.svg" alt="Ledger" class="w-8 h-8 rounded-lg">
+                    <span class="text-white text-sm font-medium">Ledger</span>
+                </button>
+            </div>
+            <!-- Modal Footer -->
+            <div class="p-4 border-t border-white/10 text-center">
+                <a href="https://solana.com/ecosystem/explore?categories=wallet" target="_blank" class="text-[#512da8] hover:text-[#5e35b1] text-sm transition-colors">
+                    More wallets
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/referral-service.js"></script>
+    <script>
+        // Wallet connection state
+        let connectedWallet = null;
+        
+        // Open wallet modal
+        function openWalletModal() {
+            document.getElementById('walletModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // Close wallet modal
+        function closeWalletModal() {
+            document.getElementById('walletModal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+        
+        // Connect wallet
+        async function connectWallet(walletType) {
+            let provider = null;
+            
+            try {
+                switch(walletType) {
+                    case 'phantom':
+                        if (window.solana && window.solana.isPhantom) {
+                            provider = window.solana;
+                        } else {
+                            window.open('https://phantom.app/', '_blank');
+                            return;
+                        }
+                        break;
+                    case 'solflare':
+                        if (window.solflare && window.solflare.isSolflare) {
+                            provider = window.solflare;
+                        } else {
+                            window.open('https://solflare.com/', '_blank');
+                            return;
+                        }
+                        break;
+                    case 'backpack':
+                        if (window.backpack) {
+                            provider = window.backpack;
+                        } else {
+                            window.open('https://backpack.app/', '_blank');
+                            return;
+                        }
+                        break;
+                    default:
+                        alert('Please install ' + walletType + ' wallet');
+                        return;
+                }
+                
+                const resp = await provider.connect();
+                const publicKey = resp.publicKey.toString();
+                connectedWallet = { type: walletType, publicKey, provider };
+                localStorage.setItem('connectedWallet', JSON.stringify({ type: walletType, publicKey }));
+                onWalletConnected(publicKey);
+                closeWalletModal();
+                
+                // Initialize referral system for this wallet
+                await initializeReferralForWallet(publicKey);
+            } catch (err) {
+                console.error('Connection error:', err);
+            }
+        }
+        
+        // Handle wallet connected
+        function onWalletConnected(publicKey) {
+            const btn = document.getElementById('connectWalletBtn');
+            const btnText = document.getElementById('walletBtnText');
+            const shortAddress = publicKey.slice(0, 4) + '...' + publicKey.slice(-4);
+            btnText.textContent = shortAddress;
+            btn.classList.remove('bg-[#512da8]', 'hover:bg-[#5e35b1]');
+            btn.classList.add('bg-[#1a1a2e]', 'border', 'border-white/20');
+            btn.onclick = disconnectWallet;
+            
+            // Load referral data
+            loadReferralData(publicKey);
+        }
+        
+        // Disconnect wallet
+        function disconnectWallet() {
+            if (connectedWallet && connectedWallet.provider) {
+                connectedWallet.provider.disconnect();
+            }
+            connectedWallet = null;
+            localStorage.removeItem('connectedWallet');
+            
+            const btn = document.getElementById('connectWalletBtn');
+            const btnText = document.getElementById('walletBtnText');
+            btnText.textContent = 'Select Wallet';
+            btn.classList.add('bg-[#512da8]', 'hover:bg-[#5e35b1]');
+            btn.classList.remove('bg-[#1a1a2e]', 'border', 'border-white/20');
+            btn.onclick = openWalletModal;
+            
+            // Reset referral UI
+            resetReferralUI();
+        }
+        
+        // Check for existing connection
+        function checkExistingConnection() {
+            const saved = localStorage.getItem('connectedWallet');
+            if (saved) {
+                const { type, publicKey } = JSON.parse(saved);
+                connectedWallet = { publicKey };
+                onWalletConnected(publicKey);
+            }
+        }
+        
+        // ============================================
+        // REFERRAL SYSTEM FUNCTIONS
+        // ============================================
+        
+        let userReferralCode = null;
+        
+        // Initialize referral for newly connected wallet
+        async function initializeReferralForWallet(walletAddress) {
+            if (!window.fuseReferralService) return;
+            
+            // Register if user was referred
+            await window.fuseReferralService.registerReferredWallet(walletAddress);
+            
+            // Get or create referral code
+            let referralData = await window.fuseReferralService.getReferralCode(walletAddress);
+            
+            if (!referralData || !referralData.code) {
+                // Create new referral code
+                referralData = await window.fuseReferralService.createReferralCode(walletAddress);
+            }
+            
+            userReferralCode = referralData?.code || null;
+            updateReferralUI(referralData);
+        }
+        
+        // Load referral data for wallet
+        async function loadReferralData(walletAddress) {
+            if (!window.fuseReferralService) return;
+            
+            try {
+                const stats = await window.fuseReferralService.getStats(walletAddress);
+                userReferralCode = stats.code;
+                
+                // Update UI elements
+                updateReferralUI(stats);
+                updateEarningsUI(stats);
+                updateReferralsListUI(stats.referrals);
+                updateEarningsHistoryUI(stats.earningsHistory);
+            } catch (error) {
+                console.error('Error loading referral data:', error);
+            }
+        }
+        
+        // Update referral code UI
+        function updateReferralUI(data) {
+            const noWalletEl = document.getElementById('noWalletReferral');
+            const hasCodeEl = document.getElementById('hasReferralCode');
+            const codeDisplay = document.getElementById('referralCodeDisplay');
+            const linkContainer = document.getElementById('referralLinkContainer');
+            const linkInput = document.getElementById('referralLinkInput');
+            const editBtn = document.getElementById('editReferralBtn');
+            const shareBtn = document.getElementById('shareReferralBtn');
+            
+            if (data && data.code) {
+                noWalletEl.classList.add('hidden');
+                hasCodeEl.classList.remove('hidden');
+                linkContainer.classList.remove('hidden');
+                codeDisplay.textContent = data.code;
+                linkInput.value = window.fuseReferralService.getReferralLink(data.code);
+                editBtn.disabled = false;
+                shareBtn.disabled = false;
+            } else {
+                noWalletEl.classList.remove('hidden');
+                hasCodeEl.classList.add('hidden');
+                linkContainer.classList.add('hidden');
+                editBtn.disabled = true;
+                shareBtn.disabled = true;
+            }
+        }
+        
+        // Update earnings UI
+        function updateEarningsUI(stats) {
+            document.getElementById('totalPoints').textContent = (stats.totalReferrals * 1000).toLocaleString();
+            document.getElementById('totalSolEarned').textContent = (stats.claimedEarnings / 1_000_000_000).toFixed(3);
+            document.getElementById('totalReferrals').textContent = stats.totalReferrals;
+            document.getElementById('pendingEarnings').textContent = (stats.pendingEarnings / 1_000_000_000).toFixed(3) + ' SOL';
+            document.getElementById('referralCount').textContent = stats.totalReferrals;
+            
+            const claimBtn = document.getElementById('claimReferralBtn');
+            claimBtn.disabled = stats.pendingEarnings <= 0;
+        }
+        
+        // Update referrals list
+        function updateReferralsListUI(referrals) {
+            const container = document.getElementById('referralsList');
+            const noReferralsState = document.getElementById('noReferralsState');
+            
+            if (!referrals || referrals.length === 0) {
+                noReferralsState.classList.remove('hidden');
+                return;
+            }
+            
+            noReferralsState.classList.add('hidden');
+            
+            const rows = referrals.map(ref => `
+                <div class="grid grid-cols-5 gap-4 px-6 py-4 text-[8px] border-b border-gray-800/50 hover:bg-white/5 transition-all">
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 rounded bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-[6px]">
+                            ${ref.wallet?.slice(0, 2) || '??'}
+                        </div>
+                        <span>${ref.wallet?.slice(0, 4)}...${ref.wallet?.slice(-4) || 'N/A'}</span>
+                    </div>
+                    <span class="text-center text-gray-400">${formatDate(ref.joinedAt)}</span>
+                    <span class="text-center ${ref.action === 'create' ? 'text-purple-400' : 'text-green-400'}">${ref.action || 'signup'}</span>
+                    <span class="text-center">${(ref.volume / 1_000_000_000).toFixed(2)} SOL</span>
+                    <span class="text-right text-green-400">+${(ref.earnings / 1_000_000_000).toFixed(4)} SOL</span>
+                </div>
+            `).join('');
+            
+            container.innerHTML = rows + container.innerHTML.includes('noReferralsState') ? '' : container.innerHTML;
+            container.insertAdjacentHTML('beforeend', noReferralsState.outerHTML);
+        }
+        
+        // Update earnings history
+        function updateEarningsHistoryUI(history) {
+            const container = document.getElementById('earningsHistoryList');
+            const noEarningsState = document.getElementById('noEarningsState');
+            
+            if (!history || history.length === 0) {
+                noEarningsState.classList.remove('hidden');
+                return;
+            }
+            
+            noEarningsState.classList.add('hidden');
+            
+            const rows = history.map(item => `
+                <div class="grid grid-cols-6 gap-4 px-6 py-4 text-[8px] border-b border-gray-800/50 hover:bg-white/5 transition-all">
+                    <div class="flex items-center gap-2">
+                        <span>${item.referredWallet?.slice(0, 4)}...${item.referredWallet?.slice(-4) || 'N/A'}</span>
+                    </div>
+                    <span class="text-center ${item.action === 'create' ? 'text-purple-400' : item.action === 'buy' ? 'text-green-400' : 'text-red-400'}">
+                        ${item.action?.toUpperCase() || 'TRADE'}
+                    </span>
+                    <span class="text-center">${item.tokenSymbol || item.mint?.slice(0, 6) || 'N/A'}</span>
+                    <span class="text-center text-gray-400">${(item.originalFee / 1_000_000_000).toFixed(4)} SOL</span>
+                    <span class="text-center text-green-400 font-bold">+${(item.earning / 1_000_000_000).toFixed(4)} SOL</span>
+                    <span class="text-right text-gray-500">${formatDate(item.timestamp)}</span>
+                </div>
+            `).join('');
+            
+            container.innerHTML = rows;
+            container.insertAdjacentHTML('beforeend', `<div id="noEarningsState" class="hidden p-12 text-center">
+                <div class="text-4xl mb-4">💰</div>
+                <div class="text-gray-600 text-[10px] mb-2">No earnings yet</div>
+                <p class="text-[8px] text-gray-500">When your referrals create or buy tokens, you'll earn 10% of the fees!</p>
+            </div>`);
+        }
+        
+        // Reset referral UI when wallet disconnects
+        function resetReferralUI() {
+            userReferralCode = null;
+            document.getElementById('noWalletReferral').classList.remove('hidden');
+            document.getElementById('hasReferralCode').classList.add('hidden');
+            document.getElementById('referralLinkContainer').classList.add('hidden');
+            document.getElementById('editReferralBtn').disabled = true;
+            document.getElementById('shareReferralBtn').disabled = true;
+            document.getElementById('claimReferralBtn').disabled = true;
+            document.getElementById('totalPoints').textContent = '0';
+            document.getElementById('totalSolEarned').textContent = '0.000';
+            document.getElementById('totalReferrals').textContent = '0';
+            document.getElementById('pendingEarnings').textContent = '0.000 SOL';
+        }
+        
+        // Copy referral code
+        async function copyReferralCode() {
+            if (!userReferralCode) return;
+            try {
+                await navigator.clipboard.writeText(userReferralCode);
+                showToast('Referral code copied!');
+            } catch (e) {
+                console.error('Copy failed:', e);
+            }
+        }
+        
+        // Copy referral link
+        async function copyReferralLink() {
+            if (!userReferralCode || !window.fuseReferralService) return;
+            const success = await window.fuseReferralService.copyReferralLink(userReferralCode);
+            if (success) {
+                showToast('Referral link copied!');
+            }
+        }
+        
+        // Share referral
+        async function shareReferral() {
+            if (!userReferralCode || !window.fuseReferralService) return;
+            await window.fuseReferralService.shareReferralLink(userReferralCode);
+        }
+        
+        // Claim referral earnings
+        async function claimReferralEarnings() {
+            if (!connectedWallet || !window.fuseReferralService) return;
+            
+            try {
+                const result = await window.fuseReferralService.claimEarnings(connectedWallet.publicKey);
+                showToast(`Claimed ${(result.amount / 1_000_000_000).toFixed(4)} SOL!`);
+                // Reload data
+                await loadReferralData(connectedWallet.publicKey);
+            } catch (error) {
+                showToast('Failed to claim earnings', 'error');
+            }
+        }
+        
+        // Open edit referral modal
+        function openEditReferralModal() {
+            const newCode = prompt('Enter your custom referral code (4-12 alphanumeric characters):', userReferralCode);
+            if (newCode && newCode !== userReferralCode) {
+                updateReferralCode(newCode);
+            }
+        }
+        
+        // Update referral code
+        async function updateReferralCode(newCode) {
+            if (!connectedWallet || !window.fuseReferralService) return;
+            
+            try {
+                await window.fuseReferralService.updateReferralCode(connectedWallet.publicKey, newCode);
+                userReferralCode = newCode.toUpperCase();
+                document.getElementById('referralCodeDisplay').textContent = userReferralCode;
+                document.getElementById('referralLinkInput').value = window.fuseReferralService.getReferralLink(userReferralCode);
+                showToast('Referral code updated!');
+            } catch (error) {
+                showToast(error.message || 'Failed to update code', 'error');
+            }
+        }
+        
+        // Format date helper
+        function formatDate(dateStr) {
+            if (!dateStr) return 'N/A';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+        
+        // Toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-4 right-4 px-4 py-2 rounded-lg text-sm z-50 ${type === 'success' ? 'bg-green-600' : 'bg-red-600'} text-white`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        // Initialize wallet button
+        document.getElementById('connectWalletBtn').addEventListener('click', function() {
+            if (!connectedWallet) {
+                openWalletModal();
+            }
+        });
+
+        // Particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const colors = ['rgba(59, 130, 246, 0.5)', 'rgba(139, 92, 246, 0.5)', 'rgba(20, 184, 166, 0.3)'];
+            
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (Math.random() * 20 + 15) + 's';
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.width = (Math.random() * 4 + 2) + 'px';
+                particle.style.height = particle.style.width;
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // Animate numbers on load
+        function animateValue(element, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                element.textContent = Math.floor(progress * (end - start) + start).toLocaleString();
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            createParticles();
+            checkExistingConnection();
+        });
+    </script>
+</body>
+</html>

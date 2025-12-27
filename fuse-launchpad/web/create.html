@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Token - FUSE.FUN</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Press Start 2P', cursive; overflow-x: hidden; font-size: 10px; line-height: 1.8; }
+        
+        /* Animated Gradient Background */
+        .animated-bg {
+            background: linear-gradient(-45deg, #000000, #0a0a1a, #0f172a, #020617);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Gradient Text with Animation */
+        .gradient-text {
+            background: linear-gradient(135deg, #60a5fa, #3b82f6, #8b5cf6, #a855f7);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: textGradient 3s ease infinite;
+        }
+        
+        @keyframes textGradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        /* Glowing Effects */
+        .glow-blue {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4), 0 0 40px rgba(59, 130, 246, 0.2);
+        }
+        
+        .glow-pulse {
+            animation: glowPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes glowPulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); }
+            50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.6), 0 0 60px rgba(139, 92, 246, 0.3); }
+        }
+        
+        /* Glass Morphism */
+        .glass {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .glass-card {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Hover Animations */
+        .hover-lift {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-4px);
+        }
+        
+        .hover-scale {
+            transition: transform 0.3s ease;
+        }
+        
+        .hover-scale:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Floating Animation */
+        .float {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .float-delayed {
+            animation: float 6s ease-in-out 2s infinite;
+        }
+        
+        /* Particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(59, 130, 246, 0.5);
+            border-radius: 50%;
+            animation: particleFloat 20s infinite;
+        }
+        
+        @keyframes particleFloat {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+        
+        /* Button Shine Effect */
+        .btn-shine {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-shine::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% { left: -100%; }
+            50%, 100% { left: 100%; }
+        }
+        
+        /* Neon Border */
+        .neon-border {
+            position: relative;
+        }
+        
+        .neon-border::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6, #3b82f6);
+            background-size: 200% 200%;
+            border-radius: inherit;
+            z-index: -1;
+            animation: neonRotate 3s linear infinite;
+            opacity: 0.5;
+        }
+        
+        @keyframes neonRotate {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+        
+        /* Fade in animation */
+        .fade-in-up {
+            opacity: 0;
+            transform: translateY(40px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+        
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-3 { animation-delay: 0.3s; }
+        
+        /* Image Upload Hover */
+        .upload-area {
+            transition: all 0.3s ease;
+        }
+        
+        .upload-area:hover {
+            border-color: rgba(59, 130, 246, 0.5);
+            background: rgba(59, 130, 246, 0.1);
+        }
+        
+        .upload-area:hover .upload-icon {
+            transform: scale(1.1);
+            color: #60a5fa;
+        }
+        
+        .upload-icon {
+            transition: all 0.3s ease;
+        }
+        
+        /* Input Focus Effects */
+        .input-glow:focus {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2), 0 0 20px rgba(59, 130, 246, 0.1);
+        }
+        
+        /* Mayhem Mode Animation */
+        .mayhem-active {
+            animation: mayhemPulse 1s ease infinite;
+        }
+        
+        @keyframes mayhemPulse {
+            0%, 100% { box-shadow: 0 0 10px rgba(234, 179, 8, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(234, 179, 8, 0.5), 0 0 50px rgba(234, 179, 8, 0.2); }
+        }
+        
+        /* Ripple Effect */
+        .ripple {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ripple::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            background-image: radial-gradient(circle, rgba(255, 255, 255, 0.2) 10%, transparent 10.01%);
+            background-repeat: no-repeat;
+            background-position: 50%;
+            transform: scale(10, 10);
+            opacity: 0;
+            transition: transform 0.5s, opacity 1s;
+        }
+        
+        .ripple:active::after {
+            transform: scale(0, 0);
+            opacity: 0.3;
+            transition: 0s;
+        }
+        
+        /* Success Animation */
+        @keyframes successPop {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .success-pop {
+            animation: successPop 0.5s ease forwards;
+        }
+    </style>
+    <!-- Solana Web3 & FUSE.FUN Scripts -->
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <script src="js/wallet-manager.js" defer></script>
+    <script src="js/wallet-ui.js" defer></script>
+    <script src="js/fuse-program-client.js" defer></script>
+    <script src="js/trading-service.js" defer></script>
+    <script src="js/token-creation-service.js" defer></script>
+    <script src="js/api-client.js" defer></script>
+</head>
+<body class="min-h-screen animated-bg text-white">
+    <!-- Animated Particles Background -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 glass">
+        <div class="w-full flex h-20 items-center px-6 lg:px-12">
+            <div class="flex items-center justify-between w-full">
+                <!-- Logo -->
+                <a href="index.html" class="flex items-center gap-3 group flex-shrink-0">
+                    <div class="relative h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center glow-pulse hover-scale">
+                        <span class="text-white text-lg font-bold">F</span>
+                    </div>
+                    <span class="text-sm tracking-tight gradient-text hidden xl:block">FUSE.FUN</span>
+                </a>
+                
+                <!-- Centered Navigation Links -->
+                <div class="hidden lg:flex items-center justify-center flex-1 gap-6 xl:gap-10 mx-8">
+                    <a href="#" class="text-white px-3 py-2 transition-all duration-300 border-b-2 border-blue-400">
+                        Create
+                    </a>
+                    <a href="index.html" class="text-gray-400 hover:text-white px-3 py-2 transition-all duration-300 hover:text-blue-400">
+                        Trade
+                    </a>
+                    <a href="index.html#my-tokens" class="text-gray-400 hover:text-white px-3 py-2 transition-all duration-300 hover:text-blue-400">
+                        My Tokens
+                    </a>
+                    <a href="index.html" class="text-gray-400 hover:text-white px-3 py-2 transition-all duration-300 hover:text-yellow-400">
+                        King of Hill
+                    </a>
+                    <a href="index.html#how-it-works" class="text-gray-400 hover:text-white px-3 py-2 transition-all duration-300 hover:text-purple-400">
+                        How it Works
+                    </a>
+                    <a href="rewards.html" class="text-gray-400 hover:text-white px-3 py-2 transition-all duration-300 hover:text-green-400">
+                        Rewards
+                    </a>
+                </div>
+
+                <!-- Right Side: Theme, Account & Wallet -->
+                <div class="flex items-center gap-3 flex-shrink-0">
+                    <!-- Theme Toggle -->
+                    <button id="themeToggle" class="p-2.5 rounded-lg bg-gray-800/50 border border-gray-700 hover:border-blue-500/50 hover:bg-gray-700/50 transition-all" title="Toggle Theme">
+                        <svg id="themeIcon" class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"/>
+                        </svg>
+                    </button>
+
+                    <!-- Account Button -->
+                    <button id="accountBtn" class="p-2.5 rounded-lg bg-gray-800/50 border border-gray-700 hover:border-blue-500/50 hover:bg-gray-700/50 transition-all" title="Account">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                    </button>
+
+                    <!-- Wallet Connect Button -->
+                    <button id="connectWalletBtn" class="flex items-center gap-2 bg-[#512da8] hover:bg-[#5e35b1] text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors" style="font-family: 'Inter', sans-serif;">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                        </svg>
+                        <span id="walletBtnText">Select Wallet</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Create Token Form -->
+    <section class="py-12 relative overflow-hidden">
+        <!-- Decorative Elements -->
+        <div class="absolute top-20 left-10 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl float"></div>
+        <div class="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl float-delayed"></div>
+        
+        <div class="w-full max-w-6xl mx-auto px-6 lg:px-12 relative z-10">
+            <div class="mb-12 text-center fade-in-up">
+                <h1 class="text-xl md:text-2xl tracking-tight mb-3">
+                    Release a Coin with <span class="gradient-text">Purpose</span>
+                </h1>
+                <p class="text-gray-400 text-[10px] max-w-md mx-auto">
+                    Create your token on the FUSE.FUN launchpad in seconds.
+                </p>
+            </div>
+
+            <!-- Two Column Layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Left Column: Token Details -->
+                <div class="glass-card rounded-2xl overflow-hidden neon-border fade-in-up stagger-1">
+                    <div class="p-6 border-b border-gray-800/50 bg-gradient-to-r from-blue-500/10 to-purple-500/10">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center text-sm">
+                                T
+                            </div>
+                            <div>
+                                <h2 class="text-sm">Token Details</h2>
+                                <p class="text-gray-400 text-[8px]">Enter the basic information for your new Solana token.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <form class="p-6 space-y-6" id="createTokenForm">
+                        <!-- Image Upload Section -->
+                        <div class="space-y-2 fade-in-up stagger-2">
+                            <label class="text-[10px] text-gray-200">
+                                Token Image
+                            </label>
+                            <div class="flex items-center justify-center w-full">
+                                <label class="upload-area flex flex-col items-center justify-center w-full h-44 border-2 border-dashed border-gray-700 rounded-xl cursor-pointer bg-gray-800/30" id="uploadArea">
+                                    <div class="flex flex-col items-center justify-center pt-5 pb-6" id="uploadContent">
+                                        <div class="upload-icon text-4xl mb-3">📤</div>
+                                        <p class="mb-2 text-sm text-gray-400">
+                                            <span class="font-semibold text-blue-400">Click to upload</span> or drag and drop
+                                        </p>
+                                        <p class="text-xs text-gray-500">
+                                            SVG, PNG, JPG or GIF (MAX. 800x400px)
+                                        </p>
+                                    </div>
+                                    <input type="file" class="hidden" accept="image/*" id="imageInput">
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Name and Ticker -->
+                        <div class="grid grid-cols-2 gap-4 fade-in-up stagger-2">
+                            <div class="space-y-2">
+                                <label class="text-[10px] text-gray-200">
+                                    Name
+                                </label>
+                                <input 
+                                    type="text" 
+                                    name="tokenName"
+                                    id="tokenName"
+                                    placeholder="e.g. Pepe"
+                                    required
+                                    class="input-glow w-full h-12 px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-all"
+                                >
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[10px] text-gray-200">
+                                    Ticker
+                                </label>
+                                <input 
+                                    type="text" 
+                                    name="tokenSymbol"
+                                    id="tokenSymbol"
+                                    placeholder="e.g. PEPE"
+                                    required
+                                    maxlength="10"
+                                    class="input-glow w-full h-12 px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-all uppercase"
+                                >
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="space-y-2 fade-in-up stagger-2">
+                            <label class="text-[10px] text-gray-200">
+                                Description
+                            </label>
+                            <textarea 
+                                name="description"
+                                id="description"
+                                placeholder="Tell us about your token... What makes it special?"
+                                rows="4"
+                                class="input-glow w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-all resize-none"
+                            ></textarea>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Right Column: Links & Launch -->
+                <div class="space-y-6">
+                    <!-- Social Links Card -->
+                    <div class="glass-card rounded-2xl overflow-hidden neon-border fade-in-up stagger-2">
+                        <div class="p-6 border-b border-gray-800/50 bg-gradient-to-r from-purple-500/10 to-pink-500/10">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center text-sm">
+                                    @
+                                </div>
+                                <div>
+                                    <h2 class="text-sm">Links & Socials</h2>
+                                    <p class="text-gray-400 text-[8px]">Add your project links to build trust.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6 space-y-4">
+                            <!-- Website URL -->
+                            <div class="space-y-2">
+                                <label class="text-[10px] text-gray-200 flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+                                    </svg>
+                                    Website
+                                </label>
+                                <input 
+                                    type="url" 
+                                    name="website"
+                                    id="website"
+                                    placeholder="https://yourproject.com"
+                                    class="input-glow w-full h-12 px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-all"
+                                >
+                            </div>
+
+                            <!-- X (Twitter) URL -->
+                            <div class="space-y-2">
+                                <label class="text-[10px] text-gray-200 flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-sky-400" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                                    </svg>
+                                    X (Twitter)
+                                </label>
+                                <input 
+                                    type="url" 
+                                    name="twitter"
+                                    id="twitter"
+                                    placeholder="https://x.com/yourproject"
+                                    class="input-glow w-full h-12 px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-all"
+                                >
+                            </div>
+
+                            <!-- Telegram URL -->
+                            <div class="space-y-2">
+                                <label class="text-[10px] text-gray-200 flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-cyan-400" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                                    </svg>
+                                    Telegram
+                                </label>
+                                <input 
+                                    type="url" 
+                                    name="telegram"
+                                    id="telegram"
+                                    placeholder="https://t.me/yourproject"
+                                    class="input-glow w-full h-12 px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-all"
+                                >
+                            </div>
+
+                            <!-- Discord URL -->
+                            <div class="space-y-2">
+                                <label class="text-[10px] text-gray-200 flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-indigo-400" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/>
+                                    </svg>
+                                    Discord
+                                </label>
+                                <input 
+                                    type="url" 
+                                    placeholder="https://discord.gg/yourserver"
+                                    class="input-glow w-full h-12 px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-all"
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Launch Card -->
+                    <div class="glass-card rounded-2xl overflow-hidden neon-border fade-in-up stagger-3">
+                        <div class="p-6 border-b border-gray-800/50 bg-gradient-to-r from-green-500/10 to-emerald-500/10">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center text-sm">
+                                    $
+                                </div>
+                                <div>
+                                    <h2 class="text-sm">Ready to Launch</h2>
+                                    <p class="text-gray-400 text-[8px]">Review and deploy your token to Solana.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6 space-y-4">
+                            <!-- Launch Stats -->
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-gray-800/30 rounded-xl p-4 text-center">
+                                    <div class="text-[8px] text-gray-400 mb-1">Launch Fee</div>
+                                    <div class="text-lg text-green-400">FREE</div>
+                                </div>
+                                <div class="bg-gray-800/30 rounded-xl p-4 text-center">
+                                    <div class="text-[8px] text-gray-400 mb-1">Trading Fee</div>
+                                    <div class="text-lg text-blue-400">1%</div>
+                                </div>
+                            </div>
+
+                            <!-- Features List -->
+                            <div class="space-y-2 py-4 border-t border-b border-gray-700/50">
+                                <div class="flex items-center gap-2 text-[8px] text-gray-300">
+                                    <span class="text-green-400">[+]</span> Anti-rug protection built-in
+                                </div>
+                                <div class="flex items-center gap-2 text-[8px] text-gray-300">
+                                    <span class="text-green-400">[+]</span> Liquidity auto-locked
+                                </div>
+                                <div class="flex items-center gap-2 text-[8px] text-gray-300">
+                                    <span class="text-green-400">[+]</span> Fair launch mechanics
+                                </div>
+                                <div class="flex items-center gap-2 text-[8px] text-gray-300">
+                                    <span class="text-green-400">[+]</span> Instant Raydium listing on graduation
+                                </div>
+                            </div>
+
+                            <!-- Launch Button -->
+                            <button 
+                                type="submit"
+                                form="createTokenForm"
+                                class="btn-shine ripple w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm py-5 rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all glow-blue hover-lift"
+                            >
+                                Launch Token
+                            </button>
+
+                            <!-- Info -->
+                            <p class="text-center text-[8px] text-gray-500">
+                                By launching, you agree to our terms. Tokens are launched on Solana mainnet.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tips Section -->
+            <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-4 fade-in-up stagger-3">
+                <div class="glass-card rounded-xl p-4 hover-lift">
+                    <div class="text-blue-400 mb-2">[TIP]</div>
+                    <h4 class="text-[10px] mb-1">Choose a catchy name</h4>
+                    <p class="text-[8px] text-gray-400">Memorable names get more attention</p>
+                </div>
+                <div class="glass-card rounded-xl p-4 hover-lift">
+                    <div class="text-purple-400 mb-2">[TIP]</div>
+                    <h4 class="text-[10px] mb-1">Use a unique image</h4>
+                    <p class="text-[8px] text-gray-400">Stand out from the crowd</p>
+                </div>
+                <div class="glass-card rounded-xl p-4 hover-lift">
+                    <div class="text-green-400 mb-2">[TIP]</div>
+                    <h4 class="text-[10px] mb-1">Add socials</h4>
+                    <p class="text-[8px] text-gray-400">Build trust with your community</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-8 border-t border-gray-800/50 glass mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <div class="flex items-center justify-center gap-3 mb-4">
+                <div class="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center glow-blue">
+                    <span class="text-sm font-bold">F</span>
+                </div>
+                <span class="text-sm gradient-text">FUSE.FUN</span>
+            </div>
+            <p class="text-gray-500 text-[8px]">The fairest launchpad on Solana</p>
+        </div>
+    </footer>
+
+    <!-- Wallet Modal -->
+    <div id="walletModal" class="hidden fixed inset-0 z-50 flex items-center justify-center">
+        <div class="absolute inset-0 bg-black/60" onclick="closeWalletModal()"></div>
+        <div class="relative bg-[#1a1a2e] rounded-xl w-full max-w-sm mx-4 overflow-hidden shadow-2xl" style="font-family: 'Inter', sans-serif;">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between p-4 border-b border-white/10">
+                <h3 class="text-white text-base font-semibold">Connect a wallet</h3>
+                <button onclick="closeWalletModal()" class="text-gray-400 hover:text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <!-- Wallet List -->
+            <div class="p-2">
+                <button onclick="connectWallet('phantom')" class="wallet-option w-full flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors">
+                    <img src="https://raw.githubusercontent.com/solana-labs/wallet-adapter/master/packages/wallets/icons/phantom.svg" alt="Phantom" class="w-8 h-8 rounded-lg">
+                    <span class="text-white text-sm font-medium">Phantom</span>
+                    <span class="ml-auto text-xs text-gray-500">Detected</span>
+                </button>
+                <button onclick="connectWallet('solflare')" class="wallet-option w-full flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors">
+                    <img src="https://raw.githubusercontent.com/solana-labs/wallet-adapter/master/packages/wallets/icons/solflare.svg" alt="Solflare" class="w-8 h-8 rounded-lg">
+                    <span class="text-white text-sm font-medium">Solflare</span>
+                </button>
+                <button onclick="connectWallet('backpack')" class="wallet-option w-full flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors">
+                    <img src="https://raw.githubusercontent.com/solana-labs/wallet-adapter/master/packages/wallets/icons/backpack.svg" alt="Backpack" class="w-8 h-8 rounded-lg">
+                    <span class="text-white text-sm font-medium">Backpack</span>
+                </button>
+                <button onclick="connectWallet('coinbase')" class="wallet-option w-full flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors">
+                    <img src="https://raw.githubusercontent.com/solana-labs/wallet-adapter/master/packages/wallets/icons/coinbase.svg" alt="Coinbase Wallet" class="w-8 h-8 rounded-lg">
+                    <span class="text-white text-sm font-medium">Coinbase Wallet</span>
+                </button>
+                <button onclick="connectWallet('trust')" class="wallet-option w-full flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors">
+                    <img src="https://raw.githubusercontent.com/solana-labs/wallet-adapter/master/packages/wallets/icons/trust.svg" alt="Trust Wallet" class="w-8 h-8 rounded-lg">
+                    <span class="text-white text-sm font-medium">Trust Wallet</span>
+                </button>
+                <button onclick="connectWallet('ledger')" class="wallet-option w-full flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors">
+                    <img src="https://raw.githubusercontent.com/solana-labs/wallet-adapter/master/packages/wallets/icons/ledger.svg" alt="Ledger" class="w-8 h-8 rounded-lg">
+                    <span class="text-white text-sm font-medium">Ledger</span>
+                </button>
+            </div>
+            <!-- Modal Footer -->
+            <div class="p-4 border-t border-white/10 text-center">
+                <a href="https://solana.com/ecosystem/explore?categories=wallet" target="_blank" class="text-[#512da8] hover:text-[#5e35b1] text-sm transition-colors">
+                    More wallets
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Wallet connection state
+        let connectedWallet = null;
+        
+        // Open wallet modal
+        function openWalletModal() {
+            document.getElementById('walletModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // Close wallet modal
+        function closeWalletModal() {
+            document.getElementById('walletModal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+        
+        // Connect wallet
+        async function connectWallet(walletType) {
+            let provider = null;
+            
+            try {
+                switch(walletType) {
+                    case 'phantom':
+                        if (window.solana && window.solana.isPhantom) {
+                            provider = window.solana;
+                        } else {
+                            window.open('https://phantom.app/', '_blank');
+                            return;
+                        }
+                        break;
+                    case 'solflare':
+                        if (window.solflare && window.solflare.isSolflare) {
+                            provider = window.solflare;
+                        } else {
+                            window.open('https://solflare.com/', '_blank');
+                            return;
+                        }
+                        break;
+                    case 'backpack':
+                        if (window.backpack) {
+                            provider = window.backpack;
+                        } else {
+                            window.open('https://backpack.app/', '_blank');
+                            return;
+                        }
+                        break;
+                    default:
+                        alert('Please install ' + walletType + ' wallet');
+                        return;
+                }
+                
+                const resp = await provider.connect();
+                const publicKey = resp.publicKey.toString();
+                connectedWallet = { type: walletType, publicKey, provider };
+                localStorage.setItem('connectedWallet', JSON.stringify({ type: walletType, publicKey }));
+                onWalletConnected(publicKey);
+                closeWalletModal();
+            } catch (err) {
+                console.error('Connection error:', err);
+            }
+        }
+        
+        // Handle wallet connected
+        function onWalletConnected(publicKey) {
+            const btn = document.getElementById('connectWalletBtn');
+            const btnText = document.getElementById('walletBtnText');
+            const shortAddress = publicKey.slice(0, 4) + '...' + publicKey.slice(-4);
+            btnText.textContent = shortAddress;
+            btn.classList.remove('bg-[#512da8]', 'hover:bg-[#5e35b1]');
+            btn.classList.add('bg-[#1a1a2e]', 'border', 'border-white/20');
+            btn.onclick = disconnectWallet;
+        }
+        
+        // Disconnect wallet
+        function disconnectWallet() {
+            if (connectedWallet && connectedWallet.provider) {
+                connectedWallet.provider.disconnect();
+            }
+            connectedWallet = null;
+            localStorage.removeItem('connectedWallet');
+            
+            const btn = document.getElementById('connectWalletBtn');
+            const btnText = document.getElementById('walletBtnText');
+            btnText.textContent = 'Select Wallet';
+            btn.classList.add('bg-[#512da8]', 'hover:bg-[#5e35b1]');
+            btn.classList.remove('bg-[#1a1a2e]', 'border', 'border-white/20');
+            btn.onclick = openWalletModal;
+        }
+        
+        // Check for existing connection
+        function checkExistingConnection() {
+            const saved = localStorage.getItem('connectedWallet');
+            if (saved) {
+                const { type, publicKey } = JSON.parse(saved);
+                onWalletConnected(publicKey);
+            }
+        }
+        
+        // Initialize wallet button
+        document.getElementById('connectWalletBtn').addEventListener('click', function() {
+            if (!connectedWallet) {
+                openWalletModal();
+            }
+        });
+        
+        // Create floating particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const colors = ['rgba(59, 130, 246, 0.5)', 'rgba(139, 92, 246, 0.5)', 'rgba(236, 72, 153, 0.3)'];
+            
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (Math.random() * 20 + 15) + 's';
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.width = (Math.random() * 4 + 2) + 'px';
+                particle.style.height = particle.style.width;
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // Image upload preview
+        const imageInput = document.getElementById('imageInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const uploadContent = document.getElementById('uploadContent');
+        
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadContent.innerHTML = `
+                        <img src="${e.target.result}" alt="Token Preview" class="h-full w-full object-contain rounded-lg p-2 success-pop">
+                    `;
+                    uploadArea.classList.add('border-blue-500', 'bg-blue-500/10');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // Mayhem mode toggle
+        const mayhemCheckbox = document.getElementById('mayhemCheckbox');
+        const mayhemToggle = document.getElementById('mayhemToggle');
+        const mayhemFeatures = document.getElementById('mayhemFeatures');
+        
+        mayhemCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                mayhemToggle.classList.add('mayhem-active', 'border-yellow-500/50');
+                mayhemFeatures.classList.remove('hidden');
+                mayhemFeatures.classList.add('success-pop');
+            } else {
+                mayhemToggle.classList.remove('mayhem-active', 'border-yellow-500/50');
+                mayhemFeatures.classList.add('hidden');
+            }
+        });
+        
+        // Form submission - Real token creation
+        document.getElementById('createTokenForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Check wallet connection
+            if (!window.fuseWallet?.isConnected()) {
+                if (window.fuseWalletUI) {
+                    window.fuseWalletUI.open();
+                } else {
+                    alert('Please connect your wallet first');
+                }
+                return;
+            }
+            
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            
+            try {
+                // Gather form data
+                const formData = new FormData(e.target);
+                const tokenData = {
+                    name: formData.get('tokenName') || document.getElementById('tokenName')?.value || '',
+                    symbol: formData.get('tokenSymbol') || document.getElementById('tokenSymbol')?.value || '',
+                    description: formData.get('description') || document.getElementById('description')?.value || '',
+                    twitter: formData.get('twitter') || document.getElementById('twitter')?.value || '',
+                    telegram: formData.get('telegram') || document.getElementById('telegram')?.value || '',
+                    website: formData.get('website') || document.getElementById('website')?.value || '',
+                    initialBuyAmount: parseFloat(formData.get('initialBuy') || document.getElementById('initialBuy')?.value) || 0
+                };
+                
+                // Get image file if uploaded
+                const imageInput = document.getElementById('imageInput');
+                if (imageInput?.files?.[0]) {
+                    tokenData.imageFile = imageInput.files[0];
+                }
+                
+                // Validate
+                if (!tokenData.name || !tokenData.symbol) {
+                    throw new Error('Please fill in token name and symbol');
+                }
+                
+                // Update button state
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `
+                    <span class="flex items-center gap-2 justify-center">
+                        <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Creating Token...
+                    </span>
+                `;
+                
+                // Create token
+                const result = await window.fuseTokenService.createToken(tokenData);
+                
+                // Show success
+                if (window.fuseWalletUI) {
+                    window.fuseWalletUI.showToast(`Token ${result.symbol} created successfully!`, 'success');
+                }
+                
+                // Redirect to token page
+                setTimeout(() => {
+                    window.location.href = `token.html?mint=${result.mint}`;
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Token creation failed:', error);
+                
+                if (window.fuseWalletUI) {
+                    window.fuseWalletUI.showToast('Failed to create token: ' + error.message, 'error');
+                } else {
+                    alert('Failed to create token: ' + error.message);
+                }
+                
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+        });
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            createParticles();
+            checkExistingConnection();
+            
+            // Listen for wallet state changes
+            if (window.fuseWallet) {
+                window.fuseWallet.onStateChange((state) => {
+                    // Update UI based on connection
+                    const submitBtn = document.querySelector('button[type="submit"]');
+                    if (submitBtn && !submitBtn.disabled) {
+                        if (state.connected) {
+                            submitBtn.innerHTML = `
+                                <span class="flex items-center gap-2">
+                                    <span class="text-xl">🚀</span>
+                                    Create Token
+                                </span>
+                            `;
+                        } else {
+                            submitBtn.innerHTML = `
+                                <span class="flex items-center gap-2">
+                                    <span class="text-xl">🔗</span>
+                                    Connect Wallet to Create
+                                </span>
+                            `;
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

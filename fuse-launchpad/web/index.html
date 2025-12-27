@@ -1,0 +1,2193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FUSE.FUN - The Fairest Launchpad on Solana</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Solana Web3.js for wallet generation -->
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Press Start 2P', cursive; overflow-x: hidden; font-size: 12px; line-height: 1.8; transition: background 0.3s ease; }
+        
+        /* Animated Gradient Background */
+        .animated-bg {
+            background: linear-gradient(-45deg, #000000, #0a0a1a, #0f172a, #020617);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+        
+        /* Light Theme */
+        body.light-theme {
+            background: linear-gradient(-45deg, #f8fafc, #e2e8f0, #f1f5f9, #e2e8f0) !important;
+            color: #1e293b;
+        }
+        
+        body.light-theme .glass {
+            background: rgba(255, 255, 255, 0.8);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+        
+        body.light-theme .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+        
+        body.light-theme .text-white { color: #1e293b; }
+        body.light-theme .text-gray-400 { color: #64748b; }
+        body.light-theme .text-gray-500 { color: #94a3b8; }
+        body.light-theme .border-gray-700 { border-color: #e2e8f0; }
+        body.light-theme .border-gray-800 { border-color: #e2e8f0; }
+        body.light-theme .bg-gray-800\/50 { background: rgba(241, 245, 249, 0.8); }
+        body.light-theme .bg-gray-900\/50 { background: rgba(241, 245, 249, 0.8); }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Gradient Text with Animation */
+        .gradient-text {
+            background: linear-gradient(135deg, #60a5fa, #3b82f6, #8b5cf6, #a855f7);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: textGradient 3s ease infinite;
+        }
+        
+        @keyframes textGradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        /* Glowing Effects */
+        .glow-blue {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4), 0 0 40px rgba(59, 130, 246, 0.2);
+        }
+        
+        .glow-purple {
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.4), 0 0 40px rgba(139, 92, 246, 0.2);
+        }
+        
+        .glow-pulse {
+            animation: glowPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes glowPulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); }
+            50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.6), 0 0 60px rgba(139, 92, 246, 0.3); }
+        }
+        
+        /* Glass Morphism */
+        .glass {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .glass-card {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .glass-card:hover {
+            border-color: rgba(59, 130, 246, 0.3);
+            background: rgba(15, 23, 42, 0.9);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+        
+        /* Hover Animations */
+        .hover-lift {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-8px);
+        }
+        
+        .hover-scale {
+            transition: transform 0.3s ease;
+        }
+        
+        .hover-scale:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Floating Animation */
+        .float {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .float-delayed {
+            animation: float 6s ease-in-out 2s infinite;
+        }
+        
+        /* Particle Background */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(59, 130, 246, 0.5);
+            border-radius: 50%;
+            animation: particleFloat 20s infinite;
+        }
+        
+        @keyframes particleFloat {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+        
+        /* Ticker Animation */
+        .ticker-wrap {
+            overflow: hidden;
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+        }
+        
+        .ticker {
+            display: flex;
+            animation: ticker 30s linear infinite;
+        }
+        
+        @keyframes ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        
+        /* Button Shine Effect */
+        .btn-shine {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-shine::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% { left: -100%; }
+            50%, 100% { left: 100%; }
+        }
+        
+        /* Card Image Hover */
+        .card-image {
+            transition: transform 0.5s ease;
+        }
+        
+        .token-card:hover .card-image {
+            transform: scale(1.1);
+        }
+        
+        /* Progress Bar Animation */
+        .progress-bar {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: progressShine 2s infinite;
+        }
+        
+        @keyframes progressShine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        /* Stats Counter Animation */
+        .stat-number {
+            display: inline-block;
+            animation: countUp 0.5s ease-out forwards;
+        }
+        
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Neon Border */
+        .neon-border {
+            position: relative;
+        }
+        
+        .neon-border::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6, #3b82f6);
+            background-size: 200% 200%;
+            border-radius: inherit;
+            z-index: -1;
+            animation: neonRotate 3s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .neon-border:hover::before {
+            opacity: 1;
+        }
+        
+        @keyframes neonRotate {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+        
+        /* Scroll animations */
+        .fade-in-up {
+            opacity: 0;
+            transform: translateY(40px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+        
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-3 { animation-delay: 0.3s; }
+        .stagger-4 { animation-delay: 0.4s; }
+        
+        /* Crown Animation */
+        .crown-bounce {
+            animation: crownBounce 1s ease infinite;
+        }
+        
+        @keyframes crownBounce {
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            50% { transform: translateY(-5px) rotate(5deg); }
+        }
+        
+        /* Ripple Effect */
+        .ripple {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ripple::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            background-image: radial-gradient(circle, rgba(255, 255, 255, 0.2) 10%, transparent 10.01%);
+            background-repeat: no-repeat;
+            background-position: 50%;
+            transform: scale(10, 10);
+            opacity: 0;
+            transition: transform 0.5s, opacity 1s;
+        }
+        
+        .ripple:active::after {
+            transform: scale(0, 0);
+            opacity: 0.3;
+            transition: 0s;
+        }
+    </style>
+    <!-- FUSE.FUN Wallet & Trading Scripts -->
+    <script src="js/wallet-manager.js" defer></script>
+    <script src="js/wallet-ui.js" defer></script>
+    <script src="js/api-client.js" defer></script>
+</head>
+<body class="min-h-screen animated-bg text-white">
+    <!-- Animated Particles Background -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Live Ticker -->
+    <div class="ticker-wrap py-2 border-b border-blue-500/20">
+        <div class="ticker" id="liveTicker">
+            <div class="flex gap-8 px-4 whitespace-nowrap" id="tickerContent1">
+                <span class="text-yellow-400">👑 <span id="tickerKing">$BONK</span> is King of the Hill! <span id="tickerKingVolume">$4.2M</span> 24h volume</span>
+                <span class="text-green-400">🚀 New token launching every minute</span>
+                <span class="text-blue-400">💎 <span id="tickerGraduating">3 tokens</span> graduating today</span>
+                <span class="text-purple-400">⚡ Live on Solana Mainnet</span>
+                <span class="text-pink-400">🔥 <span id="tickerVolume">$2.5M</span> total volume today</span>
+                <span class="text-green-400">✨ Fair launch - No presale, No team tokens</span>
+                <span class="text-cyan-400">🛡️ Anti-rug protection enabled</span>
+            </div>
+            <div class="flex gap-8 px-4 whitespace-nowrap" id="tickerContent2">
+                <span class="text-yellow-400">👑 <span id="tickerKing2">$BONK</span> is King of the Hill! <span id="tickerKingVolume2">$4.2M</span> 24h volume</span>
+                <span class="text-green-400">🚀 New token launching every minute</span>
+                <span class="text-blue-400">💎 <span id="tickerGraduating2">3 tokens</span> graduating today</span>
+                <span class="text-purple-400">⚡ Live on Solana Mainnet</span>
+                <span class="text-pink-400">🔥 <span id="tickerVolume2">$2.5M</span> total volume today</span>
+                <span class="text-green-400">✨ Fair launch - No presale, No team tokens</span>
+                <span class="text-cyan-400">🛡️ Anti-rug protection enabled</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 glass">
+        <div class="w-full flex h-20 items-center px-6 lg:px-12">
+            <!-- Full Width Navigation Layout -->
+            <div class="flex items-center justify-between w-full">
+                <!-- Logo -->
+                <a href="#" class="flex items-center gap-3 group flex-shrink-0">
+                    <div class="relative h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center glow-pulse hover-scale">
+                        <span class="text-white text-lg font-bold">F</span>
+                        <div class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-400 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    </div>
+                    <span class="text-lg tracking-tight gradient-text hidden xl:block">FUSE.FUN</span>
+                </a>
+                
+                <!-- Centered Navigation Links -->
+                <div class="hidden lg:flex items-center justify-center flex-1 gap-6 xl:gap-10 mx-8">
+                    <a href="create.html" class="text-gray-400 hover:text-white px-3 py-2 transition-all duration-300 hover:text-blue-400">
+                        Create
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white px-3 py-2 transition-all duration-300 hover:text-blue-400">
+                        Trade
+                    </a>
+                    <a href="#my-tokens" class="text-gray-400 hover:text-white px-3 py-2 transition-all duration-300 hover:text-blue-400">
+                        My Tokens
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white px-3 py-2 transition-all duration-300 hover:text-yellow-400">
+                        King of Hill
+                    </a>
+                    <a href="#how-it-works" class="text-gray-400 hover:text-white px-3 py-2 transition-all duration-300 hover:text-purple-400">
+                        How it Works
+                    </a>
+                    <a href="rewards.html" class="text-gray-400 hover:text-white px-3 py-2 transition-all duration-300 hover:text-green-400">
+                        Rewards
+                    </a>
+                </div>
+
+                <!-- Right Side: Theme, Account & Wallet -->
+                <div class="flex items-center gap-3 flex-shrink-0">
+                    <!-- Theme Toggle -->
+                    <button id="themeToggle" class="p-2.5 rounded-lg bg-gray-800/50 border border-gray-700 hover:border-blue-500/50 hover:bg-gray-700/50 transition-all" title="Toggle Theme">
+                        <svg id="themeIcon" class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"/>
+                        </svg>
+                    </button>
+
+                    <!-- Account Dropdown -->
+                    <div class="relative" id="accountDropdownContainer">
+                        <button id="accountBtn" class="p-2.5 rounded-lg bg-gray-800/50 border border-gray-700 hover:border-blue-500/50 hover:bg-gray-700/50 transition-all" title="Account">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                        </button>
+                        
+                        <!-- Dropdown Menu -->
+                        <div id="accountDropdown" class="hidden absolute right-0 top-full mt-2 w-64 glass-card rounded-xl overflow-hidden shadow-2xl border border-gray-700/50 z-50">
+                            <div class="p-4 border-b border-gray-700/50">
+                                <div class="text-[10px] text-gray-400 mb-1">Account</div>
+                                <div id="accountAddress" class="text-[10px] text-white truncate">Not connected</div>
+                            </div>
+                            
+                            <div class="p-2">
+                                <button id="viewAccountBtn" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5 transition-all text-left">
+                                    <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                    </svg>
+                                    <span class="text-[10px] text-gray-300">View Profile</span>
+                                </button>
+                                
+                                <button id="connectTwitterBtn" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5 transition-all text-left">
+                                    <svg class="w-4 h-4 text-sky-400" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                                    </svg>
+                                    <span class="text-[10px] text-gray-300">Connect X (Twitter)</span>
+                                    <span class="ml-auto text-[8px] text-gray-500">+500 pts</span>
+                                </button>
+                                
+                                <button id="manageWalletsBtn" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5 transition-all text-left">
+                                    <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                                    </svg>
+                                    <span class="text-[10px] text-gray-300">Manage Wallets</span>
+                                </button>
+                                
+                                <div class="border-t border-gray-700/50 my-2"></div>
+                                
+                                <button id="disconnectBtn" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-red-500/10 transition-all text-left hidden">
+                                    <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                                    </svg>
+                                    <span class="text-[10px] text-red-400">Disconnect</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Wallet Connect Button -->
+                    <button id="connectWalletBtn" onclick="if(window.fuseWalletUI) fuseWalletUI.open()" class="connect-wallet-btn bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500 text-white px-4 py-2.5 rounded-lg text-xs transition-all flex items-center gap-2 font-semibold">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                        </svg>
+                        <span id="walletBtnText">Connect Wallet</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Standard Wallet Modal (Solana Wallet Adapter Style) -->
+    <div id="walletModal" class="fixed inset-0 z-[100] hidden">
+        <div class="absolute inset-0 bg-black/80" id="walletModalOverlay"></div>
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="relative bg-[#1a1a2e] rounded-lg w-full max-w-[380px] shadow-xl" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;">
+                <!-- Header -->
+                <div class="flex items-center justify-between p-4 border-b border-white/10">
+                    <h2 class="text-base font-medium text-white">Connect a wallet</h2>
+                    <button id="closeWalletModal" class="text-gray-400 hover:text-white transition-colors p-1">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Wallet List -->
+                <div class="p-2 max-h-[400px] overflow-y-auto">
+                    <!-- Phantom -->
+                    <button id="connectPhantom" class="wallet-btn w-full flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors">
+                        <img src="https://raw.githubusercontent.com/solana-labs/wallet-adapter/master/packages/wallets/icons/phantom.svg" alt="Phantom" class="w-7 h-7 rounded-md">
+                        <span class="flex-1 text-left text-sm text-white font-medium">Phantom</span>
+                        <span id="phantomStatus" class="text-xs text-[#14F195] hidden">Detected</span>
+                    </button>
+                    
+                    <!-- Solflare -->
+                    <button id="connectSolflare" class="wallet-btn w-full flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors">
+                        <img src="https://raw.githubusercontent.com/solana-labs/wallet-adapter/master/packages/wallets/icons/solflare.svg" alt="Solflare" class="w-7 h-7 rounded-md">
+                        <span class="flex-1 text-left text-sm text-white font-medium">Solflare</span>
+                        <span id="solflareStatus" class="text-xs text-[#14F195] hidden">Detected</span>
+                    </button>
+                    
+                    <!-- Backpack -->
+                    <button id="connectBackpack" class="wallet-btn w-full flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors">
+                        <img src="https://backpack.app/logo.png" alt="Backpack" class="w-7 h-7 rounded-md" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%2306b6d4%22><rect width=%2224%22 height=%2224%22 rx=%224%22/></svg>'">
+                        <span class="flex-1 text-left text-sm text-white font-medium">Backpack</span>
+                        <span id="backpackStatus" class="text-xs text-[#14F195] hidden">Detected</span>
+                    </button>
+                    
+                    <!-- Coinbase Wallet -->
+                    <button id="connectCoinbase" class="wallet-btn w-full flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors">
+                        <img src="https://raw.githubusercontent.com/solana-labs/wallet-adapter/master/packages/wallets/icons/coinbase.svg" alt="Coinbase" class="w-7 h-7 rounded-md">
+                        <span class="flex-1 text-left text-sm text-white font-medium">Coinbase Wallet</span>
+                        <span id="coinbaseStatus" class="text-xs text-[#14F195] hidden">Detected</span>
+                    </button>
+                    
+                    <!-- Trust Wallet -->
+                    <button id="connectTrust" class="wallet-btn w-full flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors">
+                        <img src="https://trustwallet.com/assets/images/favicon.png" alt="Trust" class="w-7 h-7 rounded-md" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%233375BB%22><rect width=%2224%22 height=%2224%22 rx=%224%22/></svg>'">
+                        <span class="flex-1 text-left text-sm text-white font-medium">Trust Wallet</span>
+                        <span id="trustStatus" class="text-xs text-[#14F195] hidden">Detected</span>
+                    </button>
+                    
+                    <!-- Ledger -->
+                    <button id="connectLedger" class="wallet-btn w-full flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors">
+                        <img src="https://raw.githubusercontent.com/solana-labs/wallet-adapter/master/packages/wallets/icons/ledger.svg" alt="Ledger" class="w-7 h-7 rounded-md">
+                        <span class="flex-1 text-left text-sm text-white font-medium">Ledger</span>
+                    </button>
+                    
+                    <!-- Torus -->
+                    <button id="connectTorus" class="wallet-btn w-full flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors">
+                        <img src="https://raw.githubusercontent.com/solana-labs/wallet-adapter/master/packages/wallets/icons/torus.svg" alt="Torus" class="w-7 h-7 rounded-md">
+                        <span class="flex-1 text-left text-sm text-white font-medium">Torus</span>
+                    </button>
+                </div>
+                
+                <!-- Divider -->
+                <div class="px-4 py-2">
+                    <div class="border-t border-white/10"></div>
+                    <p class="text-center text-[10px] text-gray-500 my-2">or</p>
+                </div>
+                
+                <!-- Create New Wallet -->
+                <div class="px-4 pb-4">
+                    <button id="createNewWalletBtn" class="w-full flex items-center justify-center gap-2 p-3 rounded-lg bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 hover:border-green-400/50 transition-all">
+                        <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        <span class="text-sm text-green-400 font-medium">Create New Wallet</span>
+                    </button>
+                </div>
+                
+                <!-- Footer -->
+                <div class="p-4 border-t border-white/10 text-center">
+                    <a href="https://solana.com/ecosystem/explore?categories=wallet" target="_blank" class="text-xs text-gray-400 hover:text-white transition-colors">
+                        More wallets →
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Wallet Modal -->
+    <div id="createWalletModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center">
+        <div id="createWalletOverlay" class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+        <div class="relative bg-[#1a1a2e] rounded-2xl w-full max-w-lg mx-4 overflow-hidden shadow-2xl border border-white/10" style="font-family: 'Inter', -apple-system, sans-serif;">
+            <!-- Header -->
+            <div class="flex items-center justify-between p-5 border-b border-white/10 bg-gradient-to-r from-green-500/10 to-emerald-500/10">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-white text-lg font-semibold">Create New Wallet</h3>
+                        <p class="text-gray-400 text-xs">Generate a new Solana wallet</p>
+                    </div>
+                </div>
+                <button id="closeCreateWallet" class="text-gray-400 hover:text-white transition-colors p-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Content -->
+            <div class="p-5">
+                <!-- Step 1: Generate -->
+                <div id="walletStep1">
+                    <div class="text-center py-8">
+                        <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center">
+                            <span class="text-4xl">🔐</span>
+                        </div>
+                        <h4 class="text-white text-base mb-2">Generate Your Wallet</h4>
+                        <p class="text-gray-400 text-xs mb-6 max-w-sm mx-auto">Click the button below to generate a new Solana wallet. Make sure to save your private key - it cannot be recovered!</p>
+                        <button id="generateWalletBtn" class="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-3 rounded-xl text-sm font-semibold hover:from-green-600 hover:to-emerald-600 transition-all">
+                            Generate Wallet
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Step 2: Show Keys -->
+                <div id="walletStep2" class="hidden">
+                    <!-- Warning -->
+                    <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 mb-5">
+                        <div class="flex items-start gap-3">
+                            <span class="text-yellow-400 text-xl">⚠️</span>
+                            <div>
+                                <h5 class="text-yellow-400 text-sm font-semibold mb-1">Important Security Warning</h5>
+                                <p class="text-yellow-200/80 text-xs">Never share your private key with anyone. Anyone with access to your private key can steal your funds. Save it in a secure location.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Public Key -->
+                    <div class="mb-4">
+                        <label class="text-gray-400 text-xs mb-2 block">Public Key (Wallet Address)</label>
+                        <div class="flex items-center gap-2">
+                            <input id="newPublicKey" type="text" readonly class="flex-1 bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-3 text-white text-xs font-mono">
+                            <button onclick="copyToClipboard('newPublicKey')" class="p-3 bg-gray-800/50 border border-gray-700 rounded-lg hover:bg-gray-700 transition-colors" title="Copy">
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Private Key (Hidden by default) -->
+                    <div class="mb-5">
+                        <label class="text-gray-400 text-xs mb-2 block">Private Key (Secret Key)</label>
+                        <div id="privateKeyContainer" class="relative">
+                            <div id="privateKeyHidden" class="bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-3 flex items-center justify-between">
+                                <span class="text-gray-500 text-xs">●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●</span>
+                                <button id="revealPrivateKeyBtn" class="text-red-400 text-xs hover:text-red-300 transition-colors font-semibold">Reveal</button>
+                            </div>
+                            <div id="privateKeyRevealed" class="hidden">
+                                <div class="flex items-center gap-2">
+                                    <input id="newPrivateKey" type="text" readonly class="flex-1 bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3 text-red-300 text-xs font-mono">
+                                    <button onclick="copyToClipboard('newPrivateKey')" class="p-3 bg-red-500/10 border border-red-500/30 rounded-lg hover:bg-red-500/20 transition-colors" title="Copy">
+                                        <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Keypair JSON Export (Hidden by default) -->
+                    <div class="mb-5">
+                        <label class="text-gray-400 text-xs mb-2 block">Keypair JSON File (Import/Backup)</label>
+                        <div id="keypairJsonContainer" class="relative">
+                            <div id="keypairJsonHidden" class="bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-3 flex items-center justify-between">
+                                <span class="text-gray-500 text-xs">Hidden (contains your full keypair)</span>
+                                <button id="revealKeypairJsonBtn" class="text-red-400 text-xs hover:text-red-300 transition-colors font-semibold">Reveal</button>
+                            </div>
+                            <div id="keypairJsonRevealed" class="hidden">
+                                <textarea id="newKeypairJson" rows="4" readonly class="w-full bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3 text-red-300 text-[10px] font-mono resize-none"></textarea>
+                                <div class="flex items-center gap-2 mt-2">
+                                    <button onclick="copyToClipboard('newKeypairJson')" class="flex-1 px-4 py-2 bg-red-500/10 border border-red-500/30 rounded-lg hover:bg-red-500/20 transition-colors text-[10px] text-red-200">Copy JSON</button>
+                                    <button onclick="downloadKeypairJson()" class="flex-1 px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg hover:bg-gray-700 transition-colors text-[10px] text-gray-200">Download</button>
+                                </div>
+                                <p class="text-gray-500 text-[10px] mt-2">Use your wallet's import feature. Some wallets accept the Base58 private key, others accept a JSON keypair file.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Confirmation Checkbox -->
+                    <div class="bg-gray-800/30 rounded-xl p-4 mb-5">
+                        <label class="flex items-start gap-3 cursor-pointer">
+                            <input type="checkbox" id="savedKeyConfirm" class="mt-1 w-4 h-4 rounded border-gray-600 bg-gray-800 text-green-500 focus:ring-green-500">
+                            <span class="text-gray-300 text-xs">I have saved my private key in a secure location and understand that I cannot recover it if lost.</span>
+                        </label>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="flex gap-3">
+                        <button id="useNewWalletBtn" disabled class="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-3 rounded-xl text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:from-green-600 hover:to-emerald-600 transition-all">
+                            Use This Wallet
+                        </button>
+                        <button id="generateAnotherBtn" class="px-6 py-3 border border-gray-700 rounded-xl text-gray-300 text-sm hover:bg-gray-800 transition-colors">
+                            Generate Another
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="py-24 text-center relative overflow-hidden">
+        <!-- Decorative Elements -->
+        <div class="absolute top-20 left-10 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl float"></div>
+        <div class="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl float-delayed"></div>
+        
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="fade-in-up">
+                <div class="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/30 rounded-full px-4 py-2 mb-8">
+                    <span class="animate-pulse w-2 h-2 bg-green-400 rounded-full"></span>
+                    <span class="text-sm text-blue-300">Live on Solana Mainnet</span>
+                </div>
+            </div>
+            
+            <h1 class="text-2xl md:text-4xl mb-6 fade-in-up stagger-1 leading-relaxed">
+                The <span class="gradient-text">Fairest</span> Launchpad<br>
+                <span class="text-xl md:text-3xl">on Solana</span>
+            </h1>
+            
+            <p class="text-sm text-gray-400 mb-12 max-w-2xl mx-auto fade-in-up stagger-2">
+                The Fairest launchpad on Solana. <span class="text-blue-400">Built for Traders.</span>
+            </p>
+            
+            <div class="flex gap-4 justify-center mb-20 fade-in-up stagger-3">
+                <a href="create.html" class="btn-shine bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-4 rounded-xl text-xs hover:from-blue-600 hover:to-purple-700 transition-all glow-blue hover-lift">
+                    Launch Token
+                </a>
+                <button class="border-2 border-gray-700 text-gray-300 px-8 py-4 rounded-xl text-xs hover:border-blue-500/50 hover:text-white hover:bg-blue-500/10 transition-all duration-300">
+                    Watch Demo
+                </button>
+            </div>
+
+            <!-- Animated Stats Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto fade-in-up stagger-4">
+                <div class="glass-card rounded-2xl p-6 hover-lift">
+                    <div class="text-2xl text-blue-400 mb-2 stat-number" data-target="1234">0</div>
+                    <div class="text-gray-400 text-[10px]">Tokens Launched</div>
+                    <div class="mt-2 text-xs text-green-400 flex items-center justify-center gap-1">
+                        <span>↑</span> 12% this week
+                    </div>
+                </div>
+                <div class="glass-card rounded-2xl p-6 hover-lift">
+                    <div class="text-2xl text-green-400 mb-2">$2.5M</div>
+                    <div class="text-gray-400 text-[10px]">Total Volume</div>
+                    <div class="mt-2 text-xs text-green-400 flex items-center justify-center gap-1">
+                        <span>↑</span> 24% this week
+                    </div>
+                </div>
+                <div class="glass-card rounded-2xl p-6 hover-lift">
+                    <div class="text-2xl text-purple-400 mb-2">45K</div>
+                    <div class="text-gray-400 text-[10px]">Community Members</div>
+                    <div class="mt-2 text-xs text-green-400 flex items-center justify-center gap-1">
+                        <span>↑</span> 892 today
+                    </div>
+                </div>
+                <div class="glass-card rounded-2xl p-6 hover-lift">
+                    <div class="text-2xl text-yellow-400 mb-2">99.2%</div>
+                    <div class="text-gray-400 text-[10px]">Success Rate</div>
+                    <div class="mt-2 text-xs text-blue-400 flex items-center justify-center gap-1">
+                        ⭐ Industry Leading
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-20 relative">
+        <div class="container mx-auto px-4">
+            <h2 class="text-xl text-center mb-4">Why <span class="gradient-text">FUSE.FUN</span>?</h2>
+            <p class="text-gray-400 text-center mb-16 max-w-2xl mx-auto">Built different. Fair launches, real protection, maximum gains.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="glass-card rounded-2xl p-8 hover-lift neon-border">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-600/20 flex items-center justify-center mb-6 text-3xl">
+                        ⚡
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Instant Launch</h3>
+                    <p class="text-gray-400">Launch your token in seconds with our streamlined process. No coding required, just pure memecoin magic.</p>
+                </div>
+                
+                <div class="glass-card rounded-2xl p-8 hover-lift neon-border">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-green-500/20 to-green-600/20 flex items-center justify-center mb-6 text-3xl">
+                        🛡️
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Anti-Rug Protection</h3>
+                    <p class="text-gray-400">Built-in mechanisms prevent rug pulls. Liquidity is locked, dev tokens are vested. SAFU guaranteed.</p>
+                </div>
+                
+                <div class="glass-card rounded-2xl p-8 hover-lift neon-border">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 flex items-center justify-center mb-6 text-3xl crown-bounce">
+                        👑
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">King of the Hill</h3>
+                    <p class="text-gray-400">The hottest token gets the crown and prime visibility. Battle for the throne!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- King of the Hill Section -->
+    <section class="py-20 relative overflow-hidden" id="king-section">
+        <!-- Golden glow background -->
+        <div class="absolute inset-0 bg-gradient-to-b from-yellow-500/5 via-transparent to-transparent"></div>
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-yellow-500/10 rounded-full blur-3xl"></div>
+        
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="text-center mb-12">
+                <div class="inline-flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/30 rounded-full px-4 py-2 mb-6">
+                    <span class="crown-bounce text-xl">👑</span>
+                    <span class="text-sm text-yellow-300">Today's Champion</span>
+                </div>
+                <h2 class="text-2xl md:text-3xl mb-4">King of the <span class="text-yellow-400">Hill</span></h2>
+                <p class="text-gray-400 text-sm max-w-xl mx-auto">The token with the highest 24h volume claims the throne</p>
+            </div>
+            
+            <!-- King Token Card -->
+            <div class="max-w-4xl mx-auto">
+                <div class="glass-card rounded-3xl overflow-hidden border-2 border-yellow-500/30 hover:border-yellow-400/50 transition-all relative" id="kingCard">
+                    <!-- Crown decoration -->
+                    <div class="absolute -top-6 left-1/2 -translate-x-1/2 text-6xl crown-bounce z-10">👑</div>
+                    
+                    <!-- Gradient header -->
+                    <div class="bg-gradient-to-r from-yellow-500/20 via-amber-500/20 to-yellow-500/20 pt-12 pb-6 px-8">
+                        <div class="flex flex-col md:flex-row items-center gap-6">
+                            <!-- Token Image -->
+                            <div class="relative">
+                                <div class="w-32 h-32 rounded-2xl bg-gradient-to-br from-yellow-400 to-amber-600 p-1 shadow-lg shadow-yellow-500/30">
+                                    <div class="w-full h-full rounded-xl bg-gray-900 flex items-center justify-center overflow-hidden" id="kingTokenImage">
+                                        <span class="text-5xl">🐕</span>
+                                    </div>
+                                </div>
+                                <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center text-lg shadow-lg">
+                                    #1
+                                </div>
+                            </div>
+                            
+                            <!-- Token Info -->
+                            <div class="flex-1 text-center md:text-left">
+                                <div class="flex items-center justify-center md:justify-start gap-3 mb-2">
+                                    <h3 class="text-3xl font-bold text-white" id="kingTokenName">BONK</h3>
+                                    <span class="bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-full text-xs" id="kingTokenTicker">$BONK</span>
+                                </div>
+                                <p class="text-gray-400 text-sm mb-4" id="kingTokenDesc">The first Solana dog coin for the people, by the people</p>
+                                <div class="flex items-center justify-center md:justify-start gap-4">
+                                    <span class="flex items-center gap-1 text-green-400 text-sm">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd"/></svg>
+                                        <span id="kingTokenGain">+1,247%</span>
+                                    </span>
+                                    <span class="text-gray-500">|</span>
+                                    <span class="text-gray-400 text-sm">Launched <span id="kingTokenAge">2d ago</span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Stats Grid -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 bg-gray-900/50">
+                        <div class="text-center p-4 rounded-xl bg-gray-800/50">
+                            <div class="text-2xl font-bold text-yellow-400 mb-1" id="kingVolume">$4.2M</div>
+                            <div class="text-[10px] text-gray-400">24h Volume</div>
+                        </div>
+                        <div class="text-center p-4 rounded-xl bg-gray-800/50">
+                            <div class="text-2xl font-bold text-blue-400 mb-1" id="kingMarketCap">$12.5M</div>
+                            <div class="text-[10px] text-gray-400">Market Cap</div>
+                        </div>
+                        <div class="text-center p-4 rounded-xl bg-gray-800/50">
+                            <div class="text-2xl font-bold text-green-400 mb-1" id="kingHolders">45,892</div>
+                            <div class="text-[10px] text-gray-400">Holders</div>
+                        </div>
+                        <div class="text-center p-4 rounded-xl bg-gray-800/50">
+                            <div class="text-2xl font-bold text-purple-400 mb-1" id="kingTxns">128K</div>
+                            <div class="text-[10px] text-gray-400">Transactions</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Chart Preview & Actions -->
+                    <div class="p-6 border-t border-gray-800/50">
+                        <div class="flex flex-col md:flex-row items-center gap-6">
+                            <!-- Mini Chart -->
+                            <div class="flex-1 w-full">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="text-xs text-gray-400">Price Chart (24h)</span>
+                                    <span class="text-xs text-green-400">+24.5%</span>
+                                </div>
+                                <div class="h-24 bg-gray-800/30 rounded-xl flex items-end justify-around p-2 gap-1" id="kingChart">
+                                    <!-- Chart bars generated by JS -->
+                                </div>
+                            </div>
+                            
+                            <!-- Action Buttons -->
+                            <div class="flex flex-col gap-3 w-full md:w-auto">
+                                <button class="bg-gradient-to-r from-yellow-500 to-amber-500 text-black px-8 py-3 rounded-xl text-sm font-bold hover:from-yellow-400 hover:to-amber-400 transition-all shadow-lg shadow-yellow-500/20">
+                                    Buy $BONK
+                                </button>
+                                <button class="border border-gray-700 text-gray-300 px-8 py-3 rounded-xl text-sm hover:bg-gray-800 transition-all">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Runner Ups -->
+                    <div class="p-6 bg-gray-900/30 border-t border-gray-800/50">
+                        <div class="text-xs text-gray-500 mb-4">Challenging for the throne:</div>
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="flex items-center gap-3 p-3 rounded-xl bg-gray-800/30 hover:bg-gray-800/50 transition-colors cursor-pointer">
+                                <span class="text-lg">#2</span>
+                                <span class="text-2xl">🐸</span>
+                                <div>
+                                    <div class="text-sm text-white">PEPE</div>
+                                    <div class="text-[10px] text-gray-400">$2.1M vol</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 p-3 rounded-xl bg-gray-800/30 hover:bg-gray-800/50 transition-colors cursor-pointer">
+                                <span class="text-lg">#3</span>
+                                <span class="text-2xl">🦊</span>
+                                <div>
+                                    <div class="text-sm text-white">FOXY</div>
+                                    <div class="text-[10px] text-gray-400">$1.8M vol</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 p-3 rounded-xl bg-gray-800/30 hover:bg-gray-800/50 transition-colors cursor-pointer">
+                                <span class="text-lg">#4</span>
+                                <span class="text-2xl">🐱</span>
+                                <div>
+                                    <div class="text-sm text-white">KITTY</div>
+                                    <div class="text-[10px] text-gray-400">$1.2M vol</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Token Grid -->
+    <section class="py-16">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center justify-between mb-8 gap-4">
+                <h2 class="text-xl flex items-center gap-3">
+                    Trending Tokens
+                </h2>
+                
+                <!-- Filter Tabs -->
+                <div class="flex gap-2 glass rounded-xl p-1">
+                    <button class="bg-blue-600 text-white px-4 py-2 rounded-lg text-[10px] transition-all">New</button>
+                    <button class="text-gray-400 hover:text-white px-4 py-2 rounded-lg text-[10px] hover:bg-white/5 transition-all">Trending</button>
+                    <button class="text-gray-400 hover:text-white px-4 py-2 rounded-lg text-[10px] hover:bg-white/5 transition-all">Graduating</button>
+                    <button class="text-gray-400 hover:text-white px-4 py-2 rounded-lg text-[10px] hover:bg-white/5 transition-all">King</button>
+                </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="relative mb-8 max-w-md">
+                <input type="text" placeholder="Search tokens..." class="w-full bg-gray-900/50 border border-gray-700 rounded-xl px-5 py-3 pl-12 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">🔍</span>
+            </div>
+
+            <!-- Live Token Counter -->
+            <div class="flex items-center gap-3 mb-6">
+                <span class="inline-block w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                <span class="text-[10px] text-gray-400">Live updating</span>
+                <span class="text-[10px] text-green-400" id="tokenCount">8 tokens</span>
+            </div>
+
+            <!-- Token Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="tokenGrid">
+                <!-- Tokens will be dynamically inserted here -->
+            </div>
+
+            <!-- Load More -->
+            <div class="text-center mt-12">
+                <button class="btn-shine glass px-8 py-3 rounded-xl font-semibold hover:bg-white/10 transition-all border border-gray-700 hover:border-blue-500/50">
+                    Load More Tokens ↓
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- My Tokens Section -->
+    <section class="py-16 border-t border-gray-800/50" id="my-tokens">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center justify-between mb-8 gap-4">
+                <h2 class="text-xl flex items-center gap-3">
+                    My Tokens
+                    <span class="text-[10px] text-gray-500 ml-2">Coins You Created</span>
+                </h2>
+                
+                <a href="create.html" class="btn-shine bg-gradient-to-r from-blue-500 to-purple-600 text-white px-5 py-2.5 rounded-lg text-xs hover:from-blue-600 hover:to-purple-700 transition-all">
+                    + Create New Token
+                </a>
+            </div>
+
+            <!-- Connect Wallet Prompt (shown when not connected) -->
+            <div id="myTokensNotConnected" class="glass-card rounded-2xl p-12 text-center">
+                <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-blue-500/20 to-purple-600/20 flex items-center justify-center">
+                    <span class="text-4xl">W</span>
+                </div>
+                <h3 class="text-lg mb-4">Connect Your Wallet</h3>
+                <p class="text-gray-400 text-[10px] mb-6 max-w-md mx-auto">
+                    Connect your wallet to see the tokens you've created on FUSE.FUN
+                </p>
+                <button class="btn-shine bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-xl text-xs hover:from-blue-600 hover:to-purple-700 transition-all glow-blue hover-lift">
+                    Connect Wallet
+                </button>
+            </div>
+
+            <!-- My Tokens Grid (shown when connected - hidden by default) -->
+            <div id="myTokensConnected" class="hidden">
+                <!-- User Stats Summary -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                    <div class="glass-card rounded-xl p-4 text-center">
+                        <div class="text-2xl text-blue-400 mb-1">3</div>
+                        <div class="text-[8px] text-gray-400">Tokens Created</div>
+                    </div>
+                    <div class="glass-card rounded-xl p-4 text-center">
+                        <div class="text-2xl text-green-400 mb-1">$12.5k</div>
+                        <div class="text-[8px] text-gray-400">Total Volume</div>
+                    </div>
+                    <div class="glass-card rounded-xl p-4 text-center">
+                        <div class="text-2xl text-purple-400 mb-1">2.4 SOL</div>
+                        <div class="text-[8px] text-gray-400">Fees Earned</div>
+                    </div>
+                    <div class="glass-card rounded-xl p-4 text-center">
+                        <div class="text-2xl text-yellow-400 mb-1">1</div>
+                        <div class="text-[8px] text-gray-400">Graduated</div>
+                    </div>
+                </div>
+
+                <!-- My Token Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="myTokenGrid">
+                    <!-- Example Token 1 -->
+                    <div class="glass-card rounded-2xl overflow-hidden hover-lift cursor-pointer group">
+                        <div class="relative">
+                            <div class="aspect-video bg-gradient-to-br from-green-400 via-emerald-500 to-teal-500 flex items-center justify-center">
+                                <span class="text-4xl font-bold text-white/80">P</span>
+                            </div>
+                            <div class="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded text-[8px]">GRADUATED</div>
+                        </div>
+                        <div class="p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <div>
+                                    <h3 class="text-[10px]">PepeSol</h3>
+                                    <span class="text-gray-400 text-[8px]">$PSOL</span>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-[10px] text-green-400">$45.2k</div>
+                                    <div class="text-[8px] text-gray-500">Market Cap</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between pt-3 border-t border-gray-700/50">
+                                <div>
+                                    <span class="text-[8px] text-gray-400">Fees Earned</span>
+                                    <div class="text-[10px] text-purple-400">1.2 SOL</div>
+                                </div>
+                                <button class="bg-purple-500/20 text-purple-400 px-3 py-1.5 rounded-lg text-[8px] hover:bg-purple-500/30 transition-all">
+                                    Claim
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Example Token 2 -->
+                    <div class="glass-card rounded-2xl overflow-hidden hover-lift cursor-pointer group">
+                        <div class="relative">
+                            <div class="aspect-video bg-gradient-to-br from-blue-400 via-indigo-500 to-purple-500 flex items-center justify-center">
+                                <span class="text-4xl font-bold text-white/80">M</span>
+                            </div>
+                            <div class="absolute top-2 left-2 bg-yellow-500 text-black px-2 py-1 rounded text-[8px] font-bold">[KING]</div>
+                            <div class="absolute top-2 right-2 bg-green-500/90 text-white px-2 py-1 rounded text-[8px]">+324%</div>
+                        </div>
+                        <div class="p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <div>
+                                    <h3 class="text-[10px]">MoonCat</h3>
+                                    <span class="text-gray-400 text-[8px]">$MCAT</span>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-[10px] text-green-400">$78.5k</div>
+                                    <div class="text-[8px] text-gray-500">Market Cap</div>
+                                </div>
+                            </div>
+                            <div class="w-full bg-gray-800 rounded-full h-2 mb-2">
+                                <div class="progress-bar bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full" style="width: 72%"></div>
+                            </div>
+                            <div class="flex justify-between text-[8px]">
+                                <span class="text-gray-500">72% to graduation</span>
+                                <span class="text-blue-400">Active</span>
+                            </div>
+                            <div class="flex items-center justify-between pt-3 mt-3 border-t border-gray-700/50">
+                                <div>
+                                    <span class="text-[8px] text-gray-400">Fees Earned</span>
+                                    <div class="text-[10px] text-purple-400">0.8 SOL</div>
+                                </div>
+                                <button class="bg-purple-500/20 text-purple-400 px-3 py-1.5 rounded-lg text-[8px] hover:bg-purple-500/30 transition-all">
+                                    Claim
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Example Token 3 -->
+                    <div class="glass-card rounded-2xl overflow-hidden hover-lift cursor-pointer group">
+                        <div class="relative">
+                            <div class="aspect-video bg-gradient-to-br from-orange-400 via-red-500 to-pink-500 flex items-center justify-center">
+                                <span class="text-4xl font-bold text-white/80">F</span>
+                            </div>
+                            <div class="absolute top-2 right-2 bg-green-500/90 text-white px-2 py-1 rounded text-[8px]">+89%</div>
+                        </div>
+                        <div class="p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <div>
+                                    <h3 class="text-[10px]">FireDog</h3>
+                                    <span class="text-gray-400 text-[8px]">$FDOG</span>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-[10px] text-green-400">$12.3k</div>
+                                    <div class="text-[8px] text-gray-500">Market Cap</div>
+                                </div>
+                            </div>
+                            <div class="w-full bg-gray-800 rounded-full h-2 mb-2">
+                                <div class="progress-bar bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full" style="width: 28%"></div>
+                            </div>
+                            <div class="flex justify-between text-[8px]">
+                                <span class="text-gray-500">28% to graduation</span>
+                                <span class="text-blue-400">Active</span>
+                            </div>
+                            <div class="flex items-center justify-between pt-3 mt-3 border-t border-gray-700/50">
+                                <div>
+                                    <span class="text-[8px] text-gray-400">Fees Earned</span>
+                                    <div class="text-[10px] text-purple-400">0.4 SOL</div>
+                                </div>
+                                <button class="bg-purple-500/20 text-purple-400 px-3 py-1.5 rounded-lg text-[8px] hover:bg-purple-500/30 transition-all">
+                                    Claim
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="py-20 relative overflow-hidden" id="how-it-works">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <div class="inline-flex items-center gap-2 bg-purple-500/10 border border-purple-500/30 rounded-full px-4 py-2 mb-6">
+                    <span class="text-xl">📖</span>
+                    <span class="text-sm text-purple-300">Simple & Fast</span>
+                </div>
+                <h2 class="text-2xl md:text-3xl mb-4">How It <span class="gradient-text">Works</span></h2>
+                <p class="text-gray-400 text-sm max-w-2xl mx-auto">Launch your token in under 60 seconds. No coding required.</p>
+            </div>
+            
+            <!-- Steps Timeline -->
+            <div class="max-w-5xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
+                    <!-- Connection Line -->
+                    <div class="hidden md:block absolute top-16 left-[12%] right-[12%] h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-green-500 rounded-full"></div>
+                    
+                    <!-- Step 1 -->
+                    <div class="glass-card rounded-2xl p-6 text-center hover-lift relative">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mx-auto mb-6 text-2xl font-bold shadow-lg shadow-blue-500/30 relative z-10">
+                            1
+                        </div>
+                        <h3 class="text-lg font-bold mb-3 text-blue-400">Connect Wallet</h3>
+                        <p class="text-gray-400 text-xs leading-relaxed">Connect your Solana wallet (Phantom, Solflare, Backpack) or create a new one directly on FUSE.FUN</p>
+                        <div class="mt-4 flex justify-center gap-2">
+                            <img src="https://raw.githubusercontent.com/solana-labs/wallet-adapter/master/packages/wallets/icons/phantom.svg" alt="Phantom" class="w-6 h-6 rounded opacity-60">
+                            <img src="https://raw.githubusercontent.com/solana-labs/wallet-adapter/master/packages/wallets/icons/solflare.svg" alt="Solflare" class="w-6 h-6 rounded opacity-60">
+                            <img src="https://raw.githubusercontent.com/solana-labs/wallet-adapter/master/packages/wallets/icons/backpack.svg" alt="Backpack" class="w-6 h-6 rounded opacity-60">
+                        </div>
+                    </div>
+                    
+                    <!-- Step 2 -->
+                    <div class="glass-card rounded-2xl p-6 text-center hover-lift relative">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center mx-auto mb-6 text-2xl font-bold shadow-lg shadow-purple-500/30 relative z-10">
+                            2
+                        </div>
+                        <h3 class="text-lg font-bold mb-3 text-purple-400">Create Token</h3>
+                        <p class="text-gray-400 text-xs leading-relaxed">Enter your token name, ticker, upload an image, and add your social links. Customize your launch!</p>
+                        <div class="mt-4 flex justify-center gap-3">
+                            <span class="text-2xl">🎨</span>
+                            <span class="text-2xl">✏️</span>
+                            <span class="text-2xl">🔗</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 3 -->
+                    <div class="glass-card rounded-2xl p-6 text-center hover-lift relative">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-500 to-amber-500 flex items-center justify-center mx-auto mb-6 text-2xl font-bold shadow-lg shadow-yellow-500/30 relative z-10">
+                            3
+                        </div>
+                        <h3 class="text-lg font-bold mb-3 text-yellow-400">Launch & Trade</h3>
+                        <p class="text-gray-400 text-xs leading-relaxed">Pay a small SOL fee to launch. Trading begins instantly on the bonding curve. Battle for King of the Hill!</p>
+                        <div class="mt-4">
+                            <span class="inline-flex items-center gap-1 bg-yellow-500/10 text-yellow-400 px-3 py-1 rounded-full text-[10px]">
+                                <span>👑</span> Top volume = Crown
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 4 -->
+                    <div class="glass-card rounded-2xl p-6 text-center hover-lift relative">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center mx-auto mb-6 text-2xl font-bold shadow-lg shadow-green-500/30 relative z-10">
+                            4
+                        </div>
+                        <h3 class="text-lg font-bold mb-3 text-green-400">Graduate to DEX</h3>
+                        <p class="text-gray-400 text-xs leading-relaxed">When your token reaches the bonding curve target, it automatically graduates to Raydium with locked liquidity!</p>
+                        <div class="mt-4">
+                            <span class="inline-flex items-center gap-1 bg-green-500/10 text-green-400 px-3 py-1 rounded-full text-[10px]">
+                                <span>🎓</span> Auto LP Lock
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Additional Info Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 max-w-4xl mx-auto">
+                <div class="glass-card rounded-xl p-5 flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center text-2xl flex-shrink-0">
+                        💰
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold mb-1">Low Launch Fee</h4>
+                        <p class="text-gray-400 text-[10px]">Only 0.02 SOL to create and launch your token. No hidden fees.</p>
+                    </div>
+                </div>
+                
+                <div class="glass-card rounded-xl p-5 flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center text-2xl flex-shrink-0">
+                        🔒
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold mb-1">100% Fair Launch</h4>
+                        <p class="text-gray-400 text-[10px]">No presale, no team allocation. Everyone starts equal on the bonding curve.</p>
+                    </div>
+                </div>
+                
+                <div class="glass-card rounded-xl p-5 flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center text-2xl flex-shrink-0">
+                        🛡️
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold mb-1">Anti-Rug Protection</h4>
+                        <p class="text-gray-400 text-[10px]">Liquidity automatically locked. Smart contract verified and audited.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20"></div>
+        <div class="container mx-auto px-4 text-center relative z-10">
+            <h2 class="text-xl md:text-2xl mb-6">Ready to <span class="gradient-text">Launch</span>?</h2>
+            <p class="text-sm text-gray-400 mb-10 max-w-xl mx-auto">
+                Join thousands of creators who've launched their tokens on FUSE.FUN
+            </p>
+            <a href="create.html" class="btn-shine inline-flex items-center gap-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-10 py-4 rounded-xl text-xs hover:from-blue-600 hover:to-purple-700 transition-all glow-blue hover-lift">
+                Create Your Token Now
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-16 border-t border-gray-800/50 glass">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+                <div class="flex items-center gap-3">
+                    <div class="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center glow-blue">
+                        <span class="text-lg font-bold">F</span>
+                    </div>
+                    <span class="text-lg gradient-text">FUSE.FUN</span>
+                </div>
+                
+                <p class="text-gray-400 text-[10px]">The fairest launchpad on Solana</p>
+                
+                <div class="flex gap-6">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm hover-scale">X</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm hover-scale">Discord</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm hover-scale">Telegram</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm hover-scale">GitHub</a>
+                </div>
+            </div>
+            
+            <div class="mt-10 pt-8 border-t border-gray-800/50 text-center text-gray-500 text-sm">
+                © 2024 FUSE.FUN. All rights reserved. Built with 💙 on Solana.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Particle Animation Script -->
+    <script>
+        // Token data pool - simulating real token releases
+        const tokenNames = [
+            { name: "Pepe", ticker: "PEPE", emoji: "P", gradient: "from-green-400 via-emerald-500 to-teal-500" },
+            { name: "Doge", ticker: "DOGE", emoji: "D", gradient: "from-yellow-400 via-amber-500 to-orange-500" },
+            { name: "Shiba", ticker: "SHIB", emoji: "S", gradient: "from-orange-400 via-red-500 to-pink-500" },
+            { name: "Moon", ticker: "MOON", emoji: "M", gradient: "from-blue-400 via-indigo-500 to-purple-500" },
+            { name: "Bonk", ticker: "BONK", emoji: "B", gradient: "from-pink-400 via-rose-500 to-red-500" },
+            { name: "Wojak", ticker: "WOJ", emoji: "W", gradient: "from-cyan-400 via-blue-500 to-indigo-500" },
+            { name: "Chad", ticker: "CHAD", emoji: "C", gradient: "from-purple-400 via-violet-500 to-indigo-500" },
+            { name: "Gigabrain", ticker: "GIGA", emoji: "G", gradient: "from-emerald-400 via-green-500 to-lime-500" },
+            { name: "Cope", ticker: "COPE", emoji: "X", gradient: "from-red-400 via-rose-500 to-pink-500" },
+            { name: "Fren", ticker: "FREN", emoji: "F", gradient: "from-sky-400 via-cyan-500 to-teal-500" },
+            { name: "Based", ticker: "BASED", emoji: "B", gradient: "from-violet-400 via-purple-500 to-fuchsia-500" },
+            { name: "Wagmi", ticker: "WAGMI", emoji: "W", gradient: "from-lime-400 via-green-500 to-emerald-500" },
+            { name: "Ngmi", ticker: "NGMI", emoji: "N", gradient: "from-gray-400 via-slate-500 to-zinc-600" },
+            { name: "Ape", ticker: "APE", emoji: "A", gradient: "from-amber-400 via-yellow-500 to-orange-500" },
+            { name: "Diamond", ticker: "DMD", emoji: "D", gradient: "from-cyan-300 via-blue-400 to-indigo-500" },
+            { name: "Rocket", ticker: "RKT", emoji: "R", gradient: "from-orange-400 via-red-500 to-rose-500" },
+            { name: "Lambo", ticker: "LAMBO", emoji: "L", gradient: "from-yellow-300 via-amber-400 to-orange-500" },
+            { name: "Whale", ticker: "WHALE", emoji: "W", gradient: "from-blue-400 via-cyan-500 to-teal-500" },
+            { name: "Cat", ticker: "CAT", emoji: "C", gradient: "from-orange-300 via-amber-400 to-yellow-500" },
+            { name: "Panda", ticker: "PNDA", emoji: "P", gradient: "from-gray-300 via-slate-400 to-zinc-500" },
+            { name: "Snek", ticker: "SNEK", emoji: "S", gradient: "from-green-400 via-lime-500 to-yellow-500" },
+            { name: "Frog", ticker: "FROG", emoji: "F", gradient: "from-green-400 via-emerald-500 to-cyan-500" },
+            { name: "Bull", ticker: "BULL", emoji: "B", gradient: "from-green-400 via-emerald-500 to-teal-500" },
+            { name: "Bear", ticker: "BEAR", emoji: "B", gradient: "from-red-400 via-rose-500 to-pink-500" },
+        ];
+        
+        // Generate random wallet address
+        function randomWallet() {
+            const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let result = '';
+            for (let i = 0; i < 4; i++) result += chars[Math.floor(Math.random() * chars.length)];
+            return result + '...' + chars[Math.floor(Math.random() * chars.length)] + chars[Math.floor(Math.random() * chars.length)] + chars[Math.floor(Math.random() * chars.length)];
+        }
+        
+        // Generate random Solana-style mint address (base58)
+        function randomMintAddress() {
+            const base58chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+            let result = '';
+            for (let i = 0; i < 44; i++) {
+                result += base58chars[Math.floor(Math.random() * base58chars.length)];
+            }
+            return result;
+        }
+        
+        // Generate random time ago
+        function randomTimeAgo() {
+            const times = ['Just now', '1m ago', '2m ago', '5m ago', '10m ago', '15m ago', '30m ago', '1h ago'];
+            return times[Math.floor(Math.random() * times.length)];
+        }
+        
+        const api = new FuseAPIClient();
+
+        // Current tokens array
+        let currentTokens = [];
+        let tokenIdCounter = 0;
+        let usingDemoTokens = true;
+
+        function truncateAddress(address) {
+            if (!address || typeof address !== 'string') return '';
+            if (address.length <= 10) return address;
+            return `${address.slice(0, 4)}...${address.slice(-4)}`;
+        }
+
+        function timeAgoFrom(timestamp) {
+            const ts = Number(timestamp);
+            if (!Number.isFinite(ts) || ts <= 0) return '';
+            const deltaMs = Date.now() - ts;
+            const seconds = Math.floor(deltaMs / 1000);
+            if (seconds < 60) return 'Just now';
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes}m ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours}h ago`;
+            const days = Math.floor(hours / 24);
+            return `${days}d ago`;
+        }
+
+        function isSafeImageDataUrl(value) {
+            return typeof value === 'string' && value.startsWith('data:image');
+        }
+
+        function mapApiTokenToCard(token) {
+            const name = token?.name || 'Unknown';
+            const ticker = token?.symbol || token?.ticker || '';
+            const createdAt = token?.createdAt ? Number(token.createdAt) : null;
+            const isNew = Number.isFinite(createdAt) ? (Date.now() - createdAt) < 10 * 60 * 1000 : false;
+
+            const marketCapValue = Number(token?.marketCap);
+            const marketCap = Number.isFinite(marketCapValue) ? marketCapValue.toFixed(1) : '0.0';
+
+            return {
+                id: token?.mint || tokenIdCounter++,
+                mint: token?.mint,
+                name,
+                ticker,
+                emoji: (ticker || name).slice(0, 1).toUpperCase() || 'F',
+                gradient: token?.gradient || 'from-blue-400 via-indigo-500 to-purple-500',
+                image: isSafeImageDataUrl(token?.image) ? token.image : null,
+                wallet: truncateAddress(token?.creator) || randomWallet(),
+                timeAgo: createdAt ? timeAgoFrom(createdAt) : randomTimeAgo(),
+                marketCap,
+                progress: 0,
+                gain: null,
+                isNew,
+                isKing: false,
+                isHot: false,
+                isGraduating: false
+            };
+        }
+        
+        // Create a new token
+        function createToken(isNew = false) {
+            const tokenData = tokenNames[Math.floor(Math.random() * tokenNames.length)];
+            const marketCap = (Math.random() * 100 + 0.5).toFixed(1);
+            const progress = Math.floor(Math.random() * 95) + 3;
+            const gain = Math.floor(Math.random() * 500) + 10;
+            const isKing = Math.random() > 0.92;
+            const isHot = Math.random() > 0.85;
+            const isGraduating = progress > 90;
+            
+            return {
+                id: tokenIdCounter++,
+                mint: randomMintAddress(),
+                name: tokenData.name,
+                ticker: tokenData.ticker,
+                emoji: tokenData.emoji,
+                gradient: tokenData.gradient,
+                wallet: randomWallet(),
+                timeAgo: isNew ? 'Just now' : randomTimeAgo(),
+                marketCap: marketCap,
+                progress: progress,
+                gain: gain,
+                isNew: isNew,
+                isKing: isKing,
+                isHot: isHot && !isKing,
+                isGraduating: isGraduating && !isKing
+            };
+        }
+        
+        // Render a token card
+        function renderToken(token) {
+            let badge = '';
+            if (token.isNew) {
+                badge = `<div class="absolute top-2 left-2 bg-blue-500 text-white px-2 py-1 rounded text-[8px] animate-pulse">NEW</div>`;
+            } else if (token.isKing) {
+                badge = `<div class="absolute top-2 right-2 bg-yellow-500 text-black px-2 py-1 rounded text-[8px] font-bold">[KING]</div>`;
+            } else if (token.isHot) {
+                badge = `<div class="absolute top-2 left-2 bg-purple-500 text-white px-2 py-1 rounded text-[8px]">HOT</div>`;
+            } else if (token.isGraduating) {
+                badge = `<div class="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded text-[8px]">GRADUATING</div>`;
+            }
+            
+            const gainBadge = token.gain === null || token.gain === undefined
+                ? ''
+                : `<div class="absolute top-2 ${token.isKing ? 'left-2' : 'right-2'} bg-green-500/90 text-white px-2 py-1 rounded text-[8px]">+${token.gain}%</div>`;
+            
+            const progressColor = token.isGraduating ? 'from-green-400 to-emerald-500' : 'from-blue-500 to-purple-500';
+
+            const media = token.image
+                ? `<img src="${token.image}" alt="${token.name}" class="w-full h-full object-cover" loading="lazy" />`
+                : `<span class="text-5xl card-image font-bold text-white/80">${token.emoji}</span>`;
+            
+            return `
+                <a href="token.html?mint=${token.mint}&name=${encodeURIComponent(token.name)}&symbol=${encodeURIComponent(token.ticker)}&mcap=${token.marketCap}&progress=${token.progress}&emoji=${encodeURIComponent(token.emoji)}&gradient=${encodeURIComponent(token.gradient)}" 
+                   class="token-card glass-card rounded-2xl overflow-hidden hover-lift cursor-pointer group block ${token.isNew ? 'ring-2 ring-blue-500 ring-opacity-50' : ''}" 
+                   data-token-id="${token.id}" 
+                   data-mint="${token.mint}">
+                    <div class="relative">
+                        <div class="aspect-square bg-gradient-to-br ${token.gradient} flex items-center justify-center overflow-hidden">
+                            ${media}
+                        </div>
+                        ${badge}
+                        ${gainBadge}
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-center gap-2 mb-1">
+                            <h3 class="text-[10px]">${token.name}</h3>
+                            <span class="text-gray-400 text-[8px]">$${token.ticker}</span>
+                        </div>
+                        <div class="text-[8px] text-gray-500 mb-3">by ${token.wallet} / ${token.timeAgo}</div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[8px] text-gray-400">Market Cap</span>
+                            <span class="text-[10px] text-green-400">$${token.marketCap}k</span>
+                        </div>
+                        <div class="relative w-full bg-gray-800 rounded-full h-2 overflow-hidden">
+                            <div class="progress-bar bg-gradient-to-r ${progressColor} h-2 rounded-full transition-all duration-1000" style="width: ${token.progress}%"></div>
+                        </div>
+                        <div class="flex justify-between mt-1">
+                            <span class="text-[6px] text-gray-500">Progress</span>
+                            <span class="text-[8px] ${token.isGraduating ? 'text-green-400' : 'text-blue-400'}">${token.progress}%</span>
+                        </div>
+                    </div>
+                </a>
+            `;
+        }
+        
+        // Initialize tokens
+        async function initTokens() {
+            try {
+                const tokens = await api.getTokens();
+                if (Array.isArray(tokens) && tokens.length > 0) {
+                    usingDemoTokens = false;
+                    currentTokens = tokens.slice(0, 8).map(mapApiTokenToCard);
+                    renderAllTokens();
+                    return;
+                }
+            } catch (e) {
+                console.warn('Token API unavailable, using demo tokens');
+            }
+
+            usingDemoTokens = true;
+            currentTokens = [];
+            for (let i = 0; i < 8; i++) {
+                currentTokens.push(createToken(false));
+            }
+            renderAllTokens();
+        }
+        
+        // Render all tokens
+        function renderAllTokens() {
+            const grid = document.getElementById('tokenGrid');
+            grid.innerHTML = currentTokens.map(token => renderToken(token)).join('');
+            document.getElementById('tokenCount').textContent = `${currentTokens.length} tokens`;
+        }
+        
+        // Add new token (simulating real-time updates)
+        function addNewToken() {
+            const newToken = createToken(true);
+            currentTokens.unshift(newToken);
+            
+            // Keep only 8 tokens visible
+            if (currentTokens.length > 8) {
+                currentTokens.pop();
+            }
+            
+            renderAllTokens();
+            
+            // Remove "NEW" badge after 10 seconds
+            setTimeout(() => {
+                const token = currentTokens.find(t => t.id === newToken.id);
+                if (token) {
+                    token.isNew = false;
+                    renderAllTokens();
+                }
+            }, 10000);
+        }
+        
+        // Update existing token prices/progress
+        function updateTokens() {
+            currentTokens.forEach(token => {
+                // Random price movement
+                const change = (Math.random() - 0.4) * 5;
+                token.marketCap = Math.max(0.1, (parseFloat(token.marketCap) + change)).toFixed(1);
+                
+                // Progress increases slowly
+                if (token.progress < 100) {
+                    token.progress = Math.min(100, token.progress + Math.random() * 2);
+                }
+                
+                // Update gain
+                token.gain = Math.max(0, token.gain + Math.floor((Math.random() - 0.3) * 20));
+                
+                // Check for graduating
+                token.isGraduating = token.progress > 90 && !token.isKing;
+            });
+            renderAllTokens();
+        }
+        
+        // Create floating particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const colors = ['rgba(59, 130, 246, 0.5)', 'rgba(139, 92, 246, 0.5)', 'rgba(236, 72, 153, 0.3)'];
+            
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (Math.random() * 20 + 15) + 's';
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.width = (Math.random() * 4 + 2) + 'px';
+                particle.style.height = particle.style.width;
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // Animate stat counters
+        function animateCounters() {
+            const counters = document.querySelectorAll('.stat-number');
+            counters.forEach(counter => {
+                const target = parseInt(counter.getAttribute('data-target'));
+                if (target) {
+                    let current = 0;
+                    const increment = target / 50;
+                    const timer = setInterval(() => {
+                        current += increment;
+                        if (current >= target) {
+                            counter.textContent = target.toLocaleString();
+                            clearInterval(timer);
+                        } else {
+                            counter.textContent = Math.floor(current).toLocaleString();
+                        }
+                    }, 30);
+                }
+            });
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            createParticles();
+            animateCounters();
+            await initTokens();
+            initKingOfTheHill();
+            initCreateWallet();
+
+            if (usingDemoTokens) {
+                // Add new token every 8-15 seconds
+                setInterval(() => {
+                    addNewToken();
+                }, Math.random() * 7000 + 8000);
+
+                // Update prices every 3 seconds
+                setInterval(() => {
+                    updateTokens();
+                }, 3000);
+            }
+            
+            // Initialize wallet and UI
+            initWalletConnection();
+            initAccountDropdown();
+            initThemeToggle();
+        });
+        
+        // =====================
+        // KING OF THE HILL
+        // =====================
+        
+        function initKingOfTheHill() {
+            // Generate chart bars
+            const chartContainer = document.getElementById('kingChart');
+            if (chartContainer) {
+                const bars = 24; // 24 hours
+                for (let i = 0; i < bars; i++) {
+                    const bar = document.createElement('div');
+                    const height = 20 + Math.random() * 70; // Random height 20-90%
+                    const isUp = Math.random() > 0.3;
+                    bar.className = `flex-1 rounded-sm transition-all ${isUp ? 'bg-green-500/60' : 'bg-red-500/60'}`;
+                    bar.style.height = height + '%';
+                    bar.style.minWidth = '6px';
+                    chartContainer.appendChild(bar);
+                }
+            }
+            
+            // Animate the chart periodically
+            setInterval(() => {
+                const bars = document.querySelectorAll('#kingChart > div');
+                bars.forEach(bar => {
+                    const newHeight = 20 + Math.random() * 70;
+                    bar.style.height = newHeight + '%';
+                });
+            }, 5000);
+            
+            // Update ticker with King data
+            updateTickerInfo();
+            setInterval(updateTickerInfo, 10000);
+        }
+        
+        // King of the Hill Data (would come from API in production)
+        const kingData = {
+            ticker: '$BONK',
+            volume: '$4.2M',
+            marketCap: '$12.5M',
+            holders: '45,892',
+            gain: '+1,247%'
+        };
+        
+        function updateTickerInfo() {
+            // Update King info in ticker
+            const tickerKing = document.getElementById('tickerKing');
+            const tickerKing2 = document.getElementById('tickerKing2');
+            const tickerKingVolume = document.getElementById('tickerKingVolume');
+            const tickerKingVolume2 = document.getElementById('tickerKingVolume2');
+            
+            if (tickerKing) tickerKing.textContent = kingData.ticker;
+            if (tickerKing2) tickerKing2.textContent = kingData.ticker;
+            if (tickerKingVolume) tickerKingVolume.textContent = kingData.volume;
+            if (tickerKingVolume2) tickerKingVolume2.textContent = kingData.volume;
+            
+            // Simulate random updates to volume
+            const volumeChange = (Math.random() - 0.3) * 0.5;
+            const currentVolume = parseFloat(kingData.volume.replace('$', '').replace('M', ''));
+            kingData.volume = '$' + (currentVolume + volumeChange).toFixed(1) + 'M';
+            
+            // Update total volume
+            const tickerVolume = document.getElementById('tickerVolume');
+            const tickerVolume2 = document.getElementById('tickerVolume2');
+            const totalVolume = '$' + (2.5 + Math.random() * 0.5).toFixed(1) + 'M';
+            if (tickerVolume) tickerVolume.textContent = totalVolume;
+            if (tickerVolume2) tickerVolume2.textContent = totalVolume;
+            
+            // Update graduating tokens count
+            const graduatingCount = Math.floor(Math.random() * 5) + 2;
+            const tickerGrad = document.getElementById('tickerGraduating');
+            const tickerGrad2 = document.getElementById('tickerGraduating2');
+            if (tickerGrad) tickerGrad.textContent = graduatingCount + ' tokens';
+            if (tickerGrad2) tickerGrad2.textContent = graduatingCount + ' tokens';
+            
+            // Update King of the Hill card
+            document.getElementById('kingVolume').textContent = kingData.volume;
+            document.getElementById('kingMarketCap').textContent = kingData.marketCap;
+            document.getElementById('kingHolders').textContent = kingData.holders;
+        }
+        
+        // =====================
+        // CREATE WALLET
+        // =====================
+        
+        let generatedKeypair = null;
+        let savedWallets = JSON.parse(localStorage.getItem('fuseFunWallets') || '[]');
+        
+        function initCreateWallet() {
+            const createWalletBtn = document.getElementById('createNewWalletBtn');
+            const createWalletModal = document.getElementById('createWalletModal');
+            const createWalletOverlay = document.getElementById('createWalletOverlay');
+            const closeCreateWallet = document.getElementById('closeCreateWallet');
+            const generateWalletBtn = document.getElementById('generateWalletBtn');
+            const revealPrivateKeyBtn = document.getElementById('revealPrivateKeyBtn');
+            const revealKeypairJsonBtn = document.getElementById('revealKeypairJsonBtn');
+            const savedKeyConfirm = document.getElementById('savedKeyConfirm');
+            const useNewWalletBtn = document.getElementById('useNewWalletBtn');
+            const generateAnotherBtn = document.getElementById('generateAnotherBtn');
+            
+            // Open create wallet modal
+            createWalletBtn.addEventListener('click', () => {
+                document.getElementById('walletModal').classList.add('hidden');
+                createWalletModal.classList.remove('hidden');
+                resetCreateWalletModal();
+            });
+            
+            // Close create wallet modal
+            closeCreateWallet.addEventListener('click', () => {
+                createWalletModal.classList.add('hidden');
+                resetCreateWalletModal();
+            });
+            
+            createWalletOverlay.addEventListener('click', () => {
+                createWalletModal.classList.add('hidden');
+                resetCreateWalletModal();
+            });
+            
+            // Generate wallet button
+            generateWalletBtn.addEventListener('click', () => {
+                generateNewWallet();
+            });
+            
+            // Reveal private key
+            revealPrivateKeyBtn.addEventListener('click', () => {
+                document.getElementById('privateKeyHidden').classList.add('hidden');
+                document.getElementById('privateKeyRevealed').classList.remove('hidden');
+            });
+
+            // Reveal keypair JSON
+            revealKeypairJsonBtn.addEventListener('click', () => {
+                document.getElementById('keypairJsonHidden').classList.add('hidden');
+                document.getElementById('keypairJsonRevealed').classList.remove('hidden');
+            });
+            
+            // Checkbox to enable use button
+            savedKeyConfirm.addEventListener('change', () => {
+                useNewWalletBtn.disabled = !savedKeyConfirm.checked;
+            });
+            
+            // Use this wallet
+            useNewWalletBtn.addEventListener('click', () => {
+                if (generatedKeypair) {
+                    useGeneratedWallet();
+                }
+            });
+            
+            // Generate another
+            generateAnotherBtn.addEventListener('click', () => {
+                resetCreateWalletModal();
+                generateNewWallet();
+            });
+        }
+        
+        function resetCreateWalletModal() {
+            document.getElementById('walletStep1').classList.remove('hidden');
+            document.getElementById('walletStep2').classList.add('hidden');
+            document.getElementById('privateKeyHidden').classList.remove('hidden');
+            document.getElementById('privateKeyRevealed').classList.add('hidden');
+            document.getElementById('keypairJsonHidden').classList.remove('hidden');
+            document.getElementById('keypairJsonRevealed').classList.add('hidden');
+            document.getElementById('savedKeyConfirm').checked = false;
+            document.getElementById('useNewWalletBtn').disabled = true;
+            generatedKeypair = null;
+        }
+        
+        function generateNewWallet() {
+            try {
+                // Use Solana web3.js to generate a new keypair
+                const { Keypair } = solanaWeb3;
+                generatedKeypair = Keypair.generate();
+                
+                const publicKey = generatedKeypair.publicKey.toBase58();
+                const privateKey = bs58Encode(generatedKeypair.secretKey);
+                
+                // Show step 2
+                document.getElementById('walletStep1').classList.add('hidden');
+                document.getElementById('walletStep2').classList.remove('hidden');
+                
+                // Set the keys
+                document.getElementById('newPublicKey').value = publicKey;
+                document.getElementById('newPrivateKey').value = privateKey;
+
+                // Also provide Solana-compatible JSON keypair export (secretKey as array of bytes)
+                const keypairJson = JSON.stringify(Array.from(generatedKeypair.secretKey));
+                const keypairEl = document.getElementById('newKeypairJson');
+                if (keypairEl) keypairEl.value = keypairJson;
+                
+                console.log('New wallet generated:', publicKey);
+            } catch (error) {
+                console.error('Error generating wallet:', error);
+                alert('Failed to generate wallet. Please try again.');
+            }
+        }
+
+        function downloadKeypairJson() {
+            if (!generatedKeypair) return;
+            try {
+                const publicKey = generatedKeypair.publicKey.toBase58();
+                const json = JSON.stringify(Array.from(generatedKeypair.secretKey));
+                const blob = new Blob([json], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `fuse-wallet-${publicKey}.json`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+            } catch (e) {
+                console.error('Failed to download keypair JSON:', e);
+                alert('Failed to download keypair file.');
+            }
+        }
+        
+        // Base58 encoding for secret key
+        function bs58Encode(bytes) {
+            const ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+            let result = '';
+            let num = BigInt('0x' + Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join(''));
+            
+            while (num > 0n) {
+                result = ALPHABET[Number(num % 58n)] + result;
+                num = num / 58n;
+            }
+            
+            // Handle leading zeros
+            for (let i = 0; i < bytes.length && bytes[i] === 0; i++) {
+                result = '1' + result;
+            }
+            
+            return result;
+        }
+        
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            element.select();
+            document.execCommand('copy');
+            
+            // Visual feedback
+            const originalBg = element.style.background;
+            element.style.background = 'rgba(34, 197, 94, 0.3)';
+            setTimeout(() => {
+                element.style.background = originalBg;
+            }, 200);
+        }
+        
+        function useGeneratedWallet() {
+            if (!generatedKeypair) return;
+            
+            const publicKey = generatedKeypair.publicKey.toBase58();
+            const privateKey = bs58Encode(generatedKeypair.secretKey);
+            
+            // Save to local storage
+            const walletData = {
+                publicKey: publicKey,
+                createdAt: new Date().toISOString(),
+                name: 'FUSE Wallet ' + (savedWallets.length + 1)
+            };
+            
+            savedWallets.push(walletData);
+            localStorage.setItem('fuseFunWallets', JSON.stringify(savedWallets));
+            
+            // Connect this wallet
+            walletAddress = publicKey;
+            connectedWallet = 'generated';
+            
+            // Update UI
+            onWalletConnected();
+            
+            // Close modal
+            document.getElementById('createWalletModal').classList.add('hidden');
+            resetCreateWalletModal();
+            
+            // Store connection
+            localStorage.setItem('connectedWallet', 'generated');
+            localStorage.setItem('walletAddress', publicKey);
+            
+            console.log('Wallet saved and connected:', publicKey);
+        }
+        
+        // =====================
+        // WALLET CONNECTION
+        // =====================
+        
+        let connectedWallet = null;
+        let walletAddress = null;
+        
+        function initWalletConnection() {
+            const connectBtn = document.getElementById('connectWalletBtn');
+            const walletModal = document.getElementById('walletModal');
+            const walletModalOverlay = document.getElementById('walletModalOverlay');
+            const closeModalBtn = document.getElementById('closeWalletModal');
+            
+            // Open modal
+            connectBtn.addEventListener('click', () => {
+                if (connectedWallet) {
+                    // Already connected, show address
+                    return;
+                }
+                detectWallets();
+                walletModal.classList.remove('hidden');
+            });
+            
+            // Close modal
+            closeModalBtn.addEventListener('click', () => {
+                walletModal.classList.add('hidden');
+            });
+            
+            walletModalOverlay.addEventListener('click', () => {
+                walletModal.classList.add('hidden');
+            });
+            
+            // Wallet connection buttons
+            document.getElementById('connectPhantom').addEventListener('click', () => connectPhantom());
+            document.getElementById('connectSolflare').addEventListener('click', () => connectSolflare());
+            document.getElementById('connectBackpack').addEventListener('click', () => connectBackpack());
+            
+            // Disconnect button
+            document.getElementById('disconnectBtn').addEventListener('click', () => disconnectWallet());
+            
+            // Check if already connected (from previous session)
+            checkExistingConnection();
+        }
+        
+        function detectWallets() {
+            // Phantom
+            if (window.solana && window.solana.isPhantom) {
+                document.getElementById('phantomStatus').classList.remove('hidden');
+            }
+            
+            // Solflare
+            if (window.solflare && window.solflare.isSolflare) {
+                document.getElementById('solflareStatus').classList.remove('hidden');
+            }
+            
+            // Backpack
+            if (window.backpack) {
+                document.getElementById('backpackStatus').classList.remove('hidden');
+            }
+        }
+        
+        async function connectPhantom() {
+            try {
+                if (!window.solana || !window.solana.isPhantom) {
+                    window.open('https://phantom.app/', '_blank');
+                    return;
+                }
+                
+                const response = await window.solana.connect();
+                walletAddress = response.publicKey.toString();
+                connectedWallet = 'phantom';
+                onWalletConnected();
+            } catch (error) {
+                console.error('Phantom connection error:', error);
+                showWalletError('Failed to connect to Phantom');
+            }
+        }
+        
+        async function connectSolflare() {
+            try {
+                if (!window.solflare || !window.solflare.isSolflare) {
+                    window.open('https://solflare.com/', '_blank');
+                    return;
+                }
+                
+                await window.solflare.connect();
+                walletAddress = window.solflare.publicKey.toString();
+                connectedWallet = 'solflare';
+                onWalletConnected();
+            } catch (error) {
+                console.error('Solflare connection error:', error);
+                showWalletError('Failed to connect to Solflare');
+            }
+        }
+        
+        async function connectBackpack() {
+            try {
+                if (!window.backpack) {
+                    window.open('https://backpack.app/', '_blank');
+                    return;
+                }
+                
+                await window.backpack.connect();
+                walletAddress = window.backpack.publicKey.toString();
+                connectedWallet = 'backpack';
+                onWalletConnected();
+            } catch (error) {
+                console.error('Backpack connection error:', error);
+                showWalletError('Failed to connect to Backpack');
+            }
+        }
+        
+        function onWalletConnected() {
+            // Close modal
+            document.getElementById('walletModal').classList.add('hidden');
+            
+            // Update connect button to show address
+            const connectBtn = document.getElementById('connectWalletBtn');
+            const walletBtnText = document.getElementById('walletBtnText');
+            const shortAddress = walletAddress.slice(0, 4) + '...' + walletAddress.slice(-4);
+            
+            walletBtnText.textContent = shortAddress;
+            connectBtn.classList.remove('bg-[#512da8]', 'hover:bg-[#5e35b1]');
+            connectBtn.classList.add('bg-[#1a1a2e]', 'border', 'border-white/20', 'hover:bg-[#2a2a3e]');
+            
+            // Update account dropdown
+            document.getElementById('accountAddress').textContent = shortAddress;
+            document.getElementById('disconnectBtn').classList.remove('hidden');
+            
+            // Show My Tokens connected state
+            document.getElementById('myTokensNotConnected').classList.add('hidden');
+            document.getElementById('myTokensConnected').classList.remove('hidden');
+            
+            // Store in localStorage
+            localStorage.setItem('connectedWallet', connectedWallet);
+            localStorage.setItem('walletAddress', walletAddress);
+            
+            console.log('Wallet connected:', walletAddress);
+        }
+        
+        function disconnectWallet() {
+            try {
+                if (connectedWallet === 'phantom' && window.solana) {
+                    window.solana.disconnect();
+                } else if (connectedWallet === 'solflare' && window.solflare) {
+                    window.solflare.disconnect();
+                } else if (connectedWallet === 'backpack' && window.backpack) {
+                    window.backpack.disconnect();
+                }
+            } catch (e) {
+                console.log('Disconnect error:', e);
+            }
+            
+            connectedWallet = null;
+            walletAddress = null;
+            
+            // Reset UI
+            const connectBtn = document.getElementById('connectWalletBtn');
+            const walletBtnText = document.getElementById('walletBtnText');
+            walletBtnText.textContent = 'Select Wallet';
+            connectBtn.classList.add('bg-[#512da8]', 'hover:bg-[#5e35b1]');
+            connectBtn.classList.remove('bg-[#1a1a2e]', 'border', 'border-white/20', 'hover:bg-[#2a2a3e]');
+            
+            document.getElementById('accountAddress').textContent = 'Not connected';
+            document.getElementById('disconnectBtn').classList.add('hidden');
+            
+            // Hide My Tokens connected state
+            document.getElementById('myTokensNotConnected').classList.remove('hidden');
+            document.getElementById('myTokensConnected').classList.add('hidden');
+            
+            // Clear localStorage
+            localStorage.removeItem('connectedWallet');
+            localStorage.removeItem('walletAddress');
+            
+            // Close dropdown
+            document.getElementById('accountDropdown').classList.add('hidden');
+        }
+        
+        async function checkExistingConnection() {
+            const savedWallet = localStorage.getItem('connectedWallet');
+            const savedAddress = localStorage.getItem('walletAddress');
+            
+            if (savedWallet && savedAddress) {
+                try {
+                    if (savedWallet === 'phantom' && window.solana && window.solana.isPhantom) {
+                        const response = await window.solana.connect({ onlyIfTrusted: true });
+                        walletAddress = response.publicKey.toString();
+                        connectedWallet = 'phantom';
+                        onWalletConnected();
+                    } else if (savedWallet === 'solflare' && window.solflare) {
+                        await window.solflare.connect();
+                        walletAddress = window.solflare.publicKey.toString();
+                        connectedWallet = 'solflare';
+                        onWalletConnected();
+                    }
+                } catch (e) {
+                    // User needs to reconnect
+                    localStorage.removeItem('connectedWallet');
+                    localStorage.removeItem('walletAddress');
+                }
+            }
+        }
+        
+        function showWalletError(message) {
+            alert(message); // Simple alert for now, could be a toast
+        }
+        
+        // =====================
+        // ACCOUNT DROPDOWN
+        // =====================
+        
+        function initAccountDropdown() {
+            const accountBtn = document.getElementById('accountBtn');
+            const accountDropdown = document.getElementById('accountDropdown');
+            
+            accountBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                accountDropdown.classList.toggle('hidden');
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!document.getElementById('accountDropdownContainer').contains(e.target)) {
+                    accountDropdown.classList.add('hidden');
+                }
+            });
+            
+            // View profile
+            document.getElementById('viewAccountBtn').addEventListener('click', () => {
+                if (walletAddress) {
+                    window.open(`https://solscan.io/account/${walletAddress}`, '_blank');
+                } else {
+                    document.getElementById('connectWalletBtn').click();
+                }
+            });
+            
+            // Connect Twitter
+            document.getElementById('connectTwitterBtn').addEventListener('click', () => {
+                // TODO: Implement Twitter OAuth
+                alert('Twitter connection coming soon! This will allow you to earn +500 points.');
+            });
+            
+            // Manage wallets
+            document.getElementById('manageWalletsBtn').addEventListener('click', () => {
+                document.getElementById('walletModal').classList.remove('hidden');
+                detectWallets();
+            });
+        }
+        
+        // =====================
+        // THEME TOGGLE
+        // =====================
+        
+        let isDarkMode = true;
+        
+        function initThemeToggle() {
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = document.getElementById('themeIcon');
+            
+            // Check saved preference
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'light') {
+                isDarkMode = false;
+                applyLightTheme();
+            }
+            
+            themeToggle.addEventListener('click', () => {
+                isDarkMode = !isDarkMode;
+                
+                if (isDarkMode) {
+                    applyDarkTheme();
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    applyLightTheme();
+                    localStorage.setItem('theme', 'light');
+                }
+            });
+        }
+        
+        function applyDarkTheme() {
+            document.body.classList.remove('light-theme');
+            document.getElementById('themeIcon').innerHTML = `
+                <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"/>
+            `;
+        }
+        
+        function applyLightTheme() {
+            document.body.classList.add('light-theme');
+            document.getElementById('themeIcon').innerHTML = `
+                <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/>
+            `;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+target/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Next.js
+.next/
+out/
+build/
+dist/
+
+# Solana/Anchor
+.anchor/
+*.json
+!package.json
+!tsconfig.json
+!jsconfig.json
+!vercel.json
+
+# System/IDE
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.log
+
+# Binaries and archives
+*.exe
+*.tar.bz2
+*.zip
