@@ -12,11 +12,12 @@ interface TokenCardProps {
   creator: string;
   marketCap: string;
   progress: number;
+  mint: string;
   image?: string;
   isKing?: boolean;
 }
 
-export function TokenCard({ name, ticker, creator, marketCap, progress, image, isKing }: TokenCardProps) {
+export function TokenCard({ name, ticker, creator, marketCap, progress, mint, image, isKing }: TokenCardProps) {
   return (
     <Card className="overflow-hidden bg-gradient-to-b from-card to-black/50 border-border/30 hover:border-blue-500/50 transition-all duration-500 cursor-pointer group hover-lift relative">
       {/* Glow overlay on hover */}
