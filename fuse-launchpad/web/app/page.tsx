@@ -196,34 +196,36 @@ export default function Home() {
         {/* Token Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {tokens.map((token) => (
-            <div key={token.id} className="pixel-card p-4 hover:bg-[#363636] transition-colors cursor-pointer pixel-shadow-sm hover:-translate-y-1">
-              <div className="flex gap-4">
-                <div className="w-24 h-24 bg-gray-700 border-2 border-white shrink-0">
-                  <img src={token.image} alt={token.name} className="w-full h-full object-cover rendering-pixelated" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-start mb-1">
-                    <h3 className="font-pixel text-xs text-white truncate pr-2">{token.name}</h3>
-                    <span className="font-pixel text-[10px] text-green-400">TOP</span>
+            <Link href={`/token.html?mint=${token.id}`} key={token.id} className="block">
+              <div className="pixel-card p-4 hover:bg-[#363636] transition-colors cursor-pointer pixel-shadow-sm hover:-translate-y-1">
+                <div className="flex gap-4">
+                  <div className="w-24 h-24 bg-gray-700 border-2 border-white shrink-0">
+                    <img src={token.image} alt={token.name} className="w-full h-full object-cover rendering-pixelated" />
                   </div>
-                  <p className="font-pixel text-[10px] text-blue-400 mb-2">{token.ticker}</p>
-                  <p className="font-mono text-xs text-gray-400 line-clamp-2 mb-3 leading-tight">
-                    {token.desc}
-                  </p>
-                  
-                  <div className="flex justify-between items-end">
-                    <div>
-                      <div className="font-pixel text-[8px] text-gray-500">MCAP</div>
-                      <div className="font-pixel text-[10px] text-green-400">${token.marketCap}k</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start mb-1">
+                      <h3 className="font-pixel text-xs text-white truncate pr-2">{token.name}</h3>
+                      <span className="font-pixel text-[10px] text-green-400">TOP</span>
                     </div>
-                    <div className="text-right">
-                      <div className="font-pixel text-[8px] text-gray-500">CREATOR</div>
-                      <div className="font-pixel text-[8px] text-yellow-400 truncate w-20">{token.creator}</div>
+                    <p className="font-pixel text-[10px] text-blue-400 mb-2">{token.ticker}</p>
+                    <p className="font-mono text-xs text-gray-400 line-clamp-2 mb-3 leading-tight">
+                      {token.desc}
+                    </p>
+                    
+                    <div className="flex justify-between items-end">
+                      <div>
+                        <div className="font-pixel text-[8px] text-gray-500">MCAP</div>
+                        <div className="font-pixel text-[10px] text-green-400">${token.marketCap}k</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-pixel text-[8px] text-gray-500">CREATOR</div>
+                        <div className="font-pixel text-[8px] text-yellow-400 truncate w-20">{token.creator}</div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 
