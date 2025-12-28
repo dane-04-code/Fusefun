@@ -94,6 +94,15 @@ body.light-theme .bg-gray-900\/50 { background: rgba(241, 245, 249, 0.8); }
     100% { background-position: 0% 50%; }
 }
 
+@keyframes scroll {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+}
+
+.animate-scroll {
+    animation: scroll 30s linear infinite;
+}
+
 /* Gradient Text with Animation */
 .gradient-text {
     background: linear-gradient(135deg, #60a5fa, #3b82f6, #8b5cf6, #a855f7);
