@@ -766,6 +766,12 @@ export class FuseSDK {
         userProfile: userProfilePda,
         referrerProfile: referrerProfile,
         referrerWallet: referrerWallet,
+      })
+      .transaction();
+
+    return tx;
+  }
+
   /**
    * Format lamports to SOL string
    */
