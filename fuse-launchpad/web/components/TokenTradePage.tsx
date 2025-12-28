@@ -183,7 +183,7 @@ const TokenTradePage: React.FC<TokenTradePageProps> = ({ mintAddress }) => {
       };
     } else {
       currentBar.current = {
-        time: candleTime as any,
+        time: candleTime,
         open: price,
         high: price,
         low: price,
@@ -191,7 +191,7 @@ const TokenTradePage: React.FC<TokenTradePageProps> = ({ mintAddress }) => {
       };
     }
 
-    candleSeriesRef.current.update(currentBar.current);
+    candleSeriesRef.current.update(currentBar.current as any);
   }, [lastTrade, mintAddress]);
 
   // Fetch Trades
