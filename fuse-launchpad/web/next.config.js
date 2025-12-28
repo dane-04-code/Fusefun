@@ -18,6 +18,14 @@ const nextConfig = {
     };
     return config;
   },
+  async rewrites() {
+    return [
+      {
+        source: '/',
+        destination: '/index.html',
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;
