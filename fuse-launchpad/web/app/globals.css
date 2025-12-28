@@ -50,6 +50,9 @@
     --ring: 217 91% 60%;
     --chart-1: 217 91% 60%;
     --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
   }
 }
 
@@ -374,11 +377,6 @@ body.light-theme .bg-gray-900\/50 { background: rgba(241, 245, 249, 0.8); }
     transform: scale(0, 0);
     opacity: 0.3;
     transition: 0s;
-}
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-  }
 }
  
 @layer base {
