@@ -17,9 +17,11 @@ dist/
 .anchor/
 *.json
 !package.json
+!package-lock.json
 !tsconfig.json
 !jsconfig.json
 !vercel.json
+!components.json
 
 # System/IDE
 .DS_Store
