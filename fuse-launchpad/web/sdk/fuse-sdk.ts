@@ -772,6 +772,8 @@ export class FuseSDK {
     return tx;
   }
 
+  // Helper Methods
+  
   /**
    * Format lamports to SOL string
    */
