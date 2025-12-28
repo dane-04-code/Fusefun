@@ -765,7 +765,6 @@ export class FuseSDK {
         treasury: this.treasury,
         userProfile: userProfilePda,
         referrerProfile: referrerProfile,
-        referrerWallet: referrerWallet,
         tokenProgram: TOKEN_PROGRAM_ID,
         systemProgram: SystemProgram.programId,
       })
