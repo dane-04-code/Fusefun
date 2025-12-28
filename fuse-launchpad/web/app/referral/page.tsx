@@ -33,14 +33,14 @@ export default function ReferralPage() {
     
     try {
       // Fetch code
-      const codeRes = await fetch(`http://localhost:3001/api/referrals/${wallet.publicKey.toString()}`);
+      const codeRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/referrals/${wallet.publicKey.toString()}`);
       if (codeRes.ok) {
         const data = await codeRes.json();
         setReferralCode(data.code);
       }
 
       // Fetch stats
-      const statsRes = await fetch(`http://localhost:3001/api/referrals/${wallet.publicKey.toString()}/earnings`);
+      const statsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/referrals/${wallet.publicKey.toString()}/earnings`);
       if (statsRes.ok) {
         const data = await statsRes.json();
         setStats(data);
@@ -55,7 +55,7 @@ export default function ReferralPage() {
     
     try {
       setIsLoading(true);
-      const res = await fetch('http://localhost:3001/api/referrals/create', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/referrals/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

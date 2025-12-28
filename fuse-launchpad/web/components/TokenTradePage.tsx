@@ -146,7 +146,7 @@ const TokenTradePage: React.FC<TokenTradePageProps> = ({ mintAddress }) => {
 
     const fetchChartData = async () => {
       try {
-        const res = await fetch(`http://localhost:3001/api/tokens/${mintAddress}/chart`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/tokens/${mintAddress}/chart`);
         if (res.ok) {
           const data = await res.json();
           // Ensure data is sorted by time
@@ -200,7 +200,7 @@ const TokenTradePage: React.FC<TokenTradePageProps> = ({ mintAddress }) => {
 
     const fetchTrades = async () => {
       try {
-        const res = await fetch(`http://localhost:3001/api/tokens/${mintAddress}/trades?limit=50`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/tokens/${mintAddress}/trades?limit=50`);
         if (res.ok) {
           const data = await res.json();
           setTrades(data);
@@ -219,7 +219,7 @@ const TokenTradePage: React.FC<TokenTradePageProps> = ({ mintAddress }) => {
 
     const fetchHolders = async () => {
       try {
-        const res = await fetch(`http://localhost:3001/api/tokens/${mintAddress}/holders`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/tokens/${mintAddress}/holders`);
         if (res.ok) {
           const data = await res.json();
           

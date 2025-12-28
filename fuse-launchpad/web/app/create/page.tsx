@@ -54,7 +54,7 @@ export default function CreateCoinPage() {
       const formData = new FormData()
       formData.append("file", imageFile)
 
-      const imageUploadRes = await fetch("http://localhost:3001/api/pinata/upload-image", {
+      const imageUploadRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/pinata/upload-image`, {
         method: "POST",
         body: formData,
       })
@@ -82,7 +82,7 @@ export default function CreateCoinPage() {
         },
       }
 
-      const metadataUploadRes = await fetch("http://localhost:3001/api/pinata/upload-metadata", {
+      const metadataUploadRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/pinata/upload-metadata`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
