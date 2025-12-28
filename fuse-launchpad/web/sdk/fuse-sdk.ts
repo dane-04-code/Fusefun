@@ -694,7 +694,7 @@ export class FuseSDK {
         // @ts-ignore - dynamic anchor program
         const userProfileAccount = await this.program.account.userProfile.fetchNullable(userProfilePda);
         if (userProfileAccount && userProfileAccount.referrer) {
-            const referrerWallet = userProfileAccount.referrer;
+            const referrerWallet = userProfileAccount.referrer as PublicKey;
             const [refProfilePda] = FuseSDK.getUserProfilePDA(referrerWallet);
             referrerProfile = refProfilePda;
         }
