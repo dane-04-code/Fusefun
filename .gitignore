@@ -32,3 +32,5 @@ dist/
 *.exe
 *.tar.bz2
 *.zip
+.vercel
+.env*.local

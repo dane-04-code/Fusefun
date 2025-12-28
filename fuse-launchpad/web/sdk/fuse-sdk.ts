@@ -723,14 +723,7 @@ export class FuseSDK {
     
     return tx;
   }
-        referrerWallet: referrerWallet,
-        tokenProgram: TOKEN_PROGRAM_ID,
-        systemProgram: SystemProgram.programId,
-      })
-      .transaction();
-    
-    return tx;
-  }
+
 
   /**
    * Build a sell transaction

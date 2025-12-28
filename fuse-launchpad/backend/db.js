@@ -2,8 +2,9 @@ const path = require('path');
 const fs = require('fs');
 const sqlite3 = require('sqlite3');
 
-const DB_DIR = path.join(__dirname, 'data');
-const DB_PATH = path.join(DB_DIR, 'fuse.db');
+// Allow DB path to be configured via environment variable (useful for Railway volumes)
+const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'data', 'fuse.db');
+const DB_DIR = path.dirname(DB_PATH);
 
 function ensureDbDir() {
   if (!fs.existsSync(DB_DIR)) {

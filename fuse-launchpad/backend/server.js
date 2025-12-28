@@ -29,6 +29,22 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' })); // Helius webhooks can be large
 
 // ============================================
+// HEALTH CHECK ENDPOINT
+// ============================================
+app.get('/health', (req, res) => {
+    res.status(200).json({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        environment: {
+            network: NETWORK,
+            helius: !!HELIUS_API_KEY,
+            pinata: !!PINATA_API_KEY
+        }
+    });
+});
+
+// ============================================
 // HELIUS CONFIGURATION
 // ============================================
 const HELIUS_API_KEY = process.env.HELIUS_API_KEY || '';
