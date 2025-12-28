@@ -7,8 +7,8 @@
 
 class FuseAPIClient {
     constructor(options = {}) {
-        this.baseUrl = options.baseUrl || 'http://localhost:3001';
-        this.wsUrl = options.wsUrl || 'ws://localhost:3001';
+        this.baseUrl = options.baseUrl || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+        this.wsUrl = options.wsUrl || (this.baseUrl.replace(/^http/, 'ws')) || 'ws://localhost:3001';
         this.ws = null;
         this.subscriptions = new Map(); // mint -> callbacks[]
         this.reconnectAttempts = 0;

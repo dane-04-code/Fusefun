@@ -9,7 +9,7 @@
 
 class FuseReferralService {
     constructor(options = {}) {
-        this.baseUrl = options.baseUrl || 'http://localhost:3001';
+        this.baseUrl = options.baseUrl || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
         this.storageKey = 'fuse_referral';
         this.referralCodeKey = 'fuse_active_referral_code';
         this.FEE_SHARE_PERCENT = 10; // 10% of fees go to referrer

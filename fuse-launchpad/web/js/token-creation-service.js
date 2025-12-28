@@ -182,7 +182,7 @@ class FuseTokenCreationService {
      */
     async uploadMetadata(tokenData, mint) {
         try {
-            const baseUrl = window.fuseAPI?.baseUrl || 'http://localhost:3001';
+            const baseUrl = window.fuseAPI?.baseUrl || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
             let imageUrl = tokenData.image || '';
             
             // If image is provided and looks like a data URI or File object, upload it to Pinata
@@ -205,7 +205,7 @@ class FuseTokenCreationService {
         } catch (error) {
             console.error('[Pinata] Upload failed, using fallback:', error);
             // Fallback to backend metadata endpoint if Pinata fails
-            const baseUrl = window.fuseAPI?.baseUrl || 'http://localhost:3001';
+            const baseUrl = window.fuseAPI?.baseUrl || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
             return `${baseUrl}/api/metadata/${mint}.json`;
         }
     }

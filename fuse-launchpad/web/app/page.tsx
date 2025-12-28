@@ -49,7 +49,7 @@ export default function Home() {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
       
-      const res = await fetch(`http://127.0.0.1:3001/api/tokens?sort=${sortParam}&limit=20`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:3001'}/api/tokens?sort=${sortParam}&limit=20`, {
         signal: controller.signal
       });
       
