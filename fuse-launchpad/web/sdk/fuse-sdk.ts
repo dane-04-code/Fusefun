@@ -666,7 +666,7 @@ export class FuseSDK {
       const [referralCodePda] = FuseSDK.getReferralCodePDA(code);
       // @ts-ignore
       const account = await this.program.account.referralCode.fetch(referralCodePda);
-      return account.owner;
+      return account.owner as PublicKey;
     } catch (e) {
       console.error('Error resolving referral code:', e);
       return null;
