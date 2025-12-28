@@ -1,9 +1,6 @@
 {
-  "builds": [
-    {
-      "src": "fuse-launchpad/web/package.json",
-      "use": "@vercel/next"
-    }
-  ],
-  "routes": []
+  "buildCommand": "cd fuse-launchpad/web && npm install && npm run build",
+  "outputDirectory": "fuse-launchpad/web/.next",
+  "installCommand": "cd fuse-launchpad/web && npm install",
+  "framework": "nextjs"
 }
