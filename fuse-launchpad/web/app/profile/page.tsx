@@ -25,16 +25,16 @@ export default function ProfilePage() {
     if (!connected) {
         return (
             <div className="max-w-2xl mx-auto text-center py-20">
-                <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center mx-auto mb-6">
+                <div className="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-6 border border-white/10">
                     <WalletIcon className="w-12 h-12 text-muted-foreground" />
                 </div>
-                <h1 className="text-2xl font-heading font-bold mb-3">Connect Your Wallet</h1>
-                <p className="text-muted-foreground mb-8">
+                <h1 className="text-3xl font-heading font-bold mb-3">Connect Your Wallet</h1>
+                <p className="text-muted-foreground mb-8 text-lg">
                     Connect your Solana wallet to view your profile, portfolio, and trading activity.
                 </p>
                 <button
                     onClick={() => setVisible(true)}
-                    className="px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white font-semibold rounded-xl shadow-lg shadow-green-500/25 transition-all"
+                    className="px-8 py-3 bg-primary hover:bg-primary/90 text-white font-semibold rounded-xl shadow-lg shadow-primary/25 transition-all hover:scale-105 active:scale-95"
                 >
                     Connect Wallet
                 </button>
@@ -45,47 +45,49 @@ export default function ProfilePage() {
     const address = publicKey?.toBase58() || "";
 
     return (
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-5xl mx-auto pt-8">
             {/* Profile Header */}
-            <div className="glass-card rounded-2xl p-6 mb-6">
-                <div className="flex flex-col md:flex-row items-center gap-6">
+            <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-black/40 backdrop-blur-xl p-8 mb-8">
+                {/* Background Glow */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 blur-[100px] pointer-events-none" />
+
+                <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
                     {/* Avatar */}
-                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-emerald-600 flex items-center justify-center text-4xl shadow-lg shadow-primary/30">
+                    <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-5xl shadow-2xl shadow-primary/20 ring-4 ring-black/50">
                         🦊
                     </div>
 
                     {/* Info */}
                     <div className="flex-1 text-center md:text-left">
-                        <h1 className="text-xl font-heading font-bold mb-1">
-                            {address.slice(0, 8)}...{address.slice(-8)}
+                        <h1 className="text-2xl md:text-3xl font-heading font-bold mb-2 tracking-tight">
+                            {address.slice(0, 6)}...{address.slice(-6)}
                         </h1>
-                        <div className="flex items-center justify-center md:justify-start gap-2 text-sm text-muted-foreground">
-                            <span>Joined Dec 2024</span>
-                            <span>•</span>
-                            <span>12 trades</span>
+                        <div className="flex items-center justify-center md:justify-start gap-4 text-sm text-muted-foreground">
+                            <span className="bg-white/5 px-3 py-1 rounded-full border border-white/5">Joined Dec 2024</span>
+                            <span className="bg-white/5 px-3 py-1 rounded-full border border-white/5">12 trades</span>
                         </div>
                     </div>
 
                     {/* Stats */}
-                    <div className="grid grid-cols-3 gap-6 text-center">
+                    <div className="grid grid-cols-3 gap-8 text-center bg-black/20 p-6 rounded-2xl border border-white/5">
                         <div>
-                            <div className="text-xl font-bold text-green-400">$858.35</div>
-                            <div className="text-xs text-muted-foreground">Total Value</div>
+                            <div className="text-2xl font-bold text-green-400">$858.35</div>
+                            <div className="text-xs text-muted-foreground uppercase tracking-wider font-medium mt-1">Total Value</div>
                         </div>
-                        <div>
-                            <div className="text-xl font-bold text-foreground">3</div>
-                            <div className="text-xs text-muted-foreground">Tokens Held</div>
+                        <div className="border-l border-white/5 pl-8">
+                            <div className="text-2xl font-bold text-foreground">3</div>
+                            <div className="text-xs text-muted-foreground uppercase tracking-wider font-medium mt-1">Tokens</div>
                         </div>
-                        <div>
-                            <div className="text-xl font-bold text-blue-400">+45.2%</div>
-                            <div className="text-xs text-muted-foreground">All-time PnL</div>
+                        <div className="border-l border-white/5 pl-8">
+                            <div className="text-2xl font-bold text-blue-400">+45.2%</div>
+                            <div className="text-xs text-muted-foreground uppercase tracking-wider font-medium mt-1">PnL</div>
                         </div>
                     </div>
                 </div>
             </div>
 
             {/* Tabs */}
-            <div className="flex gap-2 mb-6">
+            <div className="flex gap-2 mb-6 p-1 bg-black/20 rounded-xl w-fit border border-white/5">
                 {[
                     { id: "portfolio" as const, label: "Portfolio" },
                     { id: "activity" as const, label: "Activity" },
@@ -94,9 +96,9 @@ export default function ProfilePage() {
                     <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
-                        className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeTab === tab.id
-                                ? "bg-primary text-primary-foreground"
-                                : "bg-muted/50 text-muted-foreground hover:text-foreground"
+                        className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === tab.id
+                            ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                            : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                             }`}
                     >
                         {tab.label}
@@ -105,90 +107,94 @@ export default function ProfilePage() {
             </div>
 
             {/* Content */}
-            {activeTab === "portfolio" && (
-                <div className="glass-card rounded-2xl overflow-hidden">
-                    <table className="w-full">
-                        <thead className="border-b border-border">
-                            <tr className="text-xs text-muted-foreground">
-                                <th className="text-left p-4">Token</th>
-                                <th className="text-right p-4">Balance</th>
-                                <th className="text-right p-4">Value</th>
-                                <th className="text-right p-4">PnL</th>
-                                <th className="text-right p-4">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {mockPortfolio.map((token) => (
-                                <tr key={token.id} className="border-b border-border/50 hover:bg-white/5 transition-colors">
-                                    <td className="p-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-emerald-600/20 flex items-center justify-center text-xl">
-                                                {token.emoji}
-                                            </div>
-                                            <div>
-                                                <div className="font-semibold">{token.name}</div>
-                                                <div className="text-xs text-muted-foreground">{token.ticker}</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="p-4 text-right font-mono text-sm">{token.balance}</td>
-                                    <td className="p-4 text-right font-semibold">{token.value}</td>
-                                    <td className={`p-4 text-right font-semibold ${token.pnl.startsWith("+") ? "text-green-400" : "text-red-400"
-                                        }`}>
-                                        {token.pnl}
-                                    </td>
-                                    <td className="p-4 text-right">
-                                        <button className="px-3 py-1.5 text-xs bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors">
-                                            Trade
-                                        </button>
-                                    </td>
+            <div className="min-h-[400px]">
+                {activeTab === "portfolio" && (
+                    <div className="rounded-3xl border border-white/10 bg-black/40 backdrop-blur-xl overflow-hidden">
+                        <table className="w-full">
+                            <thead className="bg-white/5 border-b border-white/5">
+                                <tr className="text-xs text-muted-foreground uppercase tracking-wider">
+                                    <th className="text-left p-6 font-medium">Token</th>
+                                    <th className="text-right p-6 font-medium">Balance</th>
+                                    <th className="text-right p-6 font-medium">Value</th>
+                                    <th className="text-right p-6 font-medium">PnL</th>
+                                    <th className="text-right p-6 font-medium">Actions</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
-
-            {activeTab === "activity" && (
-                <div className="glass-card rounded-2xl p-4">
-                    <div className="space-y-3">
-                        {mockActivity.map((activity, i) => (
-                            <div key={i} className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-colors">
-                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${activity.type === "buy" ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"
-                                    }`}>
-                                    {activity.type === "buy" ? "↓" : "↑"}
-                                </div>
-                                <div className="flex-1">
-                                    <div className="font-semibold">
-                                        {activity.type === "buy" ? "Bought" : "Sold"} {activity.token}
-                                    </div>
-                                    <div className="text-xs text-muted-foreground">{activity.amount} tokens</div>
-                                </div>
-                                <div className="text-right">
-                                    <div className="font-semibold">{activity.value}</div>
-                                    <div className="text-xs text-muted-foreground">{activity.time}</div>
-                                </div>
-                            </div>
-                        ))}
+                            </thead>
+                            <tbody>
+                                {mockPortfolio.map((token) => (
+                                    <tr key={token.id} className="border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors group">
+                                        <td className="p-6">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-blue-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                                                    {token.emoji}
+                                                </div>
+                                                <div>
+                                                    <div className="font-bold text-lg">{token.name}</div>
+                                                    <div className="text-sm text-blue-400 font-mono">{token.ticker}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="p-6 text-right font-mono text-base">{token.balance}</td>
+                                        <td className="p-6 text-right font-bold text-base">{token.value}</td>
+                                        <td className={`p-6 text-right font-bold text-base ${token.pnl.startsWith("+") ? "text-green-400" : "text-red-400"
+                                            }`}>
+                                            {token.pnl}
+                                        </td>
+                                        <td className="p-6 text-right">
+                                            <button className="px-4 py-2 text-xs font-bold bg-white/5 text-foreground rounded-lg hover:bg-primary hover:text-black hover:shadow-[0_0_15px_rgba(var(--primary),0.5)] transition-all">
+                                                TRADE
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
-                </div>
-            )}
+                )}
 
-            {activeTab === "created" && (
-                <div className="glass-card rounded-2xl p-8 text-center">
-                    <div className="text-4xl mb-4">📝</div>
-                    <h3 className="font-heading font-semibold mb-2">No tokens created yet</h3>
-                    <p className="text-sm text-muted-foreground mb-4">
-                        Launch your first token and it will appear here!
-                    </p>
-                    <a
-                        href="/create"
-                        className="inline-flex items-center gap-2 px-6 py-2 bg-primary/10 text-primary rounded-xl hover:bg-primary/20 transition-colors"
-                    >
-                        Create Token →
-                    </a>
-                </div>
-            )}
+                {activeTab === "activity" && (
+                    <div className="rounded-3xl border border-white/10 bg-black/40 backdrop-blur-xl p-2">
+                        <div className="space-y-1">
+                            {mockActivity.map((activity, i) => (
+                                <div key={i} className="flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 transition-colors group">
+                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border border-white/5 ${activity.type === "buy" ? "bg-green-500/10 text-green-400" : "bg-red-500/10 text-red-400"
+                                        }`}>
+                                        <div className="group-hover:scale-110 transition-transform">
+                                            {activity.type === "buy" ? "↙" : "↗"}
+                                        </div>
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="font-bold text-base">
+                                            {activity.type === "buy" ? "Bought" : "Sold"} <span className={activity.type === 'buy' ? 'text-green-400' : 'text-red-400'}>{activity.token}</span>
+                                        </div>
+                                        <div className="text-sm text-muted-foreground font-mono">{activity.amount} tokens</div>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="font-bold text-lg">{activity.value}</div>
+                                        <div className="text-xs text-muted-foreground">{activity.time}</div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === "created" && (
+                    <div className="rounded-3xl border border-white/10 bg-black/40 backdrop-blur-xl p-12 text-center">
+                        <div className="text-6xl mb-6 opacity-50">📝</div>
+                        <h3 className="text-xl font-heading font-bold mb-2">No tokens created yet</h3>
+                        <p className="text-muted-foreground mb-8 max-w-sm mx-auto">
+                            Launch your first token today and start building your community on the fairest launchpad.
+                        </p>
+                        <a
+                            href="/create"
+                            className="inline-flex items-center gap-2 px-8 py-3 bg-primary text-black font-bold rounded-xl hover:bg-primary/90 hover:shadow-[0_0_20px_rgba(var(--primary),0.4)] transition-all"
+                        >
+                            Create Token →
+                        </a>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

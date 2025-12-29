@@ -2,27 +2,9 @@
 
 import { useState } from "react";
 import { TokenCard } from "@/components/dashboard/TokenCard";
-import { KingHillSection } from "@/components/dashboard/KingHillSection";
+import { HeroSection } from "@/components/dashboard/HeroSection";
 
-// Mock data
-const kingData = {
-  id: "bonk",
-  name: "WowDogecoin",
-  ticker: "$WDOGE",
-  emoji: "🐕",
-  volume24h: "$4.2M",
-  marketCap: "$12.5M",
-  holders: "45,892",
-  gain: "+1,247%",
-  transactions: "128K",
-};
-
-const trendingTokens = [
-  { id: "1", name: "ShibaInu", ticker: "$SHIB", emoji: "🦊", marketCap: "$21.23M", progress: 85, volume24h: "$1.2M" },
-  { id: "2", name: "PepeBNB", ticker: "$PEPE", emoji: "🐸", marketCap: "$63,921", progress: 65 },
-  { id: "3", name: "MoonCat", ticker: "$MCAT", emoji: "🐱", marketCap: "$78.5K", progress: 42, creator: "User8123" },
-];
-
+// Mock data (Keeping existing mock data for the grid)
 const mockTokens = [
   { id: "4", name: "PepeSol", ticker: "$PSOL", emoji: "🐸", marketCap: "$45.2K", progress: 38, creator: "User4921", description: "The most retro token on Solana" },
   { id: "5", name: "MoonCat", ticker: "$MCAT", emoji: "🐱", marketCap: "$78.5K", progress: 52, creator: "User8123", description: "Climb to the moon" },
@@ -47,83 +29,63 @@ export default function Home() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto">
-      {/* Ticker */}
-      <div className="ticker-wrap rounded-xl mb-6 overflow-hidden">
-        <div className="ticker-content">
-          <span className="ticker-item text-yellow-400">👑 $WDOGE is King of the Hill! $4.2M 24h volume</span>
-          <span className="ticker-item text-green-400">🚀 New token launching every minute</span>
-          <span className="ticker-item text-blue-400">💎 3 tokens graduating today</span>
-          <span className="ticker-item text-purple-400">⚡ Live on Solana Mainnet</span>
-          <span className="ticker-item text-pink-400">🔥 $2.5M total volume today</span>
-          <span className="ticker-item text-green-400">✨ Fair launch - No presale, No team tokens</span>
-          <span className="ticker-item text-cyan-400">🛡️ Anti-rug protection enabled</span>
-          {/* Duplicate for seamless loop */}
-          <span className="ticker-item text-yellow-400">👑 $WDOGE is King of the Hill! $4.2M 24h volume</span>
-          <span className="ticker-item text-green-400">🚀 New token launching every minute</span>
-          <span className="ticker-item text-blue-400">💎 3 tokens graduating today</span>
-          <span className="ticker-item text-purple-400">⚡ Live on Solana Mainnet</span>
-        </div>
-      </div>
+    <div className="w-full">
+      {/* Hero Section (Market Today + 4 Columns) */}
+      <HeroSection />
 
-      {/* Trending Now Section */}
-      <section className="mb-10">
-        <div className="flex items-center gap-2 mb-6">
-          <span className="text-2xl">🔥</span>
-          <h2 className="text-xl font-heading font-bold">Trending Now</h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {trendingTokens.map((token, index) => (
-            <TokenCard
-              key={token.id}
-              {...token}
-              isKing={index === 0}
-            />
-          ))}
-        </div>
-      </section>
-
-      {/* King of the Hill */}
-      <KingHillSection king={kingData} />
-
-      {/* Filter Tabs */}
-      <div className="flex items-center gap-2 mb-6">
-        <div className="flex bg-muted/50 rounded-xl p-1">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === tab.id
-                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
-                  : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-                }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+      {/* Filter Tabs & Search Bar */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6 bg-muted/30 p-2 rounded-xl border border-white/5">
+        {/* Search */}
+        <div className="relative w-full sm:w-auto flex-1 max-w-md">
+          <input
+            type="text"
+            placeholder="Search ..."
+            className="w-full bg-background border border-border rounded-lg pl-4 pr-10 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary/50 placeholder:text-muted-foreground/50"
+          />
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground border border-border px-1.5 rounded">
+            ⌘ J
+          </div>
         </div>
 
-        {/* Sort Dropdown */}
-        <div className="ml-auto">
-          <select className="bg-muted/50 border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50">
-            <option value="mcap">Top MC</option>
-            <option value="volume">Volume</option>
-            <option value="newest">Newest</option>
-            <option value="progress">Progress</option>
-          </select>
+        {/* Filters currently disabled in UI but kept in logic or replaced by simple toggles as per image */}
+        <div className="flex items-center gap-4">
+          <label className="flex items-center gap-2 cursor-pointer text-sm text-muted-foreground hover:text-foreground">
+            <input type="checkbox" className="rounded border-border bg-muted text-primary focus:ring-0" />
+            Listed on Raydium
+          </label>
+
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Sort:</span>
+            <select className="bg-background border border-border rounded-lg px-2 py-1.5 text-sm focus:outline-none">
+              <option>Last Bump</option>
+              <option>Market Cap</option>
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Order:</span>
+            <select className="bg-background border border-border rounded-lg px-2 py-1.5 text-sm focus:outline-none">
+              <option>Desc</option>
+              <option>Asc</option>
+            </select>
+          </div>
         </div>
       </div>
 
       {/* Token Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         {mockTokens.map((token) => (
           <TokenCard key={token.id} {...token} />
+        ))}
+        {/* Additional Mock cards to fill grid */}
+        {mockTokens.slice(0, 4).map((token) => (
+          <TokenCard key={`${token.id}-dup`} {...token} />
         ))}
       </div>
 
       {/* Load More */}
       <div className="text-center mb-12">
-        <button className="px-8 py-3 rounded-xl font-semibold border border-border hover:border-primary/50 hover:bg-white/5 transition-all">
+        <button className="px-8 py-3 rounded-xl font-semibold border border-border hover:border-primary/50 hover:bg-white/5 transition-all text-sm">
           Load More Tokens ↓
         </button>
       </div>

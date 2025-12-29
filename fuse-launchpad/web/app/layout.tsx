@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { SolanaWalletProvider } from "@/components/providers/wallet-provider";
-import { Sidebar } from "@/components/layout/Sidebar";
 import { TopBar } from "@/components/layout/TopBar";
 
 export const metadata: Metadata = {
@@ -24,16 +23,14 @@ export default function RootLayout({
       <body>
         <SolanaWalletProvider>
           <div className="min-h-screen animated-bg">
-            {/* Sidebar */}
-            <Sidebar />
 
-            {/* Main Content Area */}
-            <div className="lg:pl-64">
+            {/* Main Content Area - Full Width */}
+            <div className="w-full">
               {/* Top Bar */}
               <TopBar />
 
               {/* Page Content */}
-              <main className="p-4 lg:p-6">
+              <main className="p-4 lg:p-6 max-w-[1600px] mx-auto">
                 {children}
               </main>
             </div>

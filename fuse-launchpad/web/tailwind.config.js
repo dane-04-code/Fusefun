@@ -32,8 +32,8 @@ module.exports = {
           foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: "#3B82F6", // Blue-500
+          foreground: "#FFFFFF",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
@@ -57,10 +57,10 @@ module.exports = {
         },
         // Custom Fusey colors
         fusey: {
-          green: "hsl(var(--fusey-green))",
-          yellow: "hsl(var(--fusey-yellow))",
-          blue: "hsl(var(--fusey-blue))",
-          purple: "hsl(var(--fusey-purple))",
+          green: "#00FF94", // Neon Green
+          yellow: "#FFD600",
+          blue: "#00C2FF", // Cyan/Tech Blue
+          purple: "#9D00FF",
         },
       },
       borderRadius: {

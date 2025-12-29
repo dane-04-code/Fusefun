@@ -21,7 +21,7 @@ export function Sidebar() {
             {/* Mobile Menu Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="fixed top-4 left-4 z-[60] lg:hidden p-2 rounded-lg bg-card border border-border"
+                className="fixed top-4 left-4 z-[60] lg:hidden p-2 rounded-lg bg-card/50 backdrop-blur-md border border-white/10 text-foreground"
                 aria-label="Toggle menu"
             >
                 <MenuIcon className="w-5 h-5" />
@@ -30,29 +30,29 @@ export function Sidebar() {
             {/* Overlay for mobile */}
             {isOpen && (
                 <div
-                    className="fixed inset-0 bg-black/60 z-40 lg:hidden"
+                    className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 lg:hidden"
                     onClick={() => setIsOpen(false)}
                 />
             )}
 
             {/* Sidebar */}
             <aside
-                className={`sidebar ${isOpen ? "open translate-x-0" : ""}`}
+                className={`fixed left-0 top-0 h-full w-64 bg-black/40 backdrop-blur-2xl border-r border-white/5 z-50 flex flex-col transition-transform duration-300 lg:translate-x-0 ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
             >
                 {/* Logo */}
-                <div className="p-6 border-b border-border">
+                <div className="p-6 border-b border-white/5">
                     <Link href="/" className="flex items-center gap-3 group">
-                        <div className="relative h-10 w-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-green-500/30 group-hover:shadow-green-500/50 transition-shadow">
+                        <div className="relative h-10 w-10 flex items-center justify-center bg-gradient-to-br from-primary to-blue-600 rounded-lg shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-shadow">
                             <span className="text-white text-lg font-bold font-heading">F</span>
                         </div>
-                        <span className="text-xl font-heading font-bold gradient-text">
+                        <span className="text-xl font-heading font-bold text-white tracking-wide group-hover:text-primary transition-colors">
                             FUSEY
                         </span>
                     </Link>
                 </div>
 
                 {/* Navigation */}
-                <nav className="flex-1 py-6">
+                <nav className="flex-1 py-6 px-3">
                     <ul className="space-y-1">
                         {navItems.map((item) => {
                             const isActive = pathname === item.href;
@@ -61,10 +61,13 @@ export function Sidebar() {
                                     <Link
                                         href={item.href}
                                         onClick={() => setIsOpen(false)}
-                                        className={`sidebar-link ${isActive ? "active" : ""}`}
+                                        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${isActive
+                                            ? "bg-primary/10 text-primary border border-primary/20 shadow-[0_0_15px_rgba(var(--primary),0.1)]"
+                                            : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                                            }`}
                                     >
-                                        <item.icon className="w-5 h-5" />
-                                        <span className="text-sm font-medium">{item.label}</span>
+                                        <item.icon className={`w-5 h-5 ${isActive ? "text-primary" : ""}`} />
+                                        <span>{item.label}</span>
                                     </Link>
                                 </li>
                             );
@@ -73,39 +76,31 @@ export function Sidebar() {
                 </nav>
 
                 {/* Social Links */}
-                <div className="p-6 border-t border-border">
+                <div className="p-6 border-t border-white/5 bg-black/20">
                     <div className="flex items-center justify-center gap-4">
-                        <a
-                            href="https://twitter.com"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="p-2 rounded-lg hover:bg-white/5 text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                            <TwitterIcon className="w-5 h-5" />
-                        </a>
-                        <a
-                            href="https://telegram.org"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="p-2 rounded-lg hover:bg-white/5 text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                            <TelegramIcon className="w-5 h-5" />
-                        </a>
-                        <a
-                            href="https://discord.com"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="p-2 rounded-lg hover:bg-white/5 text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                            <DiscordIcon className="w-5 h-5" />
-                        </a>
+                        <SocialLink href="https://twitter.com" icon={TwitterIcon} />
+                        <SocialLink href="https://telegram.org" icon={TelegramIcon} />
+                        <SocialLink href="https://discord.com" icon={DiscordIcon} />
                     </div>
-                    <p className="text-xs text-muted-foreground text-center mt-4">
+                    <p className="text-[10px] text-muted-foreground/50 text-center mt-4 uppercase tracking-widest">
                         © 2024 Fusey
                     </p>
                 </div>
             </aside>
         </>
+    );
+}
+
+function SocialLink({ href, icon: Icon }: { href: string; icon: any }) {
+    return (
+        <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-2 rounded-lg hover:bg-white/10 text-muted-foreground hover:text-white transition-colors"
+        >
+            <Icon className="w-5 h-5" />
+        </a>
     );
 }
 

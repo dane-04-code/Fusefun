@@ -1,14 +1,23 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
+
+const navItems = [
+    { href: "/", label: "Home" },
+    { href: "/king-of-the-hill", label: "Ranking" },
+    { href: "/rewards", label: "Rewards" },
+    { href: "/how-it-works", label: "How it works" },
+];
 
 export function TopBar() {
     const [searchQuery, setSearchQuery] = useState("");
     const { connected, publicKey, disconnect } = useWallet();
     const { setVisible } = useWalletModal();
+    const pathname = usePathname();
 
     const handleWalletClick = () => {
         if (connected) {
@@ -23,47 +32,56 @@ export function TopBar() {
     };
 
     return (
-        <header className="sticky top-0 z-30 bg-card/80 backdrop-blur-xl border-b border-border">
+        <header className="sticky top-0 z-30 bg-black/40 backdrop-blur-xl border-b border-white/5">
             <div className="flex items-center justify-between h-16 px-4 lg:px-6">
-                {/* Search Bar */}
-                <div className="flex-1 max-w-md ml-12 lg:ml-0">
-                    <div className="relative">
+                {/* Logo & Nav */}
+                <div className="flex items-center gap-8">
+                    {/* Mobile Logo (visible only on mobile if Sidebar is hidden/custom logic needed, but keeping generally consistent) */}
+                    <Link href="/" className="lg:hidden flex items-center gap-2 group">
+                        <div className="relative h-8 w-8 bg-gradient-to-br from-primary to-blue-500 rounded-lg flex items-center justify-center">
+                            <span className="text-white text-md font-bold font-heading">F</span>
+                        </div>
+                        <span className="text-lg font-heading font-bold text-white">
+                            FUSEY
+                        </span>
+                    </Link>
+                </div>
+
+                {/* Right Side Actions */}
+                <div className="flex items-center gap-3 ml-auto">
+                    {/* Search Bar */}
+                    <div className="hidden md:block relative w-64 lg:w-96">
                         <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <input
                             type="text"
                             placeholder="Search tokens..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 bg-muted/50 border border-border rounded-xl text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
+                            className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/5 rounded-lg focus:border-primary/50 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all"
                         />
                     </div>
-                </div>
 
-                {/* Right Side Actions */}
-                <div className="flex items-center gap-3">
                     {/* Launch Token Button */}
                     <Link
                         href="/create"
-                        className="hidden sm:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white font-semibold rounded-xl text-sm shadow-lg shadow-green-500/25 transition-all hover:shadow-green-500/40"
+                        className="hidden sm:flex items-center gap-2 px-5 py-2 bg-primary hover:bg-primary/90 text-white font-bold text-sm rounded-lg transition-all shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-0.5"
                     >
                         <RocketIcon className="w-4 h-4" />
-                        <span>Launch Token</span>
+                        LAUNCH
                     </Link>
 
                     {/* Wallet Button */}
                     <button
                         onClick={handleWalletClick}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${connected
-                                ? "bg-muted border border-border hover:border-primary/50 text-foreground"
-                                : "bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20"
+                        className={`flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg transition-all border ${connected
+                            ? "bg-secondary border-white/10 text-white hover:bg-secondary/80"
+                            : "bg-blue-600 hover:bg-blue-500 text-white border-transparent shadow-lg shadow-blue-600/20"
                             }`}
                     >
                         <WalletIcon className="w-4 h-4" />
-                        <span>
-                            {connected && publicKey
-                                ? formatAddress(publicKey.toBase58())
-                                : "Connect Wallet"}
-                        </span>
+                        {connected && publicKey
+                            ? formatAddress(publicKey.toBase58())
+                            : "Connect Wallet"}
                     </button>
                 </div>
             </div>

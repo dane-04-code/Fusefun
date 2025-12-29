@@ -60,97 +60,106 @@ export default function CreateTokenPage() {
   ];
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <div className="max-w-5xl mx-auto pt-8">
       {/* Header */}
-      <div className="text-center mb-10">
-        <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/30 rounded-full px-4 py-2 mb-4">
-          <span className="text-xl">🚀</span>
-          <span className="text-sm text-green-300 font-medium">Launch Your Token</span>
+      <div className="text-center mb-10 relative">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/20 blur-[100px] pointer-events-none" />
+        <div className="relative z-10">
+          <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-4 py-1.5 mb-6 backdrop-blur-sm">
+            <span className="text-xl">🚀</span>
+            <span className="text-sm text-primary font-bold uppercase tracking-wide">Launch Your Token</span>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-heading font-black mb-4 tracking-tight">
+            Create a <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-500">Legendary</span> Token
+          </h1>
+          <p className="text-muted-foreground text-lg max-w-xl mx-auto">
+            Launch your coin in seconds with <span className="text-foreground font-semibold">fair mechanics</span> and <span className="text-foreground font-semibold">anti-rug protection</span>.
+          </p>
         </div>
-        <h1 className="text-3xl md:text-4xl font-heading font-bold mb-3">
-          Create Your <span className="gradient-text">Token</span>
-        </h1>
-        <p className="text-muted-foreground max-w-xl mx-auto">
-          Launch your token in seconds with anti-rug protection. No coding required.
-        </p>
       </div>
 
       {/* Progress Steps */}
-      <div className="flex items-center justify-center gap-4 mb-10">
+      <div className="flex items-center justify-center gap-6 mb-12 relative z-10">
         {steps.map((s, i) => (
           <div key={s.id} className="flex items-center">
             <div
-              className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${step >= s.id
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground"
+              className={`w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-lg transition-all border ${step >= s.id
+                ? "bg-primary text-black border-primary shadow-[0_0_15px_rgba(var(--primary),0.3)]"
+                : "bg-black/40 border-white/10 text-muted-foreground"
                 }`}
             >
               {step > s.id ? "✓" : s.id}
             </div>
-            <span className={`ml-2 text-sm hidden sm:block ${step >= s.id ? "text-foreground" : "text-muted-foreground"
+            <div className={`ml-3 text-sm hidden sm:block font-medium ${step >= s.id ? "text-foreground" : "text-muted-foreground"
               }`}>
               {s.title}
-            </span>
+            </div>
             {i < steps.length - 1 && (
-              <div className={`w-12 h-0.5 ml-4 ${step > s.id ? "bg-primary" : "bg-muted"
+              <div className={`w-16 h-0.5 ml-6 bg-gradient-to-r ${step > s.id ? "from-primary to-primary" : "from-white/10 to-white/5"
                 }`} />
             )}
           </div>
         ))}
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-8">
+      <div className="grid lg:grid-cols-2 gap-8 relative z-10">
         {/* Form */}
-        <div className="glass-card rounded-2xl p-6">
+        <div className="rounded-3xl border border-white/10 bg-black/40 backdrop-blur-xl p-8">
           {step === 1 && (
             <div className="space-y-6">
-              <h2 className="text-lg font-heading font-bold mb-4">Token Information</h2>
+              <h2 className="text-xl font-heading font-bold mb-4 flex items-center gap-2">
+                <span className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary text-sm">1</span>
+                Token Information
+              </h2>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Token Name *</label>
+                <label className="block text-sm font-bold mb-2 text-muted-foreground/80">TOKEN NAME</label>
                 <input
                   type="text"
                   value={form.name}
                   onChange={(e) => updateForm("name", e.target.value)}
                   placeholder="e.g., Moon Cat"
-                  className="w-full px-4 py-3 bg-muted/50 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
+                  className="w-full px-5 py-3.5 bg-black/20 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all text-foreground placeholder:text-muted-foreground/50"
+                  autoFocus
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Ticker Symbol *</label>
+                <label className="block text-sm font-bold mb-2 text-muted-foreground/80">TICKER</label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                  <span className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground font-bold">$</span>
                   <input
                     type="text"
                     value={form.ticker}
                     onChange={(e) => updateForm("ticker", e.target.value.toUpperCase())}
                     placeholder="MCAT"
                     maxLength={10}
-                    className="w-full pl-8 pr-4 py-3 bg-muted/50 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all uppercase"
+                    className="w-full pl-9 pr-5 py-3.5 bg-black/20 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all text-primary font-bold uppercase placeholder:text-muted-foreground/50"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Description</label>
+                <label className="block text-sm font-bold mb-2 text-muted-foreground/80">DESCRIPTION</label>
                 <textarea
                   value={form.description}
                   onChange={(e) => updateForm("description", e.target.value)}
                   placeholder="Tell the world about your token..."
                   rows={4}
-                  className="w-full px-4 py-3 bg-muted/50 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all resize-none"
+                  className="w-full px-5 py-3.5 bg-black/20 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all resize-none text-foreground placeholder:text-muted-foreground/50"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Token Image</label>
-                <div className="border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-primary/50 transition-colors cursor-pointer">
-                  <div className="text-4xl mb-2">📁</div>
-                  <p className="text-sm text-muted-foreground">
-                    Drop image here or <span className="text-primary">browse</span>
+                <label className="block text-sm font-bold mb-2 text-muted-foreground/80">TOKEN IMAGE</label>
+                <div className="border-2 border-dashed border-white/10 rounded-xl p-8 text-center hover:border-primary/50 hover:bg-white/5 transition-all cursor-pointer group">
+                  <div className="w-16 h-16 rounded-full bg-white/5 mx-auto mb-3 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <span className="text-3xl">📁</span>
+                  </div>
+                  <p className="text-sm font-medium">
+                    Drop image here or <span className="text-primary hover:underline">browse</span>
                   </p>
-                  <p className="text-xs text-muted-foreground mt-1">PNG, JPG, GIF up to 5MB</p>
+                  <p className="text-xs text-muted-foreground mt-2">PNG, JPG, GIF up to 5MB</p>
                 </div>
               </div>
             </div>
@@ -158,13 +167,13 @@ export default function CreateTokenPage() {
 
           {step === 2 && (
             <div className="space-y-6">
-              <h2 className="text-lg font-heading font-bold mb-4">Social Links (Optional)</h2>
-              <p className="text-sm text-muted-foreground mb-6">
-                Add social links to build trust with your community.
-              </p>
+              <h2 className="text-xl font-heading font-bold mb-4 flex items-center gap-2">
+                <span className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary text-sm">2</span>
+                Social Links <span className="text-xs bg-white/10 px-2 py-0.5 rounded text-muted-foreground font-normal ml-2">OPTIONAL</span>
+              </h2>
 
               <div>
-                <label className="block text-sm font-medium mb-2 flex items-center gap-2">
+                <label className="block text-sm font-bold mb-2 flex items-center gap-2 text-muted-foreground/80">
                   <TwitterIcon className="w-4 h-4 text-[#1DA1F2]" /> Twitter
                 </label>
                 <input
@@ -172,12 +181,12 @@ export default function CreateTokenPage() {
                   value={form.twitter}
                   onChange={(e) => updateForm("twitter", e.target.value)}
                   placeholder="https://twitter.com/yourtoken"
-                  className="w-full px-4 py-3 bg-muted/50 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
+                  className="w-full px-5 py-3.5 bg-black/20 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2 flex items-center gap-2">
+                <label className="block text-sm font-bold mb-2 flex items-center gap-2 text-muted-foreground/80">
                   <TelegramIcon className="w-4 h-4 text-[#0088cc]" /> Telegram
                 </label>
                 <input
@@ -185,20 +194,20 @@ export default function CreateTokenPage() {
                   value={form.telegram}
                   onChange={(e) => updateForm("telegram", e.target.value)}
                   placeholder="https://t.me/yourtoken"
-                  className="w-full px-4 py-3 bg-muted/50 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
+                  className="w-full px-5 py-3.5 bg-black/20 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2 flex items-center gap-2">
-                  <GlobeIcon className="w-4 h-4" /> Website
+                <label className="block text-sm font-bold mb-2 flex items-center gap-2 text-muted-foreground/80">
+                  <GlobeIcon className="w-4 h-4 text-emerald-400" /> Website
                 </label>
                 <input
                   type="text"
                   value={form.website}
                   onChange={(e) => updateForm("website", e.target.value)}
                   placeholder="https://yourtoken.com"
-                  className="w-full px-4 py-3 bg-muted/50 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
+                  className="w-full px-5 py-3.5 bg-black/20 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
                 />
               </div>
             </div>
@@ -206,39 +215,39 @@ export default function CreateTokenPage() {
 
           {step === 3 && (
             <div className="space-y-6">
-              <h2 className="text-lg font-heading font-bold mb-4">Review & Launch</h2>
+              <h2 className="text-xl font-heading font-bold mb-6 flex items-center gap-2">
+                <span className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary text-sm">3</span>
+                Review & Launch
+              </h2>
 
-              <div className="space-y-4">
-                <div className="flex justify-between py-3 border-b border-border">
-                  <span className="text-muted-foreground">Token Name</span>
-                  <span className="font-medium">{form.name || "Not set"}</span>
+              <div className="space-y-2 bg-black/20 rounded-xl p-6 border border-white/5">
+                <div className="flex justify-between py-2 border-b border-white/5">
+                  <span className="text-muted-foreground text-sm">Token Name</span>
+                  <span className="font-bold text-foreground">{form.name || "Not set"}</span>
                 </div>
-                <div className="flex justify-between py-3 border-b border-border">
-                  <span className="text-muted-foreground">Ticker</span>
-                  <span className="font-medium">${form.ticker || "NOT SET"}</span>
+                <div className="flex justify-between py-2 border-b border-white/5">
+                  <span className="text-muted-foreground text-sm">Ticker</span>
+                  <span className="font-bold text-blue-400">${form.ticker || "NOT SET"}</span>
                 </div>
-                <div className="flex justify-between py-3 border-b border-border">
-                  <span className="text-muted-foreground">Network</span>
-                  <span className="font-medium text-purple-400">Solana</span>
+                <div className="flex justify-between py-2 border-b border-white/5">
+                  <span className="text-muted-foreground text-sm">Network</span>
+                  <span className="font-bold text-purple-400 flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" /> Solana</span>
                 </div>
-                <div className="flex justify-between py-3 border-b border-border">
-                  <span className="text-muted-foreground">Initial Supply</span>
-                  <span className="font-medium">1,000,000,000</span>
-                </div>
-                <div className="flex justify-between py-3 border-b border-border">
-                  <span className="text-muted-foreground">Launch Fee</span>
-                  <span className="font-medium text-green-400">0.02 SOL</span>
+                <div className="flex justify-between py-2 border-b border-white/5">
+                  <span className="text-muted-foreground text-sm">Launch Cost</span>
+                  <span className="font-bold text-green-400">~0.02 SOL</span>
                 </div>
               </div>
 
-              <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4">
-                <div className="flex items-start gap-3">
-                  <span className="text-xl">🛡️</span>
+              <div className="bg-gradient-to-br from-green-500/10 to-emerald-900/10 border border-green-500/20 rounded-xl p-5">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                    <span className="text-xl">🛡️</span>
+                  </div>
                   <div>
-                    <h4 className="font-semibold text-green-400">Anti-Rug Protection</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Your token will be launched with automatic anti-rug mechanisms.
-                      Liquidity is locked and you cannot rug your holders.
+                    <h4 className="font-bold text-green-400">Anti-Rug Protection</h4>
+                    <p className="text-sm text-green-200/60 leading-relaxed mt-1">
+                      Liquidity is automatically locked. Team tokens are vested. You cannot rug your holders on Fusey.
                     </p>
                   </div>
                 </div>
@@ -247,11 +256,11 @@ export default function CreateTokenPage() {
           )}
 
           {/* Navigation Buttons */}
-          <div className="flex items-center justify-between mt-8 pt-6 border-t border-border">
+          <div className="flex items-center justify-between mt-8 pt-6 border-t border-white/5">
             <button
               onClick={handleBack}
               disabled={step === 1}
-              className="px-6 py-2 rounded-xl border border-border text-muted-foreground hover:text-foreground hover:border-primary/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-2.5 rounded-xl text-sm font-medium hover:bg-white/5 hover:text-white text-muted-foreground transition-all disabled:opacity-0"
             >
               Back
             </button>
@@ -260,17 +269,17 @@ export default function CreateTokenPage() {
               <button
                 onClick={handleNext}
                 disabled={step === 1 && (!form.name || !form.ticker)}
-                className="px-6 py-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-8 py-2.5 bg-primary text-black font-bold rounded-xl hover:bg-primary/90 hover:shadow-[0_0_20px_rgba(var(--primary),0.3)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Next
+                Next Step →
               </button>
             ) : (
               <button
                 onClick={handleLaunch}
                 disabled={isLoading}
-                className="px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white font-bold rounded-xl shadow-lg shadow-green-500/30 transition-all disabled:opacity-50"
+                className="px-8 py-3 w-full sm:w-auto bg-gradient-to-r from-primary to-blue-500 hover:from-primary/90 hover:to-blue-600 text-white font-bold rounded-xl shadow-lg shadow-blue-500/20 transition-all disabled:opacity-50"
               >
-                {isLoading ? "Launching..." : connected ? "🚀 Launch Token" : "Connect Wallet"}
+                {isLoading ? "Launching..." : connected ? "🚀 Launch Token (0.02 SOL)" : "Connect Wallet"}
               </button>
             )}
           </div>
@@ -278,79 +287,74 @@ export default function CreateTokenPage() {
 
         {/* Live Preview */}
         <div className="lg:sticky lg:top-24 h-fit">
-          <h3 className="text-sm font-medium text-muted-foreground mb-4">Live Preview</h3>
-          <div className="token-card">
-            <div className="flex items-start gap-3 mb-3">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-emerald-600/20 flex items-center justify-center text-2xl">
-                🪙
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-heading font-bold text-foreground truncate">
-                  {form.name || "Token Name"}
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  ${form.ticker || "TICKER"}
-                </p>
+          <h3 className="text-xs font-bold text-muted-foreground mb-4 uppercase tracking-widest pl-1">Live Preview</h3>
+
+          <div className="rounded-2xl border border-white/10 bg-black/60 backdrop-blur-xl overflow-hidden hover:border-primary/50 transition-all duration-300 group shadow-2xl shadow-black/50">
+            {/* Preview Card Header */}
+            <div className="h-32 bg-gradient-to-br from-white/5 to-black relative">
+              <div className="absolute inset-0 flex items-center justify-center text-muted-foreground/20 text-4xl font-black uppercase">
+                {form.ticker || "TICKER"}
               </div>
             </div>
 
-            {form.description && (
-              <p className="text-xs text-muted-foreground line-clamp-2 mb-3">
-                {form.description}
-              </p>
-            )}
-
-            <div className="mb-3">
-              <div className="flex items-center justify-between text-xs mb-1">
-                <span className="text-muted-foreground">Bonding Curve</span>
-                <span className="font-medium text-foreground">0%</span>
+            <div className="p-6 relative">
+              {/* Avatar */}
+              <div className="absolute -top-8 left-6 w-16 h-16 rounded-xl bg-gradient-to-br from-primary to-blue-500 border-4 border-black flex items-center justify-center text-3xl shadow-lg">
+                {form.image ? "🖼️" : "🪙"}
               </div>
-              <div className="progress-bar h-1.5">
-                <div className="progress-bar-fill" style={{ width: "0%" }} />
+
+              <div className="mt-8">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h2 className="text-2xl font-bold font-heading">{form.name || "Token Name"}</h2>
+                    <p className="text-blue-400 font-bold">${form.ticker || "TICKER"}</p>
+                  </div>
+                  <div className="bg-green-500/10 text-green-400 px-3 py-1 rounded-lg text-xs font-bold border border-green-500/20">
+                    MARKET CAP: $0
+                  </div>
+                </div>
+
+                {form.description && (
+                  <p className="text-sm text-muted-foreground mt-4 leading-relaxed line-clamp-3">
+                    {form.description}
+                  </p>
+                )}
+
+                {/* Progress */}
+                <div className="mt-6 space-y-2">
+                  <div className="flex justify-between text-xs font-medium">
+                    <span className="text-muted-foreground">Bonding Curve Progress</span>
+                    <span className="text-primary">0%</span>
+                  </div>
+                  <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-primary to-blue-500 w-[0%]" />
+                  </div>
+                </div>
+
+                {/* Socials Preview */}
+                <div className="mt-6 flex gap-2">
+                  {[
+                    { active: form.twitter, icon: TwitterIcon, color: "text-blue-400" },
+                    { active: form.telegram, icon: TelegramIcon, color: "text-sky-500" },
+                    { active: form.website, icon: GlobeIcon, color: "text-emerald-400" }
+                  ].map((social, i) => (
+                    <div key={i} className={`w-8 h-8 rounded-lg flex items-center justify-center border transition-all ${social.active ? `bg-white/5 border-white/10 ${social.color}` : "bg-transparent border-transparent text-muted-foreground/20"}`}>
+                      <social.icon className="w-4 h-4" />
+                    </div>
+                  ))}
+                </div>
+
               </div>
             </div>
-
-            <div className="flex items-center justify-between text-xs">
-              <div>
-                <span className="text-muted-foreground">MC: </span>
-                <span className="text-green-400 font-semibold">$0</span>
-              </div>
-              <div>
-                <span className="text-muted-foreground">By: </span>
-                <span className="text-yellow-400">You</span>
-              </div>
-            </div>
-
-            {(form.twitter || form.telegram || form.website) && (
-              <div className="flex items-center gap-2 mt-4 pt-4 border-t border-border">
-                {form.twitter && (
-                  <div className="p-1.5 rounded bg-[#1DA1F2]/20 text-[#1DA1F2]">
-                    <TwitterIcon className="w-3 h-3" />
-                  </div>
-                )}
-                {form.telegram && (
-                  <div className="p-1.5 rounded bg-[#0088cc]/20 text-[#0088cc]">
-                    <TelegramIcon className="w-3 h-3" />
-                  </div>
-                )}
-                {form.website && (
-                  <div className="p-1.5 rounded bg-white/10 text-foreground">
-                    <GlobeIcon className="w-3 h-3" />
-                  </div>
-                )}
-              </div>
-            )}
           </div>
 
-          {/* Info Box */}
-          <div className="glass-card rounded-xl p-4 mt-4">
-            <h4 className="font-semibold text-sm mb-2">Token Launch Details</h4>
-            <ul className="text-xs text-muted-foreground space-y-1">
-              <li>• Fair launch with bonding curve</li>
-              <li>• Anti-rug protection enabled</li>
-              <li>• No team tokens or presale</li>
-              <li>• Instant trading after launch</li>
-            </ul>
+          <div className="mt-6 p-4 rounded-xl bg-primary/5 border border-primary/20">
+            <div className="flex gap-3">
+              <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center text-primary text-xs mt-0.5">ℹ️</div>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Preview updates automatically as you type. This is how your token card will appear on the launchpad.
+              </p>
+            </div>
           </div>
         </div>
       </div>
