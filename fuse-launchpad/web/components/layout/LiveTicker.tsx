@@ -19,37 +19,50 @@ export function LiveTicker() {
     const duplicatedUpdates = [...liveUpdates, ...liveUpdates];
 
     return (
-        <div className="relative w-full bg-black/60 backdrop-blur-md border-b border-white/5 overflow-hidden">
+        <div className="relative w-full overflow-hidden">
+            {/* Rainbow Gradient Background - Adapted to our theme */}
+            <div
+                className="absolute inset-0"
+                style={{
+                    background: 'linear-gradient(90deg, #9333ea 0%, #ec4899 15%, #f97316 30%, #eab308 45%, #22c55e 60%, #06b6d4 75%, #3b82f6 90%, #9333ea 100%)',
+                    backgroundSize: '200% 100%',
+                    animation: 'gradient-shift 8s linear infinite',
+                }}
+            />
+
+            {/* Dark overlay for readability */}
+            <div className="absolute inset-0 bg-black/30" />
+
             {/* Live Indicator */}
-            <div className="absolute left-0 top-0 bottom-0 z-10 flex items-center px-4 bg-gradient-to-r from-black via-black/80 to-transparent">
+            <div className="absolute left-0 top-0 bottom-0 z-10 flex items-center px-4 bg-gradient-to-r from-black/80 via-black/60 to-transparent">
                 <div className="flex items-center gap-2 pr-4">
                     <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
                     </span>
-                    <span className="text-xs font-semibold text-white/80 uppercase tracking-wider">Live</span>
+                    <span className="text-xs font-bold text-white uppercase tracking-wider">Live</span>
                 </div>
             </div>
 
             {/* Scrolling Ticker */}
-            <div className="flex animate-scroll-left py-2.5">
+            <div className="relative flex animate-scroll-left py-2">
                 {duplicatedUpdates.map((update, index) => (
                     <Link
                         key={`${update.id}-${index}`}
-                        href={`/token/${update.token.toLowerCase()}`}
-                        className="flex items-center gap-2 px-6 text-sm whitespace-nowrap hover:text-primary transition-colors group"
+                        href={`/trade/${update.token.toLowerCase()}`}
+                        className="flex items-center gap-2 px-5 text-sm whitespace-nowrap hover:scale-105 transition-transform group"
                     >
-                        <span className="text-base group-hover:scale-110 transition-transform">{update.icon}</span>
-                        <span className="font-bold text-primary">${update.token}</span>
-                        <span className="text-white/70">{update.message}</span>
-                        <span className="text-white/40 text-xs">{update.time}</span>
-                        <span className="text-white/20 mx-2">•</span>
+                        <span className="text-base drop-shadow-lg">{update.icon}</span>
+                        <span className="font-bold text-white drop-shadow-md">${update.token}</span>
+                        <span className="text-white/90 drop-shadow-sm">{update.message}</span>
+                        <span className="text-white/60 text-xs">{update.time}</span>
+                        <span className="text-white/40 mx-2">•</span>
                     </Link>
                 ))}
             </div>
 
             {/* Right Fade */}
-            <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-black to-transparent pointer-events-none" />
+            <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-black/80 to-transparent pointer-events-none z-10" />
         </div>
     );
 }

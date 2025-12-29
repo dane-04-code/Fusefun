@@ -95,10 +95,127 @@
 /* ===== ANIMATED BACKGROUND ===== */
 .animated-bg {
   background:
-    radial-gradient(ellipse at top left, hsl(var(--fusey-green) / 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at bottom right, hsl(var(--fusey-blue) / 0.05) 0%, transparent 50%),
-    hsl(var(--background));
+    radial-gradient(ellipse at 20% 0%, hsl(var(--fusey-green) / 0.15) 0%, transparent 40%),
+    radial-gradient(ellipse at 80% 20%, hsl(var(--fusey-blue) / 0.12) 0%, transparent 35%),
+    radial-gradient(ellipse at 40% 80%, hsl(var(--fusey-purple) / 0.08) 0%, transparent 40%),
+    radial-gradient(ellipse at 90% 90%, hsl(var(--fusey-green) / 0.06) 0%, transparent 30%),
+    linear-gradient(180deg, hsl(222 47% 2%) 0%, hsl(222 47% 4%) 50%, hsl(222 47% 3%) 100%);
   min-height: 100vh;
+  position: relative;
+}
+
+.animated-bg::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 50% 50%, transparent 0%, hsl(var(--background)) 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ===== GLITCH TEXT EFFECT ===== */
+.glitch-text {
+  position: relative;
+  font-family: 'Outfit', monospace;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.glitch-text::before,
+.glitch-text::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.8;
+}
+
+.glitch-text::before {
+  color: hsl(var(--fusey-blue));
+  animation: glitch-1 2s infinite linear alternate-reverse;
+  clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
+}
+
+.glitch-text::after {
+  color: hsl(var(--fusey-green));
+  animation: glitch-2 3s infinite linear alternate-reverse;
+  clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
+}
+
+@keyframes glitch-1 {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  20% {
+    transform: translateX(-2px);
+  }
+
+  40% {
+    transform: translateX(2px);
+  }
+
+  60% {
+    transform: translateX(-1px);
+  }
+
+  80% {
+    transform: translateX(1px);
+  }
+}
+
+@keyframes glitch-2 {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  20% {
+    transform: translateX(2px);
+  }
+
+  40% {
+    transform: translateX(-2px);
+  }
+
+  60% {
+    transform: translateX(1px);
+  }
+
+  80% {
+    transform: translateX(-1px);
+  }
+}
+
+/* Blocky/Techy Header Style */
+.blocky-text {
+  font-family: 'Outfit', system-ui, sans-serif;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-shadow:
+    2px 2px 0 hsl(var(--fusey-blue) / 0.3),
+    -1px -1px 0 hsl(var(--fusey-green) / 0.2);
+}
+
+/* Gradient Shift Animation for Ticker */
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  100% {
+    background-position: 100% 50%;
+  }
 }
 
 /* ===== GLASSMORPHISM ===== */
