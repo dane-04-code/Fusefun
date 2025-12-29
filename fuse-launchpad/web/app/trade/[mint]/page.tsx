@@ -10,17 +10,15 @@ import * as anchor from "@coral-xyz/anchor"
 // Mock token data for development
 const MOCK_TOKEN: TokenInfo = {
   mint: PublicKey.default,
+  curve: PublicKey.default,
   name: "Sample Token",
   symbol: "SAMPLE",
   uri: "",
-  creator: PublicKey.default,
-  realSolReserves: BigInt(50000000000),
-  virtualSolReserves: BigInt(30000000000000),
-  tokenReserves: BigInt(800000000000000),
-  totalSupply: BigInt(1000000000000000),
-  marketCap: BigInt(85000000000),
+  price: 0.000000085,
+  marketCap: 85,
   bondingProgress: 67.5,
-  isComplete: false,
+  isGraduated: false,
+  creator: PublicKey.default,
 }
 
 export default function TradePage() {
@@ -274,8 +272,8 @@ export default function TradePage() {
             <button
               onClick={() => setActiveTab("buy")}
               className={`py-2.5 rounded-lg font-semibold text-sm transition-all ${activeTab === "buy"
-                  ? "bg-primary text-black shadow-lg shadow-primary/30"
-                  : "bg-white/5 text-muted-foreground hover:bg-white/10"
+                ? "bg-primary text-black shadow-lg shadow-primary/30"
+                : "bg-white/5 text-muted-foreground hover:bg-white/10"
                 }`}
             >
               Buy
@@ -283,8 +281,8 @@ export default function TradePage() {
             <button
               onClick={() => setActiveTab("sell")}
               className={`py-2.5 rounded-lg font-semibold text-sm transition-all ${activeTab === "sell"
-                  ? "bg-red-500 text-white shadow-lg shadow-red-500/30"
-                  : "bg-white/5 text-muted-foreground hover:bg-white/10"
+                ? "bg-red-500 text-white shadow-lg shadow-red-500/30"
+                : "bg-white/5 text-muted-foreground hover:bg-white/10"
                 }`}
             >
               Sell
@@ -298,8 +296,8 @@ export default function TradePage() {
                 key={type}
                 onClick={() => setOrderType(type)}
                 className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${orderType === type
-                    ? "bg-white/10 text-white"
-                    : "text-muted-foreground hover:text-white"
+                  ? "bg-white/10 text-white"
+                  : "text-muted-foreground hover:text-white"
                   }`}
               >
                 {type.charAt(0).toUpperCase() + type.slice(1)}
@@ -321,8 +319,8 @@ export default function TradePage() {
                   key={preset}
                   onClick={() => setAmount(preset)}
                   className={`py-2 rounded-lg text-sm font-medium transition-all ${amount === preset
-                      ? "bg-primary/20 text-primary border border-primary/30"
-                      : "bg-white/5 text-white hover:bg-white/10"
+                    ? "bg-primary/20 text-primary border border-primary/30"
+                    : "bg-white/5 text-white hover:bg-white/10"
                     }`}
                 >
                   {preset}
@@ -373,8 +371,8 @@ export default function TradePage() {
               onClick={activeTab === "buy" ? handleBuy : handleSell}
               disabled={tradeLoading || !wallet.publicKey || !amount}
               className={`w-full py-4 rounded-xl font-bold text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${activeTab === "buy"
-                  ? "bg-gradient-to-r from-primary to-emerald-500 text-black shadow-lg shadow-primary/30 hover:shadow-primary/50"
-                  : "bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-lg shadow-red-500/30 hover:shadow-red-500/50"
+                ? "bg-gradient-to-r from-primary to-emerald-500 text-black shadow-lg shadow-primary/30 hover:shadow-primary/50"
+                : "bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-lg shadow-red-500/30 hover:shadow-red-500/50"
                 }`}
             >
               {tradeLoading ? (

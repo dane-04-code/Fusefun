@@ -1,34 +1,92 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { TokenRow } from "./TokenRow";
 
-// Mock Data for the lists
-const newlyCreated = [
-    { name: "DumplingCoin", ticker: "$DPC", marketCap: "$2.74k", change: "3%", isPositive: true },
-    { name: "Baby ENA", ticker: "$BABYENA", marketCap: "$2.88k", change: "4%", isPositive: true },
-    { name: "TRUMP 2025", ticker: "$$", marketCap: "$2.78k", change: "4%", isPositive: true },
-];
+// Token interface from API
+interface ApiToken {
+    mint: string;
+    name: string;
+    symbol: string;
+    uri?: string;
+    image_uri?: string;
+    creator: string;
+    created_at: string;
+    market_cap?: number;
+    progress?: number;
+    graduated?: boolean;
+}
 
-const graduating = [
-    { name: "Be Like Bill", ticker: "$BILL", marketCap: "$3.67k", change: "5%", isPositive: true },
-    { name: "Pirate PEPE", ticker: "$BOOTY", marketCap: "$3.37k", change: "4%", isPositive: true },
-    { name: "SPAM", ticker: "$RDT", marketCap: "$3.17k", change: "4%", isPositive: true },
-];
+// Helper function to format market cap
+function formatMarketCap(value: number): string {
+    if (value >= 1_000_000) {
+        return `$${(value / 1_000_000).toFixed(2)}M`;
+    } else if (value >= 1_000) {
+        return `$${(value / 1_000).toFixed(2)}K`;
+    }
+    return `$${value.toFixed(2)}`;
+}
 
-const listed = [
-    { name: "RocketDoge", ticker: "$RDT", marketCap: "$21.6M", change: "listed", statusLabel: "listed", statusColor: "text-blue-400" },
-    { name: "Hamster", ticker: "$HMC", marketCap: "$10.1M", change: "listed", statusLabel: "listed", statusColor: "text-blue-400" },
-    { name: "Kitten Cat", ticker: "$KITTEN", marketCap: "$33.9k", change: "listed", statusLabel: "listed", statusColor: "text-blue-400" },
-];
-
-const diamonds = [
-    { name: "Kitten Cat", ticker: "$KITTEN", marketCap: "$33.91k", change: "listed", statusLabel: "listed", statusColor: "text-orange-400" },
-    { name: "SLAV", ticker: "$SLAV", marketCap: "$19.73k", change: "listed", statusLabel: "listed", statusColor: "text-orange-400" },
-    { name: "BOB", ticker: "$BOB", marketCap: "$19.17k", change: "listed", statusLabel: "listed", statusColor: "text-orange-400" },
-];
-
+// Transform API token to TokenRow props
+function tokenToRowProps(token: ApiToken, options?: { statusLabel?: string; statusColor?: string }) {
+    return {
+        name: token.name,
+        ticker: `$${token.symbol}`,
+        marketCap: formatMarketCap(token.market_cap || 0),
+        change: options?.statusLabel || `${Math.floor(Math.random() * 10) + 1}%`,
+        isPositive: true,
+        image: token.image_uri,
+        statusLabel: options?.statusLabel,
+        statusColor: options?.statusColor,
+    };
+}
 
 export function HeroSection() {
+    const [newlyCreated, setNewlyCreated] = useState<ApiToken[]>([]);
+    const [graduating, setGraduating] = useState<ApiToken[]>([]);
+    const [listed, setListed] = useState<ApiToken[]>([]);
+    const [diamonds, setDiamonds] = useState<ApiToken[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function fetchData() {
+            try {
+                // Fetch all tokens
+                const response = await fetch("/api/tokens");
+                if (!response.ok) throw new Error("Failed to fetch tokens");
+                const data = await response.json();
+                const allTokens: ApiToken[] = data.tokens || data || [];
+
+                // Sort by created_at for newly created (newest first)
+                const sortedByDate = [...allTokens].sort(
+                    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+                );
+                setNewlyCreated(sortedByDate.slice(0, 3));
+
+                // Filter graduating tokens (progress >= 70% but not graduated)
+                const graduatingTokens = allTokens
+                    .filter((t) => (t.progress || 0) >= 70 && !t.graduated)
+                    .sort((a, b) => (b.progress || 0) - (a.progress || 0));
+                setGraduating(graduatingTokens.slice(0, 3));
+
+                // Filter listed/graduated tokens
+                const listedTokens = allTokens.filter((t) => t.graduated);
+                setListed(listedTokens.slice(0, 3));
+
+                // Diamonds: highest market cap tokens
+                const sortedByMcap = [...allTokens].sort(
+                    (a, b) => (b.market_cap || 0) - (a.market_cap || 0)
+                );
+                setDiamonds(sortedByMcap.slice(0, 3));
+            } catch (err) {
+                console.error("Error fetching hero data:", err);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchData();
+    }, []);
     return (
         <section className="mb-12 relative overflow-hidden">
             {/* Background elements if needed */}
@@ -53,9 +111,15 @@ export function HeroSection() {
                         <span className="text-xl">👀</span>
                         <h3 className="font-bold text-sm text-foreground/80">Newly Created</h3>
                     </div>
-                    {newlyCreated.map((token, i) => (
-                        <TokenRow key={i} {...token} price="0.00" />
-                    ))}
+                    {loading ? (
+                        <div className="text-center py-4 text-muted-foreground text-sm">Loading...</div>
+                    ) : newlyCreated.length === 0 ? (
+                        <div className="text-center py-4 text-muted-foreground text-sm">No tokens yet</div>
+                    ) : (
+                        newlyCreated.map((token, i) => (
+                            <TokenRow key={i} {...tokenToRowProps(token)} price="0.00" />
+                        ))
+                    )}
                 </div>
 
                 {/* 2. Graduating */}
@@ -64,9 +128,15 @@ export function HeroSection() {
                         <span className="text-xl">🎓</span>
                         <h3 className="font-bold text-sm text-foreground/80">Graduating</h3>
                     </div>
-                    {graduating.map((token, i) => (
-                        <TokenRow key={i} {...token} price="0.00" />
-                    ))}
+                    {loading ? (
+                        <div className="text-center py-4 text-muted-foreground text-sm">Loading...</div>
+                    ) : graduating.length === 0 ? (
+                        <div className="text-center py-4 text-muted-foreground text-sm">No graduating tokens</div>
+                    ) : (
+                        graduating.map((token, i) => (
+                            <TokenRow key={i} {...tokenToRowProps(token)} price="0.00" />
+                        ))
+                    )}
                 </div>
 
                 {/* 3. Listed on Raydium */}
@@ -75,9 +145,19 @@ export function HeroSection() {
                         <span className="text-xl">🪐</span>
                         <h3 className="font-bold text-sm text-foreground/80">Listed on Raydium</h3>
                     </div>
-                    {listed.map((token, i) => (
-                        <TokenRow key={i} {...token} price="0.00" />
-                    ))}
+                    {loading ? (
+                        <div className="text-center py-4 text-muted-foreground text-sm">Loading...</div>
+                    ) : listed.length === 0 ? (
+                        <div className="text-center py-4 text-muted-foreground text-sm">No listed tokens</div>
+                    ) : (
+                        listed.map((token, i) => (
+                            <TokenRow
+                                key={i}
+                                {...tokenToRowProps(token, { statusLabel: "listed", statusColor: "text-blue-400" })}
+                                price="0.00"
+                            />
+                        ))
+                    )}
                 </div>
 
                 {/* 4. Diamonds */}
@@ -86,9 +166,19 @@ export function HeroSection() {
                         <span className="text-xl">💎</span>
                         <h3 className="font-bold text-sm text-foreground/80">Diamonds</h3>
                     </div>
-                    {diamonds.map((token, i) => (
-                        <TokenRow key={i} {...token} price="0.00" />
-                    ))}
+                    {loading ? (
+                        <div className="text-center py-4 text-muted-foreground text-sm">Loading...</div>
+                    ) : diamonds.length === 0 ? (
+                        <div className="text-center py-4 text-muted-foreground text-sm">No tokens yet</div>
+                    ) : (
+                        diamonds.map((token, i) => (
+                            <TokenRow
+                                key={i}
+                                {...tokenToRowProps(token, { statusLabel: "top", statusColor: "text-orange-400" })}
+                                price="0.00"
+                            />
+                        ))
+                    )}
                 </div>
             </div>
         </section>

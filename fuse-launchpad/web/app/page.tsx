@@ -1,25 +1,63 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TokenCard } from "@/components/dashboard/TokenCard";
 import { HeroSection } from "@/components/dashboard/HeroSection";
 
-// Mock data (Keeping existing mock data for the grid)
-const mockTokens = [
-  { id: "4", name: "PepeSol", ticker: "$PSOL", emoji: "🐸", marketCap: "$45.2K", progress: 38, creator: "User4921", description: "The most retro token on Solana" },
-  { id: "5", name: "MoonCat", ticker: "$MCAT", emoji: "🐱", marketCap: "$78.5K", progress: 52, creator: "User8123", description: "Climb to the moon" },
-  { id: "6", name: "FireDog", ticker: "$FDOG", emoji: "🐕", marketCap: "$12.3K", progress: 25, creator: "User5641", description: "Hot and spicy meme token" },
-  { id: "7", name: "CyberApe", ticker: "$CAPE", emoji: "🦍", marketCap: "$34.1K", progress: 67, creator: "User2891", description: "Digital revolution" },
-  { id: "8", name: "GhostToken", ticker: "$GHOST", emoji: "👻", marketCap: "$8.9K", progress: 15, creator: "User7412", description: "Boo! Scare the market" },
-  { id: "9", name: "RocketShip", ticker: "$ROCKET", emoji: "🚀", marketCap: "$56.7K", progress: 78, creator: "User1234", description: "To infinity and beyond" },
-  { id: "10", name: "DiamondHand", ticker: "$DIAMOND", emoji: "💎", marketCap: "$92.4K", progress: 88, creator: "User5678", description: "HODL forever" },
-  { id: "11", name: "ThunderStrike", ticker: "$THUNDER", emoji: "⚡", marketCap: "$23.5K", progress: 45, creator: "User9012", description: "Lightning fast gains" },
-];
+// Helper function to format market cap
+function formatMarketCap(value: number): string {
+  if (value >= 1_000_000) {
+    return `$${(value / 1_000_000).toFixed(2)}M`;
+  } else if (value >= 1_000) {
+    return `$${(value / 1_000).toFixed(2)}K`;
+  }
+  return `$${value.toFixed(2)}`;
+}
+
+// Token interface from API
+interface ApiToken {
+  mint: string;
+  name: string;
+  symbol: string;
+  uri?: string;
+  image_uri?: string;
+  creator: string;
+  created_at: string;
+  market_cap?: number;
+  progress?: number;
+  description?: string;
+  volume_24h?: number;
+}
 
 type FilterTab = "all" | "trending" | "new" | "graduating";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<FilterTab>("all");
+  const [tokens, setTokens] = useState<ApiToken[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch tokens from the API
+  useEffect(() => {
+    async function fetchTokens() {
+      try {
+        setLoading(true);
+        const response = await fetch("/api/tokens");
+        if (!response.ok) {
+          throw new Error("Failed to fetch tokens");
+        }
+        const data = await response.json();
+        setTokens(data.tokens || data || []);
+      } catch (err) {
+        console.error("Error fetching tokens:", err);
+        setError(err instanceof Error ? err.message : "Failed to load tokens");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchTokens();
+  }, []);
 
   const tabs: { id: FilterTab; label: string }[] = [
     { id: "all", label: "All" },
@@ -74,21 +112,71 @@ export default function Home() {
 
       {/* Token Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-        {mockTokens.map((token) => (
-          <TokenCard key={token.id} {...token} />
-        ))}
-        {/* Additional Mock cards to fill grid */}
-        {mockTokens.slice(0, 4).map((token) => (
-          <TokenCard key={`${token.id}-dup`} {...token} />
-        ))}
+        {loading ? (
+          // Loading skeleton
+          Array.from({ length: 6 }).map((_, i) => (
+            <div
+              key={i}
+              className="bg-black/40 border border-slate-800 p-4 animate-pulse"
+            >
+              <div className="flex items-start gap-4 mb-4">
+                <div className="w-12 h-12 bg-slate-700 rounded" />
+                <div className="flex-1">
+                  <div className="h-5 bg-slate-700 rounded w-3/4 mb-2" />
+                  <div className="h-4 bg-slate-700 rounded w-1/2" />
+                </div>
+              </div>
+              <div className="h-2 bg-slate-700 rounded mb-4" />
+              <div className="grid grid-cols-2 gap-2">
+                <div className="h-8 bg-slate-700 rounded" />
+                <div className="h-8 bg-slate-700 rounded" />
+              </div>
+            </div>
+          ))
+        ) : error ? (
+          // Error state
+          <div className="col-span-full text-center py-12">
+            <p className="text-red-400 mb-4">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-sm"
+            >
+              Try Again
+            </button>
+          </div>
+        ) : tokens.length === 0 ? (
+          // Empty state
+          <div className="col-span-full text-center py-12">
+            <p className="text-slate-400 mb-2">No tokens created yet</p>
+            <p className="text-slate-500 text-sm">Be the first to create a token!</p>
+          </div>
+        ) : (
+          // Real tokens from API
+          tokens.map((token) => (
+            <TokenCard
+              key={token.mint}
+              id={token.mint}
+              name={token.name}
+              ticker={`$${token.symbol}`}
+              image={token.image_uri}
+              marketCap={formatMarketCap(token.market_cap || 0)}
+              progress={token.progress || 0}
+              creator={token.creator ? `${token.creator.slice(0, 4)}...${token.creator.slice(-4)}` : "Anon"}
+              description={token.description}
+              volume24h={token.volume_24h ? formatMarketCap(token.volume_24h) : undefined}
+            />
+          ))
+        )}
       </div>
 
-      {/* Load More */}
-      <div className="text-center mb-12">
-        <button className="px-8 py-3 rounded-xl font-semibold border border-border hover:border-primary/50 hover:bg-white/5 transition-all text-sm">
-          Load More Tokens ↓
-        </button>
-      </div>
+      {/* Load More - only show if there are tokens */}
+      {!loading && !error && tokens.length > 0 && (
+        <div className="text-center mb-12">
+          <button className="px-8 py-3 rounded-xl font-semibold border border-border hover:border-primary/50 hover:bg-white/5 transition-all text-sm">
+            Load More Tokens ↓
+          </button>
+        </div>
+      )}
     </div>
   );
 }
