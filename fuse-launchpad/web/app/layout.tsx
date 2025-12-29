@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { SolanaWalletProvider } from "@/components/providers/wallet-provider";
 import { TopBar } from "@/components/layout/TopBar";
+import { TopBanner } from "@/components/layout/TopBanner";
+import { LiveTicker } from "@/components/layout/LiveTicker";
 
 export const metadata: Metadata = {
   title: "Fusey - The Fairest Launchpad on Solana",
@@ -26,6 +28,12 @@ export default function RootLayout({
 
             {/* Main Content Area - Full Width */}
             <div className="w-full">
+              {/* Top Announcement Banner */}
+              <TopBanner />
+
+              {/* Live Ticker - Token launches & milestones */}
+              <LiveTicker />
+
               {/* Top Bar */}
               <TopBar />
 

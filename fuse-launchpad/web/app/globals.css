@@ -14,7 +14,7 @@
   --fusey-blue: 217 91% 60%;
   --fusey-blue-glow: rgba(59, 130, 246, 0.4);
   --fusey-purple: 263 70% 50%;
-  
+
   /* Base */
   --background: 222 47% 3%;
   --foreground: 0 0% 98%;
@@ -36,7 +36,7 @@
   --input: 217 33% 15%;
   --ring: 142 71% 45%;
   --radius: 0.75rem;
-  
+
   /* Chart Colors */
   --chart-up: 142 71% 45%;
   --chart-down: 0 84% 60%;
@@ -46,17 +46,22 @@
   * {
     @apply border-border;
   }
-  
+
   html {
     scroll-behavior: smooth;
   }
-  
+
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Inter', system-ui, sans-serif;
   }
-  
-  h1, h2, h3, h4, h5, h6 {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: 'Outfit', system-ui, sans-serif;
     @apply font-bold tracking-tight;
   }
@@ -89,7 +94,7 @@
 
 /* ===== ANIMATED BACKGROUND ===== */
 .animated-bg {
-  background: 
+  background:
     radial-gradient(ellipse at top left, hsl(var(--fusey-green) / 0.08) 0%, transparent 50%),
     radial-gradient(ellipse at bottom right, hsl(var(--fusey-blue) / 0.05) 0%, transparent 50%),
     hsl(var(--background));
@@ -147,37 +152,79 @@
 
 /* ===== ANIMATIONS ===== */
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 @keyframes pulse-glow {
-  0%, 100% { 
+
+  0%,
+  100% {
     box-shadow: 0 0 20px var(--fusey-green-glow);
   }
-  50% { 
+
+  50% {
     box-shadow: 0 0 40px var(--fusey-green-glow), 0 0 60px var(--fusey-green-glow);
   }
 }
 
 @keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 @keyframes ticker {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 @keyframes spin-slow {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes scroll-left {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 @keyframes crown-bounce {
-  0%, 100% { transform: translateY(0) rotate(-3deg); }
-  50% { transform: translateY(-5px) rotate(3deg); }
+
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+
+  50% {
+    transform: translateY(-5px) rotate(3deg);
+  }
 }
 
 .animate-float {
@@ -204,12 +251,30 @@
   animation: crown-bounce 2s ease-in-out infinite;
 }
 
+.animate-scroll-left {
+  animation: scroll-left 30s linear infinite;
+}
+
 /* Animation delays */
-.delay-100 { animation-delay: 0.1s; }
-.delay-200 { animation-delay: 0.2s; }
-.delay-300 { animation-delay: 0.3s; }
-.delay-400 { animation-delay: 0.4s; }
-.delay-500 { animation-delay: 0.5s; }
+.delay-100 {
+  animation-delay: 0.1s;
+}
+
+.delay-200 {
+  animation-delay: 0.2s;
+}
+
+.delay-300 {
+  animation-delay: 0.3s;
+}
+
+.delay-400 {
+  animation-delay: 0.4s;
+}
+
+.delay-500 {
+  animation-delay: 0.5s;
+}
 
 /* ===== HOVER EFFECTS ===== */
 .hover-lift {
@@ -242,12 +307,10 @@
   left: -50%;
   width: 200%;
   height: 200%;
-  background: linear-gradient(
-    to bottom right,
-    rgba(255, 255, 255, 0) 40%,
-    rgba(255, 255, 255, 0.03) 50%,
-    rgba(255, 255, 255, 0) 60%
-  );
+  background: linear-gradient(to bottom right,
+      rgba(255, 255, 255, 0) 40%,
+      rgba(255, 255, 255, 0.03) 50%,
+      rgba(255, 255, 255, 0) 60%);
   transform: rotate(45deg);
   transition: transform 0.6s ease;
   pointer-events: none;
@@ -379,7 +442,7 @@
     @apply -translate-x-full;
     transition: transform 0.3s ease;
   }
-  
+
   .sidebar.open {
     @apply translate-x-0;
   }
