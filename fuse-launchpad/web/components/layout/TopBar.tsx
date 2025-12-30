@@ -64,11 +64,11 @@ export function TopBar() {
                 <div className="flex items-center justify-between h-12 px-4">
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2 group shrink-0">
-                        {/* Option 1: Image logo - add your logo.png to web/public/ folder */}
+                        {/* Fuse Logo - uses mix-blend-mode to remove white background */}
                         <img
                             src="/logo.png"
                             alt="Fuse"
-                            className="h-8 w-auto"
+                            className="h-10 w-auto mix-blend-lighten drop-shadow-[0_0_8px_rgba(0,255,255,0.5)] hover:drop-shadow-[0_0_12px_rgba(0,255,255,0.8)] transition-all"
                             onError={(e) => {
                                 // Fallback to text logo if image not found
                                 e.currentTarget.style.display = 'none';

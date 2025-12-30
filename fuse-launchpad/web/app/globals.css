@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* ===== FONTS ===== */
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=Press+Start+2P&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=Orbitron:wght@400;500;600;700;800;900&display=swap');
 
 :root {
   /* Brand Colors */
@@ -255,100 +255,94 @@
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%233b82f6' fill-opacity='0.03'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 18.5L12.98 41v8h-2v-6.85L0 35.81v-2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 42.15V49h-2z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
 
-/* ===== BLOCKY GLITCH TITLE ===== */
-.blocky-glitch-title {
-  font-family: 'Press Start 2P', monospace;
+/* ===== TECHY PULSE TITLE ===== */
+.techy-pulse-title {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
   position: relative;
   display: inline-block;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  animation: glitch-skew 1s infinite linear alternate-reverse;
+  letter-spacing: 0.15em;
 }
 
-.blocky-glitch-title::before,
-.blocky-glitch-title::after {
+/* Pulse shine effect */
+.techy-pulse-title::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 25%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0.1) 75%,
+    transparent 100%
+  );
+  animation: pulse-sweep 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Subtle glow pulse */
+.techy-pulse-title::after {
   content: attr(data-text);
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-}
-
-.blocky-glitch-title::before {
-  color: hsl(var(--fusey-blue));
-  animation: glitch-anim-1 0.8s infinite linear alternate-reverse;
-  clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+  background: linear-gradient(90deg, hsl(var(--fusey-green)), hsl(var(--fusey-blue)), hsl(var(--fusey-green)));
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-flow 4s linear infinite;
+  opacity: 0;
+  filter: blur(8px);
+  animation: glow-pulse 2s ease-in-out infinite;
   z-index: -1;
 }
 
-.blocky-glitch-title::after {
-  color: hsl(var(--fusey-green));
-  animation: glitch-anim-2 0.6s infinite linear alternate-reverse;
-  clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
-  z-index: -1;
-}
-
-@keyframes glitch-anim-1 {
+@keyframes pulse-sweep {
   0% {
-    transform: translate(0);
+    left: -100%;
+    opacity: 0;
   }
-  20% {
-    transform: translate(-3px, 3px);
+  10% {
+    opacity: 1;
   }
-  40% {
-    transform: translate(-3px, -3px);
+  50% {
+    left: 100%;
+    opacity: 1;
   }
   60% {
-    transform: translate(3px, 3px);
-  }
-  80% {
-    transform: translate(3px, -3px);
+    opacity: 0;
   }
   100% {
-    transform: translate(0);
+    left: 100%;
+    opacity: 0;
   }
 }
 
-@keyframes glitch-anim-2 {
-  0% {
-    transform: translate(0);
+@keyframes glow-pulse {
+  0%, 100% {
+    opacity: 0.3;
+    filter: blur(12px);
   }
-  20% {
-    transform: translate(3px, -3px);
-  }
-  40% {
-    transform: translate(3px, 3px);
-  }
-  60% {
-    transform: translate(-3px, -3px);
-  }
-  80% {
-    transform: translate(-3px, 3px);
-  }
-  100% {
-    transform: translate(0);
+  50% {
+    opacity: 0.6;
+    filter: blur(20px);
   }
 }
 
-@keyframes glitch-skew {
+@keyframes gradient-flow {
   0% {
-    transform: skew(0deg);
-  }
-  20% {
-    transform: skew(0deg);
-  }
-  21% {
-    transform: skew(1deg);
-  }
-  22% {
-    transform: skew(-1deg);
-  }
-  23% {
-    transform: skew(0deg);
+    background-position: 0% 50%;
   }
   100% {
-    transform: skew(0deg);
+    background-position: 200% 50%;
   }
 }
 
