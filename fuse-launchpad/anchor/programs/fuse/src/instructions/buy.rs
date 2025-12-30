@@ -65,17 +65,6 @@ pub fn handler(ctx: Context<Buy>, amount_in: u64, min_tokens_out: u64) -> Result
     let clock = Clock::get()?;
 
     // =====================
-    // SNIPER PROTECTION
-    // =====================
-    let time_since_launch = clock.unix_timestamp - curve_config.launch_timestamp;
-    if time_since_launch < SNIPER_PROTECTION_DURATION {
-        require!(
-            amount_in <= SNIPER_MAX_BUY_LAMPORTS,
-            FuseError::SniperLimitExceeded
-        );
-    }
-
-    // =====================
     // CALCULATE FEES (1%)
     // =====================
     let total_fee = amount_in

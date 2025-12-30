@@ -18,12 +18,6 @@ pub const GRADUATION_MCAP_LAMPORTS: u64 = 69_000_000_000_000; // $69K at ~$150/S
 pub const GRADUATION_SOL_THRESHOLD: u64 = 85_000_000_000; // ~85 SOL in real reserves triggers graduation
 
 // =====================
-// SNIPER PROTECTION
-// =====================
-pub const SNIPER_PROTECTION_DURATION: i64 = 30; // 30 seconds after launch
-pub const SNIPER_MAX_BUY_LAMPORTS: u64 = 1_000_000_000; // Max 1 SOL buy during protection
-
-// =====================
 // FEE CONFIGURATION
 // =====================
 pub const FEE_BASIS_POINTS: u64 = 100; // 1% total fee

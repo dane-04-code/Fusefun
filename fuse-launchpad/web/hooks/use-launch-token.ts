@@ -39,9 +39,7 @@ export const useLaunchToken = () => {
                 const formData = new FormData();
                 formData.append('file', imageFile);
 
-                const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
-
-                const uploadRes = await fetch(`${apiUrl}/api/pinata/upload-image`, {
+                const uploadRes = await fetch('/api/pinata/upload-image', {
                     method: 'POST',
                     body: formData,
                 });
@@ -66,8 +64,7 @@ export const useLaunchToken = () => {
                 website
             };
 
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
-            const metadataRes = await fetch(`${apiUrl}/api/pinata/upload-metadata`, {
+            const metadataRes = await fetch('/api/pinata/upload-metadata', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(metadata),

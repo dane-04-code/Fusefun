@@ -73,18 +73,23 @@ export default function CreateTokenPage() {
             const formData = new FormData();
             formData.append("file", file);
 
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
-            const response = await fetch(`${apiUrl}/api/pinata/upload-image`, {
+            const response = await fetch("/api/pinata/upload-image", {
                 method: "POST",
                 body: formData,
             });
 
-            if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.error || "Upload failed");
+            // Handle response - check for JSON first
+            const contentType = response.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                throw new Error("Server returned invalid response");
             }
 
             const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Upload failed");
+            }
+
             updateForm("image", data.url);
             console.log("Image uploaded to IPFS:", data.url);
         } catch (error) {
