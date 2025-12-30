@@ -2,23 +2,47 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 
 const navItems = [
     { href: "/create", label: "CREATE", icon: RocketIcon, color: "text-yellow-400" },
-    { href: "/trade", label: "TRADING", icon: ChartIcon, color: "text-pink-400" },
-    { href: "/rewards", label: "STAKING", icon: CoinIcon, color: "text-green-400" },
-    { href: "/king-of-the-hill", label: "RANKING", icon: CrownIcon, color: "text-purple-400" },
+    { href: "/trade", label: "TRADE", icon: ChartIcon, color: "text-pink-400" },
+    { href: "/rewards", label: "REWARDS", icon: GiftIcon, color: "text-green-400" },
     { href: "/profile", label: "PROFILE", icon: UserIcon, color: "text-blue-400" },
 ];
 
 export function TopBar() {
     const [searchQuery, setSearchQuery] = useState("");
+    const [solPrice, setSolPrice] = useState<number | null>(null);
+    const [priceChange, setPriceChange] = useState<number | null>(null);
     const { connected, publicKey, disconnect } = useWallet();
     const { setVisible } = useWalletModal();
     const pathname = usePathname();
+
+    // Fetch real SOL price from CoinGecko
+    useEffect(() => {
+        async function fetchSolPrice() {
+            try {
+                const response = await fetch(
+                    "https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd&include_24hr_change=true"
+                );
+                if (response.ok) {
+                    const data = await response.json();
+                    setSolPrice(data.solana.usd);
+                    setPriceChange(data.solana.usd_24h_change);
+                }
+            } catch (error) {
+                console.error("Failed to fetch SOL price:", error);
+            }
+        }
+
+        fetchSolPrice();
+        // Refresh price every 60 seconds
+        const interval = setInterval(fetchSolPrice, 60000);
+        return () => clearInterval(interval);
+    }, []);
 
     const handleWalletClick = () => {
         if (connected) {
@@ -54,8 +78,8 @@ export function TopBar() {
                                     key={item.href}
                                     href={item.href}
                                     className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${isActive
-                                            ? `${item.color} bg-white/10`
-                                            : "text-white/60 hover:text-white hover:bg-white/5"
+                                        ? `${item.color} bg-white/10`
+                                        : "text-white/60 hover:text-white hover:bg-white/5"
                                         }`}
                                 >
                                     <Icon className={`w-4 h-4 ${isActive ? item.color : ""}`} />
@@ -103,7 +127,14 @@ export function TopBar() {
                 <div className="hidden lg:flex items-center gap-6 text-xs">
                     <div className="flex items-center gap-2">
                         <span className="text-muted-foreground">SOL:</span>
-                        <span className="font-bold text-primary">$194.52</span>
+                        <span className="font-bold text-primary">
+                            {solPrice !== null ? `$${solPrice.toFixed(2)}` : "..."}
+                        </span>
+                        {priceChange !== null && (
+                            <span className={`text-[10px] ${priceChange >= 0 ? "text-green-400" : "text-red-400"}`}>
+                                {priceChange >= 0 ? "+" : ""}{priceChange.toFixed(2)}%
+                            </span>
+                        )}
                     </div>
                     <div className="flex items-center gap-2">
                         <span className="text-muted-foreground">Gas:</span>
@@ -164,6 +195,14 @@ function UserIcon({ className }: { className?: string }) {
     return (
         <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+        </svg>
+    );
+}
+
+function GiftIcon({ className }: { className?: string }) {
+    return (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 11.25v8.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 109.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1114.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
         </svg>
     );
 }
