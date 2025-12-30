@@ -11,20 +11,6 @@ const referralStats = {
     conversionRate: "80%",
 };
 
-const leaderboard = [
-    { rank: 1, address: "8xK4...9d2F", referrals: 234, earnings: "$12,450" },
-    { rank: 2, address: "3mN7...4kL1", referrals: 189, earnings: "$9,870" },
-    { rank: 3, address: "6pQ2...8nM3", referrals: 156, earnings: "$7,230" },
-    { rank: 4, address: "9rT5...2jK7", referrals: 123, earnings: "$5,890" },
-    { rank: 5, address: "1wX8...6hY4", referrals: 98, earnings: "$4,560" },
-];
-
-const recentReferrals = [
-    { address: "4aB2...7xC9", date: "2h ago", status: "completed", reward: "$50" },
-    { address: "8dE5...3fG1", date: "5h ago", status: "pending", reward: "$50" },
-    { address: "2hI4...9jK6", date: "1d ago", status: "completed", reward: "$50" },
-];
-
 export default function RewardsPage() {
     const { connected, publicKey } = useWallet();
     const [copied, setCopied] = useState(false);
@@ -117,74 +103,6 @@ export default function RewardsPage() {
                         <div className="absolute inset-0 flex items-center justify-center text-lg font-bold">{referralStats.conversionRate}</div>
                     </div>
                     <div className="text-sm text-muted-foreground mt-2">Conversion Rate</div>
-                </div>
-            </div>
-
-            <div className="grid lg:grid-cols-2 gap-6 mb-8">
-                {/* Leaderboard */}
-                <div className="glass-card rounded-2xl p-6">
-                    <h3 className="text-lg font-heading font-bold mb-4 flex items-center gap-2">
-                        <span className="text-yellow-400">🏆</span> Top Referrers
-                    </h3>
-                    <div className="space-y-3">
-                        {leaderboard.map((user) => (
-                            <div
-                                key={user.rank}
-                                className={`flex items-center gap-4 p-3 rounded-xl ${user.rank <= 3 ? "bg-yellow-500/10" : "hover:bg-white/5"
-                                    } transition-colors`}
-                            >
-                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${user.rank === 1 ? "bg-yellow-500 text-black" :
-                                        user.rank === 2 ? "bg-gray-400 text-black" :
-                                            user.rank === 3 ? "bg-amber-700 text-white" :
-                                                "bg-muted text-muted-foreground"
-                                    }`}>
-                                    {user.rank}
-                                </div>
-                                <div className="flex-1">
-                                    <div className="font-mono text-sm">{user.address}</div>
-                                    <div className="text-xs text-muted-foreground">{user.referrals} referrals</div>
-                                </div>
-                                <div className="text-right">
-                                    <div className="font-bold text-green-400">{user.earnings}</div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Recent Referrals */}
-                <div className="glass-card rounded-2xl p-6">
-                    <h3 className="text-lg font-heading font-bold mb-4 flex items-center gap-2">
-                        <span className="text-green-400">👥</span> Recent Referrals
-                    </h3>
-                    {connected ? (
-                        <div className="space-y-3">
-                            {recentReferrals.map((ref, i) => (
-                                <div key={i} className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-colors">
-                                    <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
-                                        👤
-                                    </div>
-                                    <div className="flex-1">
-                                        <div className="font-mono text-sm">{ref.address}</div>
-                                        <div className="text-xs text-muted-foreground">{ref.date}</div>
-                                    </div>
-                                    <div className="text-right">
-                                        <div className={`text-xs px-2 py-1 rounded-full ${ref.status === "completed"
-                                                ? "bg-green-500/20 text-green-400"
-                                                : "bg-yellow-500/20 text-yellow-400"
-                                            }`}>
-                                            {ref.status}
-                                        </div>
-                                        <div className="text-sm font-semibold text-green-400 mt-1">{ref.reward}</div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="text-center py-8">
-                            <p className="text-muted-foreground">Connect wallet to see your referrals</p>
-                        </div>
-                    )}
                 </div>
             </div>
 
