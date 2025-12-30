@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 
@@ -9,6 +9,7 @@ interface TokenForm {
     ticker: string;
     description: string;
     image: string;
+    imagePreview: string;
     twitter: string;
     telegram: string;
     website: string;
@@ -19,11 +20,17 @@ export default function CreateTokenPage() {
     const { setVisible } = useWalletModal();
     const [step, setStep] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
+    const [imageUploading, setImageUploading] = useState(false);
+    const [imageError, setImageError] = useState<string | null>(null);
+    const [isDragging, setIsDragging] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
     const [form, setForm] = useState<TokenForm>({
         name: "",
         ticker: "",
         description: "",
         image: "",
+        imagePreview: "",
         twitter: "",
         telegram: "",
         website: "",
@@ -32,6 +39,91 @@ export default function CreateTokenPage() {
     const updateForm = (field: keyof TokenForm, value: string) => {
         setForm((prev) => ({ ...prev, [field]: value }));
     };
+
+    // Handle file selection
+    const handleFileSelect = useCallback(async (file: File) => {
+        setImageError(null);
+
+        // Validate file type
+        if (!file.type.startsWith("image/")) {
+            setImageError("Please select an image file (PNG, JPG, GIF)");
+            return;
+        }
+
+        // Validate file size (5MB max)
+        if (file.size > 5 * 1024 * 1024) {
+            setImageError("Image must be less than 5MB");
+            return;
+        }
+
+        // Create local preview
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            updateForm("imagePreview", e.target?.result as string);
+        };
+        reader.readAsDataURL(file);
+
+        // Upload to Pinata
+        setImageUploading(true);
+        try {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const response = await fetch("/api/pinata/upload-image", {
+                method: "POST",
+                body: formData,
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || "Upload failed");
+            }
+
+            const data = await response.json();
+            updateForm("image", data.url);
+            console.log("Image uploaded to IPFS:", data.url);
+        } catch (error) {
+            console.error("Upload error:", error);
+            setImageError(error instanceof Error ? error.message : "Failed to upload image");
+            updateForm("imagePreview", "");
+        } finally {
+            setImageUploading(false);
+        }
+    }, []);
+
+    // Handle drag and drop
+    const handleDragOver = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(true);
+    }, []);
+
+    const handleDragLeave = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(false);
+    }, []);
+
+    const handleDrop = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(false);
+        const file = e.dataTransfer.files[0];
+        if (file) handleFileSelect(file);
+    }, [handleFileSelect]);
+
+    // Handle file input change
+    const handleFileInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) handleFileSelect(file);
+    }, [handleFileSelect]);
+
+    // Remove uploaded image
+    const handleRemoveImage = useCallback(() => {
+        updateForm("image", "");
+        updateForm("imagePreview", "");
+        setImageError(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
+    }, []);
 
     const handleNext = () => {
         if (step < 3) setStep(step + 1);
@@ -47,6 +139,7 @@ export default function CreateTokenPage() {
             return;
         }
         setIsLoading(true);
+        // TODO: Implement actual token launch with image URL
         await new Promise((resolve) => setTimeout(resolve, 2000));
         setIsLoading(false);
     };
@@ -138,13 +231,69 @@ export default function CreateTokenPage() {
 
                             <div>
                                 <label className="block text-xs text-muted-foreground uppercase tracking-wider mb-2">Token Image</label>
-                                <div className="border border-dashed border-white/20 p-6 text-center hover:border-primary/50 hover:bg-white/5 transition-all cursor-pointer">
-                                    <div className="text-2xl mb-2">+</div>
-                                    <p className="text-xs text-muted-foreground">
-                                        Drop image or <span className="text-primary">browse</span>
-                                    </p>
-                                    <p className="text-[10px] text-muted-foreground/60 mt-1">PNG, JPG, GIF up to 5MB</p>
-                                </div>
+
+                                {/* Hidden file input */}
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/png,image/jpeg,image/gif,image/webp"
+                                    onChange={handleFileInputChange}
+                                    className="hidden"
+                                />
+
+                                {form.imagePreview ? (
+                                    // Image preview
+                                    <div className="relative border border-white/20 p-2 bg-black/40">
+                                        <img
+                                            src={form.imagePreview}
+                                            alt="Token preview"
+                                            className="w-full h-40 object-contain"
+                                        />
+                                        {imageUploading && (
+                                            <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
+                                                <div className="flex items-center gap-2 text-sm">
+                                                    <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                                                    Uploading to IPFS...
+                                                </div>
+                                            </div>
+                                        )}
+                                        {form.image && !imageUploading && (
+                                            <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 bg-green-500/20 border border-green-500/30 text-green-400 text-[10px]">
+                                                <CheckIcon className="w-3 h-3" /> Uploaded
+                                            </div>
+                                        )}
+                                        <button
+                                            onClick={handleRemoveImage}
+                                            className="absolute top-3 left-3 p-1.5 bg-red-500/20 border border-red-500/30 text-red-400 hover:bg-red-500/30 transition-colors"
+                                        >
+                                            <XIcon className="w-3 h-3" />
+                                        </button>
+                                    </div>
+                                ) : (
+                                    // Upload area
+                                    <div
+                                        onClick={() => fileInputRef.current?.click()}
+                                        onDragOver={handleDragOver}
+                                        onDragLeave={handleDragLeave}
+                                        onDrop={handleDrop}
+                                        className={`border border-dashed p-6 text-center transition-all cursor-pointer ${
+                                            isDragging
+                                                ? "border-primary bg-primary/10"
+                                                : "border-white/20 hover:border-primary/50 hover:bg-white/5"
+                                        }`}
+                                    >
+                                        <div className="text-2xl mb-2">+</div>
+                                        <p className="text-xs text-muted-foreground">
+                                            Drop image or <span className="text-primary">browse</span>
+                                        </p>
+                                        <p className="text-[10px] text-muted-foreground/60 mt-1">PNG, JPG, GIF up to 5MB</p>
+                                    </div>
+                                )}
+
+                                {/* Error message */}
+                                {imageError && (
+                                    <p className="text-xs text-red-400 mt-2">{imageError}</p>
+                                )}
                             </div>
                         </div>
                     )}
@@ -213,6 +362,12 @@ export default function CreateTokenPage() {
                                 <div className="flex justify-between px-4 py-3 border-b border-white/5">
                                     <span className="text-xs text-muted-foreground">Ticker</span>
                                     <span className="text-sm font-mono text-primary">${form.ticker || "---"}</span>
+                                </div>
+                                <div className="flex justify-between px-4 py-3 border-b border-white/5">
+                                    <span className="text-xs text-muted-foreground">Image</span>
+                                    <span className={`text-sm ${form.image ? "text-green-400" : "text-muted-foreground"}`}>
+                                        {form.image ? "Uploaded to IPFS" : "No image"}
+                                    </span>
                                 </div>
                                 <div className="flex justify-between px-4 py-3 border-b border-white/5">
                                     <span className="text-xs text-muted-foreground">Network</span>
@@ -293,8 +448,18 @@ export default function CreateTokenPage() {
 
                         <div className="p-5 relative">
                             {/* Avatar */}
-                            <div className="absolute -top-6 left-5 w-12 h-12 bg-gradient-to-br from-primary to-blue-500 border-2 border-black flex items-center justify-center text-xl">
-                                {form.image ? "+" : "$"}
+                            <div className="absolute -top-6 left-5 w-12 h-12 border-2 border-black overflow-hidden">
+                                {form.imagePreview ? (
+                                    <img
+                                        src={form.imagePreview}
+                                        alt="Token"
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full bg-gradient-to-br from-primary to-blue-500 flex items-center justify-center text-xl">
+                                        $
+                                    </div>
+                                )}
                             </div>
 
                             <div className="mt-6">
@@ -376,6 +541,22 @@ function GlobeIcon({ className }: { className?: string }) {
     return (
         <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
+        </svg>
+    );
+}
+
+function CheckIcon({ className }: { className?: string }) {
+    return (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+    );
+}
+
+function XIcon({ className }: { className?: string }) {
+    return (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
     );
 }
