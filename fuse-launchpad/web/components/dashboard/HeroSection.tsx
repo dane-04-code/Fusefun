@@ -95,8 +95,15 @@ export function HeroSection() {
             {/* Title */}
             <div className="text-center mb-10 relative z-10">
                 <span className="text-sm font-mono text-primary mb-2 block tracking-widest uppercase">Market Today</span>
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight mb-4 max-w-4xl mx-auto leading-tight">
-                    The <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400">Fairest Launchpad</span> on Solana
+                <h1 className="text-2xl md:text-3xl lg:text-4xl mb-6 max-w-4xl mx-auto leading-relaxed">
+                    <span className="block mb-2 text-white/80">The</span>
+                    <span
+                        className="blocky-glitch-title text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-400 to-cyan-400"
+                        data-text="Fairest Launchpad"
+                    >
+                        Fairest Launchpad
+                    </span>
+                    <span className="block mt-2 text-white/80">on Solana</span>
                 </h1>
                 <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
                     Create and trade on the fairest memecoin launchpad on Solana.

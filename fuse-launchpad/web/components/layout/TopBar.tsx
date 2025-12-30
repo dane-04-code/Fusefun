@@ -64,7 +64,19 @@ export function TopBar() {
                 <div className="flex items-center justify-between h-12 px-4">
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2 group shrink-0">
-                        <div className="relative h-8 w-8 bg-gradient-to-br from-primary to-blue-500 rounded-lg flex items-center justify-center shadow-lg shadow-primary/20">
+                        {/* Option 1: Image logo - add your logo.png to web/public/ folder */}
+                        <img
+                            src="/logo.png"
+                            alt="Fuse"
+                            className="h-8 w-auto"
+                            onError={(e) => {
+                                // Fallback to text logo if image not found
+                                e.currentTarget.style.display = 'none';
+                                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                            }}
+                        />
+                        {/* Fallback text logo */}
+                        <div className="hidden h-8 w-8 bg-gradient-to-br from-primary to-blue-500 rounded-lg items-center justify-center shadow-lg shadow-primary/20">
                             <span className="text-white text-md font-bold font-heading">F</span>
                         </div>
                     </Link>
