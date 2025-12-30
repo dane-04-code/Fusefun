@@ -198,7 +198,12 @@ export const VIRTUAL_SOL_RESERVES = 30_000_000_000n; // 30 SOL
 export const VIRTUAL_TOKEN_RESERVES = 1_073_000_000_000_000n; // 1.073B tokens
 export const TOTAL_SUPPLY = 1_000_000_000_000_000n; // 1B tokens
 export const GRADUATION_SOL_THRESHOLD = 85_000_000_000n; // ~85 SOL
-export const FEE_BASIS_POINTS = 100n; // 1%
+export const FEE_BASIS_POINTS = 100n; // 1% (bonding curve fee)
+
+// Platform Fee Configuration
+// This is an additional fee charged by the platform on each trade
+// 50 basis points = 0.5%
+export const PLATFORM_FEE_BPS = 50n; // 0.5% platform fee
 
 // =====================
 // TYPES
@@ -718,6 +723,18 @@ export class FuseSDK {
       })
       .transaction();
 
+    // Add platform fee transfer instruction
+    const platformFee = (solAmount * PLATFORM_FEE_BPS) / 10000n;
+    if (platformFee > 0n) {
+      const feeTransferIx = SystemProgram.transfer({
+        fromPubkey: user,
+        toPubkey: this.treasury,
+        lamports: Number(platformFee),
+      });
+      // Prepend fee transfer to ensure it's paid first
+      tx.instructions.unshift(feeTransferIx);
+    }
+
     return tx;
   }
 
@@ -766,6 +783,21 @@ export class FuseSDK {
         systemProgram: SystemProgram.programId,
       })
       .transaction();
+
+    // Add platform fee transfer instruction for sells
+    // Fee is calculated based on minSolOut (expected output)
+    // If minSolOut is 0, we calculate an estimated fee based on a rough price
+    const estimatedSolOut = minSolOut > 0n ? minSolOut : tokenAmount / 1_000_000n; // Rough estimate
+    const platformFee = (estimatedSolOut * PLATFORM_FEE_BPS) / 10000n;
+    if (platformFee > 0n) {
+      const feeTransferIx = SystemProgram.transfer({
+        fromPubkey: user,
+        toPubkey: this.treasury,
+        lamports: Number(platformFee),
+      });
+      // Prepend fee transfer to ensure it's paid first
+      tx.instructions.unshift(feeTransferIx);
+    }
 
     return tx;
   }
