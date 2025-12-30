@@ -30,7 +30,7 @@ export function TokenCard({
     description,
 }: TokenCardProps) {
     return (
-        <Link href={`/token/${id}`}>
+        <Link href={`/trade/${id}`}>
             <div
                 className={`group relative bg-black/40 border border-slate-800 hover:border-blue-500/50 transition-all duration-300 backdrop-blur-sm p-4 ${isKing ? "border-yellow-500/50 shadow-[0_0_20px_rgba(234,179,8,0.15)]" : ""}`}
             >
