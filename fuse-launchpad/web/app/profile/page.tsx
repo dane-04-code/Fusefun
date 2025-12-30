@@ -15,6 +15,14 @@ interface ManagedWallet {
     holdings: number;
 }
 
+interface XProfile {
+    username: string;
+    displayName: string;
+    profileImage: string;
+    verified: boolean;
+    connectedAt: string;
+}
+
 // Mock data
 const mockPortfolio = [
     { id: "1", name: "PepeSol", ticker: "$PSOL", balance: "1,234,567", value: "$456.78", pnl: "+23.5%" },
@@ -22,7 +30,7 @@ const mockPortfolio = [
     { id: "3", name: "FireDog", ticker: "$FDOG", balance: "2,500,000", value: "$89.12", pnl: "-12.3%" },
 ];
 
-type TabType = "wallets" | "created" | "portfolio";
+type TabType = "wallets" | "created" | "portfolio" | "settings";
 
 export default function ProfilePage() {
     const { connected, publicKey, disconnect } = useWallet();
@@ -39,6 +47,12 @@ export default function ProfilePage() {
     const [newWalletName, setNewWalletName] = useState("");
     const [copiedKey, setCopiedKey] = useState(false);
 
+    // X Profile state
+    const [xProfile, setXProfile] = useState<XProfile | null>(null);
+    const [showXConnectModal, setShowXConnectModal] = useState(false);
+    const [xUsername, setXUsername] = useState("");
+    const [isVerifyingX, setIsVerifyingX] = useState(false);
+
     // Load wallets from localStorage on mount
     useEffect(() => {
         const savedWallets = localStorage.getItem("fusefun_wallets");
@@ -51,12 +65,73 @@ export default function ProfilePage() {
         }
     }, []);
 
+    // Load X profile from localStorage
+    useEffect(() => {
+        if (publicKey) {
+            const savedXProfile = localStorage.getItem(`fusefun_xprofile_${publicKey.toBase58()}`);
+            if (savedXProfile) {
+                try {
+                    setXProfile(JSON.parse(savedXProfile));
+                } catch (e) {
+                    console.error("Error loading X profile:", e);
+                }
+            }
+        }
+    }, [publicKey]);
+
     // Save wallets to localStorage whenever they change
     useEffect(() => {
         if (wallets.length > 0) {
             localStorage.setItem("fusefun_wallets", JSON.stringify(wallets));
         }
     }, [wallets]);
+
+    // Save X profile to localStorage whenever it changes
+    useEffect(() => {
+        if (publicKey && xProfile) {
+            localStorage.setItem(`fusefun_xprofile_${publicKey.toBase58()}`, JSON.stringify(xProfile));
+        }
+    }, [xProfile, publicKey]);
+
+    // Connect X profile (simplified verification - in production, use OAuth)
+    const connectXProfile = async () => {
+        if (!xUsername.trim()) return;
+
+        setIsVerifyingX(true);
+
+        // Simulate verification delay
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+        // In production, this would:
+        // 1. Redirect to Twitter OAuth
+        // 2. Get the user's profile data
+        // 3. Store the access token securely
+
+        const cleanUsername = xUsername.replace('@', '').trim();
+
+        const newProfile: XProfile = {
+            username: cleanUsername,
+            displayName: cleanUsername,
+            profileImage: `https://unavatar.io/twitter/${cleanUsername}`,
+            verified: true,
+            connectedAt: new Date().toISOString()
+        };
+
+        setXProfile(newProfile);
+        setShowXConnectModal(false);
+        setXUsername("");
+        setIsVerifyingX(false);
+    };
+
+    // Disconnect X profile
+    const disconnectXProfile = () => {
+        if (confirm("Are you sure you want to disconnect your X account?")) {
+            setXProfile(null);
+            if (publicKey) {
+                localStorage.removeItem(`fusefun_xprofile_${publicKey.toBase58()}`);
+            }
+        }
+    };
 
     // Create a new wallet
     const createWallet = () => {
@@ -156,14 +231,47 @@ export default function ProfilePage() {
             {/* Minimal Header */}
             <div className="flex items-center justify-between mb-8 pb-4 border-b border-white/10">
                 <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-primary/20 border border-primary/30 flex items-center justify-center">
-                        <span className="text-primary font-mono text-sm font-bold">
-                            {address.slice(0, 2)}
-                        </span>
+                    {/* Profile Image - Show X profile image if connected */}
+                    <div className="relative">
+                        {xProfile ? (
+                            <img
+                                src={xProfile.profileImage}
+                                alt={xProfile.displayName}
+                                className="w-10 h-10 object-cover border border-[#1DA1F2]/50"
+                                onError={(e) => {
+                                    e.currentTarget.src = '';
+                                    e.currentTarget.style.display = 'none';
+                                }}
+                            />
+                        ) : (
+                            <div className="w-10 h-10 bg-primary/20 border border-primary/30 flex items-center justify-center">
+                                <span className="text-primary font-mono text-sm font-bold">
+                                    {address.slice(0, 2)}
+                                </span>
+                            </div>
+                        )}
+                        {xProfile && (
+                            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#1DA1F2] rounded-full flex items-center justify-center">
+                                <XIcon className="w-2.5 h-2.5 text-white" />
+                            </div>
+                        )}
                     </div>
                     <div>
-                        <div className="font-mono text-sm text-foreground">
-                            {address.slice(0, 8)}...{address.slice(-8)}
+                        <div className="flex items-center gap-2">
+                            <span className="font-mono text-sm text-foreground">
+                                {address.slice(0, 8)}...{address.slice(-8)}
+                            </span>
+                            {xProfile && (
+                                <a
+                                    href={`https://x.com/${xProfile.username}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#1DA1F2]/10 border border-[#1DA1F2]/30 text-[#1DA1F2] text-xs font-medium hover:bg-[#1DA1F2]/20 transition-colors"
+                                >
+                                    <XIcon className="w-3 h-3" />
+                                    @{xProfile.username}
+                                </a>
+                            )}
                         </div>
                         <button
                             onClick={() => copyToClipboard(address)}
@@ -187,15 +295,15 @@ export default function ProfilePage() {
                     { id: "wallets" as const, label: "Wallets" },
                     { id: "created" as const, label: "Created Tokens" },
                     { id: "portfolio" as const, label: "Portfolio" },
+                    { id: "settings" as const, label: "Settings" },
                 ].map((tab) => (
                     <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
-                        className={`pb-3 text-sm font-medium transition-all relative ${
-                            activeTab === tab.id
-                                ? "text-primary"
-                                : "text-muted-foreground hover:text-foreground"
-                        }`}
+                        className={`pb-3 text-sm font-medium transition-all relative ${activeTab === tab.id
+                            ? "text-primary"
+                            : "text-muted-foreground hover:text-foreground"
+                            }`}
                     >
                         {tab.label}
                         {activeTab === tab.id && (
@@ -341,9 +449,8 @@ export default function ProfilePage() {
                                     </div>
                                     <div className="text-right font-mono text-sm">{token.balance}</div>
                                     <div className="text-right font-medium text-sm">{token.value}</div>
-                                    <div className={`text-right font-medium text-sm ${
-                                        token.pnl.startsWith("+") ? "text-green-400" : "text-red-400"
-                                    }`}>
+                                    <div className={`text-right font-medium text-sm ${token.pnl.startsWith("+") ? "text-green-400" : "text-red-400"
+                                        }`}>
                                         {token.pnl}
                                     </div>
                                     <div className="text-right">
@@ -354,6 +461,93 @@ export default function ProfilePage() {
                                 </div>
                             ))
                         )}
+                    </div>
+                )}
+
+                {/* Settings Tab */}
+                {activeTab === "settings" && (
+                    <div className="space-y-6">
+                        {/* X Profile Connection */}
+                        <div className="border border-white/10 bg-black/20">
+                            <div className="px-4 py-3 border-b border-white/10">
+                                <h3 className="text-sm font-bold flex items-center gap-2">
+                                    <XIcon className="w-4 h-4" />
+                                    X (Twitter) Verification
+                                </h3>
+                            </div>
+                            <div className="p-4">
+                                {xProfile ? (
+                                    <div className="space-y-4">
+                                        {/* Connected Profile */}
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <img
+                                                    src={xProfile.profileImage}
+                                                    alt={xProfile.displayName}
+                                                    className="w-12 h-12 object-cover border border-[#1DA1F2]/50"
+                                                    onError={(e) => {
+                                                        e.currentTarget.style.display = 'none';
+                                                    }}
+                                                />
+                                                <div>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="font-medium">{xProfile.displayName}</span>
+                                                        <div className="flex items-center gap-1 px-2 py-0.5 bg-[#1DA1F2]/20 border border-[#1DA1F2]/30 text-[#1DA1F2] text-xs font-medium">
+                                                            <CheckIcon className="w-3 h-3" />
+                                                            Verified
+                                                        </div>
+                                                    </div>
+                                                    <a
+                                                        href={`https://x.com/${xProfile.username}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-sm text-[#1DA1F2] hover:underline"
+                                                    >
+                                                        @{xProfile.username}
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <button
+                                                onClick={disconnectXProfile}
+                                                className="px-4 py-2 text-xs font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-red-500/20 transition-all"
+                                            >
+                                                Disconnect
+                                            </button>
+                                        </div>
+
+                                        {/* Benefit Info */}
+                                        <div className="bg-[#1DA1F2]/10 border border-[#1DA1F2]/20 p-4 text-xs">
+                                            <p className="text-[#1DA1F2] font-medium mb-2">✓ X Profile Connected</p>
+                                            <p className="text-[#1DA1F2]/80">
+                                                Your X verification will be displayed on all tokens you create, giving traders confidence that the token was created by a real, verified account.
+                                            </p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-4">
+                                        <p className="text-muted-foreground text-sm">
+                                            Connect your X (Twitter) account to verify your identity. When you create tokens, your X profile will be displayed as proof of authenticity.
+                                        </p>
+
+                                        <div className="flex items-start gap-3 p-4 bg-white/5 border border-white/10">
+                                            <div className="text-2xl">🛡️</div>
+                                            <div className="text-xs text-muted-foreground">
+                                                <p className="font-medium text-foreground mb-1">Build Trust with Traders</p>
+                                                <p>Verified creators show a badge on their token pages, helping traders identify legitimate projects and avoid scams.</p>
+                                            </div>
+                                        </div>
+
+                                        <button
+                                            onClick={() => setShowXConnectModal(true)}
+                                            className="w-full px-4 py-3 bg-[#1DA1F2] hover:bg-[#1DA1F2]/90 text-white font-bold text-sm transition-all flex items-center justify-center gap-2"
+                                        >
+                                            <XIcon className="w-4 h-4" />
+                                            Connect X Account
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>
@@ -523,6 +717,83 @@ export default function ProfilePage() {
                     </div>
                 </div>
             )}
+
+            {/* X Connect Modal */}
+            {showXConnectModal && (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-[#0a0a0f] border border-white/10 max-w-md w-full p-6">
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-lg font-bold flex items-center gap-2">
+                                <XIcon className="w-5 h-5" />
+                                Connect X Account
+                            </h2>
+                            <button
+                                onClick={() => {
+                                    setShowXConnectModal(false);
+                                    setXUsername("");
+                                }}
+                                className="p-2 hover:bg-white/10 transition-colors"
+                            >
+                                <CloseIcon className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        <div className="space-y-4">
+                            <p className="text-muted-foreground text-sm">
+                                Enter your X (Twitter) username to verify your account. This will display your X profile on tokens you create.
+                            </p>
+
+                            <div>
+                                <label className="block text-xs text-muted-foreground mb-2 uppercase tracking-wider">X Username</label>
+                                <div className="flex items-center">
+                                    <span className="px-3 py-2.5 bg-white/5 border border-r-0 border-white/10 text-muted-foreground text-sm">@</span>
+                                    <input
+                                        type="text"
+                                        placeholder="username"
+                                        value={xUsername}
+                                        onChange={(e) => setXUsername(e.target.value)}
+                                        className="flex-1 bg-white/5 border border-white/10 px-4 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-[#1DA1F2]/50"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="bg-[#1DA1F2]/10 border border-[#1DA1F2]/20 p-4 text-xs text-[#1DA1F2]/80">
+                                <p className="font-medium text-[#1DA1F2] mb-1">How verification works:</p>
+                                <p>Your X profile will be displayed on your created tokens, showing traders that you're a verified creator.</p>
+                            </div>
+
+                            <div className="flex gap-3 pt-2">
+                                <button
+                                    onClick={() => {
+                                        setShowXConnectModal(false);
+                                        setXUsername("");
+                                    }}
+                                    className="flex-1 px-4 py-2.5 bg-white/5 hover:bg-white/10 text-sm font-medium transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={connectXProfile}
+                                    disabled={!xUsername.trim() || isVerifyingX}
+                                    className="flex-1 px-4 py-2.5 bg-[#1DA1F2] hover:bg-[#1DA1F2]/90 text-white text-sm font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                >
+                                    {isVerifyingX ? (
+                                        <>
+                                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                            Verifying...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <XIcon className="w-4 h-4" />
+                                            Connect
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
@@ -572,6 +843,14 @@ function CloseIcon({ className }: { className?: string }) {
     return (
         <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+    );
+}
+
+function XIcon({ className }: { className?: string }) {
+    return (
+        <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
         </svg>
     );
 }

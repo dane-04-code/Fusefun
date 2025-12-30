@@ -7,6 +7,15 @@ import { PublicKey } from "@solana/web3.js"
 import { FuseSDK, TokenInfo } from "@/sdk/fuse-sdk"
 import * as anchor from "@coral-xyz/anchor"
 
+// X Profile interface
+interface XProfile {
+  username: string;
+  displayName: string;
+  profileImage: string;
+  verified: boolean;
+  connectedAt: string;
+}
+
 // Mock token data for development
 const MOCK_TOKEN: TokenInfo = {
   mint: PublicKey.default,
@@ -36,6 +45,7 @@ export default function TradePage() {
   const [orderType, setOrderType] = useState<"market" | "limit" | "adv">("market")
   const [slippage, setSlippage] = useState("1")
   const [chartReady, setChartReady] = useState(false)
+  const [creatorXProfile, setCreatorXProfile] = useState<XProfile | null>(null)
 
   // Quick amount presets
   const amountPresets = ["0.1", "0.15", "0.2", "0.3"]
@@ -67,6 +77,24 @@ export default function TradePage() {
     const interval = setInterval(fetchTokenInfo, 10000)
     return () => clearInterval(interval)
   }, [mintAddress, connection, wallet.publicKey])
+
+  // Fetch creator's X profile
+  useEffect(() => {
+    if (tokenInfo?.creator) {
+      try {
+        const creatorAddress = tokenInfo.creator.toBase58()
+        const savedXProfile = localStorage.getItem(`fusefun_xprofile_${creatorAddress}`)
+        if (savedXProfile) {
+          setCreatorXProfile(JSON.parse(savedXProfile))
+        } else {
+          setCreatorXProfile(null)
+        }
+      } catch (e) {
+        console.error("Error loading creator X profile:", e)
+        setCreatorXProfile(null)
+      }
+    }
+  }, [tokenInfo])
 
   // Initialize TradingView Widget
   useEffect(() => {
@@ -428,6 +456,58 @@ export default function TradePage() {
               </button>
             </div>
 
+            {/* Creator Section with X Verification */}
+            <div className="px-3 py-3 border-b border-white/5">
+              <p className="text-xs text-muted-foreground mb-2">Creator</p>
+              <div className="flex items-center gap-3">
+                {creatorXProfile ? (
+                  <>
+                    <div className="relative">
+                      <img
+                        src={creatorXProfile.profileImage}
+                        alt={creatorXProfile.displayName}
+                        className="w-10 h-10 object-cover border border-[#1DA1F2]/50"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#1DA1F2] rounded-full flex items-center justify-center">
+                        <XIcon className="w-2.5 h-2.5 text-white" />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-sm">{creatorXProfile.displayName}</span>
+                        <div className="flex items-center gap-1 px-1.5 py-0.5 bg-[#1DA1F2]/20 border border-[#1DA1F2]/30 text-[#1DA1F2] text-[10px] font-medium">
+                          ✓ Verified
+                        </div>
+                      </div>
+                      <a
+                        href={`https://x.com/${creatorXProfile.username}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-[#1DA1F2] hover:underline"
+                      >
+                        @{creatorXProfile.username}
+                      </a>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-white/5 border border-white/10 flex items-center justify-center rounded-lg">
+                      <span className="text-lg">👤</span>
+                    </div>
+                    <div>
+                      <p className="text-sm font-mono text-muted-foreground">
+                        {tokenInfo?.creator.toBase58().slice(0, 4)}...{tokenInfo?.creator.toBase58().slice(-4)}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground/60">Not verified</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div className="grid grid-cols-3 gap-2 p-3 text-xs">
               <div className="bg-white/5 rounded-lg p-2 text-center">
                 <p className="text-primary font-bold">27.44%</p>
@@ -478,4 +558,13 @@ export default function TradePage() {
       </div>
     </div>
   )
+}
+
+// X Icon component
+function XIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  );
 }

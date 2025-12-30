@@ -134,9 +134,24 @@ pub fn handler(
     );
     token::mint_to(mint_ctx, TOTAL_SUPPLY)?;
 
+    // =====================
+    // CHARGE CREATION FEE
+    // =====================
+    anchor_lang::system_program::transfer(
+        CpiContext::new(
+            ctx.accounts.system_program.to_account_info(),
+            anchor_lang::system_program::Transfer {
+                from: ctx.accounts.creator.to_account_info(),
+                to: ctx.accounts.treasury.to_account_info(),
+            },
+        ),
+        CREATION_FEE_LAMPORTS,
+    )?;
+
     msg!("🚀 Token Created: {} ({})", name, symbol);
     msg!("   Mint: {}", ctx.accounts.mint.key());
     msg!("   Curve: {}", curve.key());
+    msg!("   Creation Fee: {} lamports", CREATION_FEE_LAMPORTS);
 
     // =====================
     // OPTIONAL: INITIAL BUY

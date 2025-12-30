@@ -31,6 +31,11 @@ pub const PROTOCOL_FEE_SHARE: u64 = 80; // 80% of fee goes to protocol
 pub const CREATOR_FEE_SHARE: u64 = 20; // 20% of fee goes to creator
 
 // =====================
+// TOKEN CREATION FEE
+// =====================
+pub const CREATION_FEE_LAMPORTS: u64 = 75_000_000; // 0.075 SOL to launch a token
+
+// =====================
 // TOKEN METADATA
 // =====================
 pub const TOKEN_DECIMALS: u8 = 6;

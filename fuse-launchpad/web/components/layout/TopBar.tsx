@@ -9,6 +9,7 @@ import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 const navItems = [
     { href: "/create", label: "CREATE", icon: RocketIcon, color: "text-yellow-400" },
     { href: "/trade", label: "TRADE", icon: ChartIcon, color: "text-pink-400" },
+    { href: "/king-of-the-hill", label: "KING", icon: CrownIcon, color: "text-purple-400" },
     { href: "/rewards", label: "REWARDS", icon: GiftIcon, color: "text-green-400" },
     { href: "/profile", label: "PROFILE", icon: UserIcon, color: "text-blue-400" },
 ];
