@@ -1,23 +1,63 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 
-// Mock data
-const referralStats = {
-    totalEarnings: "$6078.76",
-    pendingRewards: "$234.50",
-    referralCount: 47,
-    conversionRate: "80%",
-};
+interface ReferralStats {
+    totalEarnings: number;
+    pendingRewards: number;
+    referralCount: number;
+    conversionRate: number;
+}
 
 export default function RewardsPage() {
     const { connected, publicKey } = useWallet();
     const [copied, setCopied] = useState(false);
+    const [stats, setStats] = useState<ReferralStats | null>(null);
+    const [loading, setLoading] = useState(false);
 
     const referralLink = connected && publicKey
         ? `https://fusey.fun/?ref=${publicKey.toBase58().slice(0, 8)}`
         : "Connect wallet to get link";
+
+    // Fetch referral stats when wallet is connected
+    useEffect(() => {
+        async function fetchStats() {
+            if (!connected || !publicKey) {
+                setStats(null);
+                return;
+            }
+
+            setLoading(true);
+            try {
+                const response = await fetch(`/api/referrals/stats?wallet=${publicKey.toBase58()}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setStats(data);
+                } else {
+                    // No stats yet for this wallet
+                    setStats({
+                        totalEarnings: 0,
+                        pendingRewards: 0,
+                        referralCount: 0,
+                        conversionRate: 0,
+                    });
+                }
+            } catch (error) {
+                console.error("Failed to fetch referral stats:", error);
+                setStats({
+                    totalEarnings: 0,
+                    pendingRewards: 0,
+                    referralCount: 0,
+                    conversionRate: 0,
+                });
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchStats();
+    }, [connected, publicKey]);
 
     const copyToClipboard = () => {
         if (connected) {
@@ -25,6 +65,11 @@ export default function RewardsPage() {
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
         }
+    };
+
+    // Format currency
+    const formatUSD = (value: number) => {
+        return `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     };
 
     return (
@@ -72,19 +117,43 @@ export default function RewardsPage() {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 <div className="bg-black/40 border border-white/10 p-5">
                     <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Total Earnings</div>
-                    <div className="text-2xl font-bold text-green-400">{referralStats.totalEarnings}</div>
+                    {loading ? (
+                        <div className="text-2xl font-bold text-white/30">--</div>
+                    ) : (
+                        <div className="text-2xl font-bold text-green-400">
+                            {connected && stats ? formatUSD(stats.totalEarnings) : "$0.00"}
+                        </div>
+                    )}
                 </div>
                 <div className="bg-black/40 border border-white/10 p-5">
                     <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Pending</div>
-                    <div className="text-2xl font-bold text-yellow-400">{referralStats.pendingRewards}</div>
+                    {loading ? (
+                        <div className="text-2xl font-bold text-white/30">--</div>
+                    ) : (
+                        <div className="text-2xl font-bold text-yellow-400">
+                            {connected && stats ? formatUSD(stats.pendingRewards) : "$0.00"}
+                        </div>
+                    )}
                 </div>
                 <div className="bg-black/40 border border-white/10 p-5">
                     <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Referrals</div>
-                    <div className="text-2xl font-bold text-blue-400">{referralStats.referralCount}</div>
+                    {loading ? (
+                        <div className="text-2xl font-bold text-white/30">--</div>
+                    ) : (
+                        <div className="text-2xl font-bold text-blue-400">
+                            {connected && stats ? stats.referralCount : 0}
+                        </div>
+                    )}
                 </div>
                 <div className="bg-black/40 border border-white/10 p-5">
                     <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Conversion</div>
-                    <div className="text-2xl font-bold text-primary">{referralStats.conversionRate}</div>
+                    {loading ? (
+                        <div className="text-2xl font-bold text-white/30">--</div>
+                    ) : (
+                        <div className="text-2xl font-bold text-primary">
+                            {connected && stats ? `${stats.conversionRate}%` : "0%"}
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -107,14 +176,14 @@ export default function RewardsPage() {
             </div>
 
             {/* Claim Section */}
-            {connected && (
+            {connected && stats && stats.pendingRewards > 0 && (
                 <div className="mt-6 bg-black/40 border border-white/10 p-6 flex items-center justify-between">
                     <div>
                         <div className="text-sm font-medium mb-1">Ready to claim</div>
                         <div className="text-xs text-muted-foreground">Your pending rewards are available for withdrawal</div>
                     </div>
                     <button className="px-6 py-2 bg-green-500/20 border border-green-500/30 text-green-400 text-sm font-medium hover:bg-green-500/30 transition-colors">
-                        Claim {referralStats.pendingRewards}
+                        Claim {formatUSD(stats.pendingRewards)}
                     </button>
                 </div>
             )}
