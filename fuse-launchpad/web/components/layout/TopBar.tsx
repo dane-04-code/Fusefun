@@ -68,7 +68,7 @@ export function TopBar() {
                         <img
                             src="/logo.png"
                             alt="Fuse"
-                            className="h-10 w-auto mix-blend-lighten drop-shadow-[0_0_8px_rgba(0,255,255,0.5)] hover:drop-shadow-[0_0_12px_rgba(0,255,255,0.8)] transition-all"
+                            className="h-10 w-auto mix-blend-lighten drop-shadow-[0_0_8px_rgba(0,255,255,0.5)] hover:scale-105 transition-all duration-300"
                             onError={(e) => {
                                 // Fallback to text logo if image not found
                                 e.currentTarget.style.display = 'none';
