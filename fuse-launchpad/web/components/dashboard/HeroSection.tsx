@@ -44,8 +44,7 @@ function tokenToRowProps(token: ApiToken, options?: { statusLabel?: string; stat
 export function HeroSection() {
     const [newlyCreated, setNewlyCreated] = useState<ApiToken[]>([]);
     const [graduating, setGraduating] = useState<ApiToken[]>([]);
-    const [listed, setListed] = useState<ApiToken[]>([]);
-    const [diamonds, setDiamonds] = useState<ApiToken[]>([]);
+    const [migrated, setMigrated] = useState<ApiToken[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -69,15 +68,9 @@ export function HeroSection() {
                     .sort((a, b) => (b.progress || 0) - (a.progress || 0));
                 setGraduating(graduatingTokens.slice(0, 3));
 
-                // Filter listed/graduated tokens
-                const listedTokens = allTokens.filter((t) => t.graduated);
-                setListed(listedTokens.slice(0, 3));
-
-                // Diamonds: highest market cap tokens
-                const sortedByMcap = [...allTokens].sort(
-                    (a, b) => (b.market_cap || 0) - (a.market_cap || 0)
-                );
-                setDiamonds(sortedByMcap.slice(0, 3));
+                // Filter migrated/graduated tokens
+                const migratedTokens = allTokens.filter((t) => t.graduated);
+                setMigrated(migratedTokens.slice(0, 3));
             } catch (err) {
                 console.error("Error fetching hero data:", err);
             } finally {
@@ -111,7 +104,7 @@ export function HeroSection() {
             </div>
 
             {/* 4-Column Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 relative z-10">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative z-10">
                 {/* 1. Newly Created */}
                 <div className="boxy-card p-4 flex flex-col gap-2">
                     <div className="flex items-center gap-2 mb-2 px-2">
@@ -146,42 +139,21 @@ export function HeroSection() {
                     )}
                 </div>
 
-                {/* 3. Listed on Raydium */}
+                {/* 3. Migrated */}
                 <div className="boxy-card p-4 flex flex-col gap-2">
                     <div className="flex items-center gap-2 mb-2 px-2">
-                        <span className="text-xl">🪐</span>
-                        <h3 className="font-bold text-sm text-foreground/80">Listed on Raydium</h3>
+                        <span className="text-xl">🚀</span>
+                        <h3 className="font-bold text-sm text-foreground/80">Migrated</h3>
                     </div>
                     {loading ? (
                         <div className="text-center py-4 text-muted-foreground text-sm">Loading...</div>
-                    ) : listed.length === 0 ? (
-                        <div className="text-center py-4 text-muted-foreground text-sm">No listed tokens</div>
+                    ) : migrated.length === 0 ? (
+                        <div className="text-center py-4 text-muted-foreground text-sm">No migrated tokens</div>
                     ) : (
-                        listed.map((token, i) => (
+                        migrated.map((token, i) => (
                             <TokenRow
                                 key={i}
-                                {...tokenToRowProps(token, { statusLabel: "listed", statusColor: "text-blue-400" })}
-                                price="0.00"
-                            />
-                        ))
-                    )}
-                </div>
-
-                {/* 4. Diamonds */}
-                <div className="boxy-card p-4 flex flex-col gap-2">
-                    <div className="flex items-center gap-2 mb-2 px-2">
-                        <span className="text-xl">💎</span>
-                        <h3 className="font-bold text-sm text-foreground/80">Diamonds</h3>
-                    </div>
-                    {loading ? (
-                        <div className="text-center py-4 text-muted-foreground text-sm">Loading...</div>
-                    ) : diamonds.length === 0 ? (
-                        <div className="text-center py-4 text-muted-foreground text-sm">No tokens yet</div>
-                    ) : (
-                        diamonds.map((token, i) => (
-                            <TokenRow
-                                key={i}
-                                {...tokenToRowProps(token, { statusLabel: "top", statusColor: "text-orange-400" })}
+                                {...tokenToRowProps(token, { statusLabel: "migrated", statusColor: "text-purple-400" })}
                                 price="0.00"
                             />
                         ))
