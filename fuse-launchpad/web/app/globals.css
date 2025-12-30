@@ -92,16 +92,14 @@
   color: white;
 }
 
-/* ===== ANIMATED BACKGROUND ===== */
+/* ===== ANIMATED BACKGROUND - GRADIENT & BOXY ===== */
 .animated-bg {
   background:
-    radial-gradient(ellipse at 20% 0%, hsl(var(--fusey-green) / 0.15) 0%, transparent 40%),
-    radial-gradient(ellipse at 80% 20%, hsl(var(--fusey-blue) / 0.12) 0%, transparent 35%),
-    radial-gradient(ellipse at 40% 80%, hsl(var(--fusey-purple) / 0.08) 0%, transparent 40%),
-    radial-gradient(ellipse at 90% 90%, hsl(var(--fusey-green) / 0.06) 0%, transparent 30%),
-    linear-gradient(180deg, hsl(222 47% 2%) 0%, hsl(222 47% 4%) 50%, hsl(222 47% 3%) 100%);
+    /* Primary gradient mesh */
+    linear-gradient(135deg, hsl(222 47% 4%) 0%, hsl(230 35% 8%) 50%, hsl(222 47% 3%) 100%);
   min-height: 100vh;
   position: relative;
+  overflow: hidden;
 }
 
 .animated-bg::before {
@@ -112,9 +110,149 @@
   right: 0;
   bottom: 0;
   background:
-    radial-gradient(circle at 50% 50%, transparent 0%, hsl(var(--background)) 70%);
+    /* Top left gradient box */
+    linear-gradient(135deg, hsl(var(--fusey-blue) / 0.12) 0%, transparent 40%),
+    /* Top right gradient box */
+    linear-gradient(225deg, hsl(var(--fusey-purple) / 0.08) 0%, transparent 35%),
+    /* Bottom gradient box */
+    linear-gradient(0deg, hsl(var(--fusey-green) / 0.06) 0%, transparent 25%),
+    /* Center glow */
+    radial-gradient(ellipse 80% 60% at 50% 40%, hsl(var(--fusey-blue) / 0.08) 0%, transparent 60%);
   pointer-events: none;
   z-index: 0;
+}
+
+.animated-bg::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    /* Large grid - main structure */
+    repeating-linear-gradient(0deg,
+      transparent,
+      transparent 120px,
+      hsl(var(--fusey-blue) / 0.04) 120px,
+      hsl(var(--fusey-blue) / 0.04) 121px),
+    repeating-linear-gradient(90deg,
+      transparent,
+      transparent 120px,
+      hsl(var(--fusey-blue) / 0.04) 120px,
+      hsl(var(--fusey-blue) / 0.04) 121px),
+    /* Medium grid - secondary panels */
+    repeating-linear-gradient(0deg,
+      transparent,
+      transparent 60px,
+      hsl(var(--fusey-purple) / 0.025) 60px,
+      hsl(var(--fusey-purple) / 0.025) 61px),
+    repeating-linear-gradient(90deg,
+      transparent,
+      transparent 60px,
+      hsl(var(--fusey-purple) / 0.025) 60px,
+      hsl(var(--fusey-purple) / 0.025) 61px),
+    /* Small detail grid */
+    repeating-linear-gradient(0deg,
+      transparent,
+      transparent 30px,
+      hsl(var(--fusey-green) / 0.015) 30px,
+      hsl(var(--fusey-green) / 0.015) 31px),
+    repeating-linear-gradient(90deg,
+      transparent,
+      transparent 30px,
+      hsl(var(--fusey-green) / 0.015) 30px,
+      hsl(var(--fusey-green) / 0.015) 31px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Sci-Fi Tech Grid Background Layer */
+.tech-grid-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.tech-grid-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    /* Diagonal accent lines */
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 200px,
+      hsl(var(--fusey-blue) / 0.02) 200px,
+      hsl(var(--fusey-blue) / 0.02) 201px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 200px,
+      hsl(var(--fusey-purple) / 0.015) 200px,
+      hsl(var(--fusey-purple) / 0.015) 201px
+    );
+}
+
+.tech-grid-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    /* Corner accent boxes */
+    radial-gradient(circle at 0% 0%, hsl(var(--fusey-blue) / 0.08) 0%, transparent 25%),
+    radial-gradient(circle at 100% 0%, hsl(var(--fusey-purple) / 0.06) 0%, transparent 25%),
+    radial-gradient(circle at 100% 100%, hsl(var(--fusey-green) / 0.05) 0%, transparent 25%),
+    radial-gradient(circle at 0% 100%, hsl(var(--fusey-blue) / 0.04) 0%, transparent 25%),
+    /* Floating panel accents */
+    radial-gradient(ellipse 300px 200px at 20% 30%, hsl(var(--fusey-blue) / 0.03) 0%, transparent 70%),
+    radial-gradient(ellipse 250px 300px at 80% 60%, hsl(var(--fusey-purple) / 0.025) 0%, transparent 70%),
+    radial-gradient(ellipse 200px 250px at 50% 80%, hsl(var(--fusey-green) / 0.02) 0%, transparent 70%);
+}
+
+/* Animated scan line effect */
+@keyframes scanline {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+.scanline-effect {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    hsl(var(--fusey-blue) / 0.3) 20%,
+    hsl(var(--fusey-green) / 0.5) 50%,
+    hsl(var(--fusey-blue) / 0.3) 80%,
+    transparent 100%);
+  animation: scanline 8s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.4;
+}
+
+/* Hex pattern overlay for extra sci-fi feel */
+.hex-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.3;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%233b82f6' fill-opacity='0.03'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 18.5L12.98 41v8h-2v-6.85L0 35.81v-2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 42.15V49h-2z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
 
 /* ===== GLITCH TEXT EFFECT ===== */
@@ -218,7 +356,7 @@
   }
 }
 
-/* ===== GLASSMORPHISM ===== */
+/* ===== GLASSMORPHISM & BOXY CARDS ===== */
 .glass {
   background: hsl(var(--card) / 0.6);
   backdrop-filter: blur(20px);
@@ -227,16 +365,66 @@
 }
 
 .glass-card {
-  background: hsl(var(--card) / 0.8);
+  background: linear-gradient(135deg, hsl(var(--card) / 0.9) 0%, hsl(var(--card) / 0.7) 100%);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid hsl(var(--border));
+  border-radius: 8px;
   transition: all 0.3s ease;
+  position: relative;
+}
+
+.glass-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, hsl(var(--fusey-blue) / 0.3), transparent, hsl(var(--fusey-purple) / 0.2));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.glass-card:hover::before {
+  opacity: 1;
 }
 
 .glass-card:hover {
   border-color: hsl(var(--primary) / 0.4);
-  box-shadow: 0 0 30px hsl(var(--primary) / 0.1);
+  box-shadow: 0 0 30px hsl(var(--primary) / 0.1), 0 4px 20px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Boxy Card - Sharp corners, gradient border */
+.boxy-card {
+  background: linear-gradient(180deg, hsl(var(--card)) 0%, hsl(222 47% 6%) 100%);
+  border: 1px solid hsl(var(--border));
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.boxy-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, hsl(var(--fusey-blue)), hsl(var(--fusey-purple)), hsl(var(--fusey-green)));
+}
+
+.boxy-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, hsl(var(--fusey-blue) / 0.05) 0%, transparent 30%);
+  pointer-events: none;
 }
 
 /* ===== GLOW EFFECTS ===== */

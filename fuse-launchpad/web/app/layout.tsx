@@ -25,9 +25,13 @@ export default function RootLayout({
       <body>
         <SolanaWalletProvider>
           <div className="min-h-screen animated-bg">
+            {/* Sci-Fi Tech Grid Background */}
+            <div className="tech-grid-bg" aria-hidden="true" />
+            {/* Animated Scanline Effect */}
+            <div className="scanline-effect" aria-hidden="true" />
 
             {/* Main Content Area - Full Width */}
-            <div className="w-full">
+            <div className="w-full relative z-10">
               {/* Top Announcement Banner */}
               <TopBanner />
 
