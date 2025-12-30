@@ -99,14 +99,14 @@ export function HeroSection() {
                     The <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400">Fairest Launchpad</span> on Solana
                 </h1>
                 <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-                    The first memecoin launchpad where you can <span className="text-yellow-400 font-bold">create</span>, <span className="text-green-400 font-bold">trade</span>, and <span className="text-blue-400 font-bold">stake</span> meme coins.
+                    Create and trade on the fairest memecoin launchpad on Solana.
                 </p>
             </div>
 
             {/* 4-Column Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 relative z-10">
                 {/* 1. Newly Created */}
-                <div className="bg-card/40 backdrop-blur-sm border border-border/50 rounded-xl p-4 flex flex-col gap-2">
+                <div className="boxy-card p-4 flex flex-col gap-2">
                     <div className="flex items-center gap-2 mb-2 px-2">
                         <span className="text-xl">👀</span>
                         <h3 className="font-bold text-sm text-foreground/80">Newly Created</h3>
@@ -123,7 +123,7 @@ export function HeroSection() {
                 </div>
 
                 {/* 2. Graduating */}
-                <div className="bg-card/40 backdrop-blur-sm border border-border/50 rounded-xl p-4 flex flex-col gap-2">
+                <div className="boxy-card p-4 flex flex-col gap-2">
                     <div className="flex items-center gap-2 mb-2 px-2">
                         <span className="text-xl">🎓</span>
                         <h3 className="font-bold text-sm text-foreground/80">Graduating</h3>
@@ -140,7 +140,7 @@ export function HeroSection() {
                 </div>
 
                 {/* 3. Listed on Raydium */}
-                <div className="bg-card/40 backdrop-blur-sm border border-border/50 rounded-xl p-4 flex flex-col gap-2">
+                <div className="boxy-card p-4 flex flex-col gap-2">
                     <div className="flex items-center gap-2 mb-2 px-2">
                         <span className="text-xl">🪐</span>
                         <h3 className="font-bold text-sm text-foreground/80">Listed on Raydium</h3>
@@ -161,7 +161,7 @@ export function HeroSection() {
                 </div>
 
                 {/* 4. Diamonds */}
-                <div className="bg-card/40 backdrop-blur-sm border border-border/50 rounded-xl p-4 flex flex-col gap-2">
+                <div className="boxy-card p-4 flex flex-col gap-2">
                     <div className="flex items-center gap-2 mb-2 px-2">
                         <span className="text-xl">💎</span>
                         <h3 className="font-bold text-sm text-foreground/80">Diamonds</h3>
