@@ -3,6 +3,8 @@
 import { useState, useRef, useCallback } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
+import { useLaunchToken } from "@/hooks/use-launch-token";
+import { useRouter } from "next/navigation";
 
 interface TokenForm {
     name: string;
@@ -18,6 +20,8 @@ interface TokenForm {
 export default function CreateTokenPage() {
     const { connected } = useWallet();
     const { setVisible } = useWalletModal();
+    const router = useRouter();
+    const { launchToken, isLaunching, error: launchError } = useLaunchToken();
     const [step, setStep] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
     const [imageUploading, setImageUploading] = useState(false);
@@ -69,7 +73,8 @@ export default function CreateTokenPage() {
             const formData = new FormData();
             formData.append("file", file);
 
-            const response = await fetch("/api/pinata/upload-image", {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
+            const response = await fetch(`${apiUrl}/api/pinata/upload-image`, {
                 method: "POST",
                 body: formData,
             });
@@ -138,10 +143,33 @@ export default function CreateTokenPage() {
             setVisible(true);
             return;
         }
+
+        if (!form.name || !form.ticker || !form.image) {
+            alert("Please fill in all required fields (Name, Ticker, and Image)");
+            return;
+        }
+
         setIsLoading(true);
-        // TODO: Implement actual token launch with image URL
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        setIsLoading(false);
+        try {
+            const { signature, mint } = await launchToken(
+                form.name,
+                form.ticker,
+                form.description,
+                form.image, // Using the already uploaded URL
+                form.twitter,
+                form.telegram,
+                form.website,
+                0 // Initial buy amount (can be adjustable in UI later)
+            );
+
+            console.log("Token launched successfully!", signature);
+            router.push(`/trade/${mint}`);
+        } catch (err: any) {
+            console.error("Launch failed:", err);
+            alert(`Launch failed: ${err.message || "Unknown error"}`);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const steps = [
@@ -276,11 +304,10 @@ export default function CreateTokenPage() {
                                         onDragOver={handleDragOver}
                                         onDragLeave={handleDragLeave}
                                         onDrop={handleDrop}
-                                        className={`border border-dashed p-6 text-center transition-all cursor-pointer ${
-                                            isDragging
-                                                ? "border-primary bg-primary/10"
-                                                : "border-white/20 hover:border-primary/50 hover:bg-white/5"
-                                        }`}
+                                        className={`border border-dashed p-6 text-center transition-all cursor-pointer ${isDragging
+                                            ? "border-primary bg-primary/10"
+                                            : "border-white/20 hover:border-primary/50 hover:bg-white/5"
+                                            }`}
                                     >
                                         <div className="text-2xl mb-2">+</div>
                                         <p className="text-xs text-muted-foreground">

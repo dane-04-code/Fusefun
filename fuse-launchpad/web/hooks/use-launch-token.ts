@@ -4,7 +4,8 @@ import { Keypair, PublicKey, SystemProgram, Transaction, TransactionInstruction,
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 
 // Program ID from your existing configuration
-const PROGRAM_ID = new PublicKey('Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS');
+const PROGRAM_ID = new PublicKey('63mGs2kvQNm1g5S31WbYVq9mTgnfHKzD9iJB3ZWvQN1d');
+const TREASURY_WALLET = new PublicKey('4j1591eHGUZvRQgAGKSW2sriMQkDinSDRnA7oXdCHyT1');
 const CURVE_SEED = 'curve';
 const VAULT_SEED = 'vault';
 
@@ -18,7 +19,7 @@ export const useLaunchToken = () => {
         name: string,
         symbol: string,
         description: string,
-        imageFile: File,
+        imageFile: File | string, // Can be File or already uploaded URL
         twitter: string,
         telegram: string,
         website: string,
@@ -30,23 +31,29 @@ export const useLaunchToken = () => {
         try {
             if (!publicKey) throw new Error('Wallet not connected');
 
-            // Step 1: Upload Image to Pinata via Backend
-            const formData = new FormData();
-            formData.append('file', imageFile);
+            let imageUrl = '';
+            if (typeof imageFile === 'string') {
+                imageUrl = imageFile;
+            } else {
+                // Step 1: Upload Image to Pinata via Backend
+                const formData = new FormData();
+                formData.append('file', imageFile);
 
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-            
-            const uploadRes = await fetch(`${apiUrl}/api/pinata/upload-image`, {
-                method: 'POST',
-                body: formData,
-            });
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
 
-            if (!uploadRes.ok) {
-                const err = await uploadRes.json();
-                throw new Error(err.error || 'Image upload failed');
+                const uploadRes = await fetch(`${apiUrl}/api/pinata/upload-image`, {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!uploadRes.ok) {
+                    const err = await uploadRes.json();
+                    throw new Error(err.error || 'Image upload failed');
+                }
+
+                const data = await uploadRes.json();
+                imageUrl = data.url;
             }
-
-            const { url: imageUrl } = await uploadRes.json();
 
             // Step 2: Upload Metadata to Pinata via Backend
             const metadata = {
@@ -59,6 +66,7 @@ export const useLaunchToken = () => {
                 website
             };
 
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
             const metadataRes = await fetch(`${apiUrl}/api/pinata/upload-metadata`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -74,21 +82,21 @@ export const useLaunchToken = () => {
 
             // Step 3: Call Smart Contract
             const mintKeypair = Keypair.generate();
-            
+
             const [curvePda] = PublicKey.findProgramAddressSync(
                 [Buffer.from(CURVE_SEED), mintKeypair.publicKey.toBuffer()],
                 PROGRAM_ID
             );
-            
+
             const [vaultPda] = PublicKey.findProgramAddressSync(
                 [Buffer.from(VAULT_SEED), mintKeypair.publicKey.toBuffer()],
                 PROGRAM_ID
             );
 
             // Build Instruction Data
-            // Discriminator for "create_token": [84, 52, 204, 228, 24, 140, 234, 75]
+            // Anchor instruction discriminator: sha256("global:create_token")[..8]
             const discriminator = Buffer.from([84, 52, 204, 228, 24, 140, 234, 75]);
-            
+
             const nameBytes = new TextEncoder().encode(name);
             const nameBuffer = Buffer.alloc(4 + nameBytes.length);
             nameBuffer.writeUInt32LE(nameBytes.length, 0);
@@ -104,9 +112,16 @@ export const useLaunchToken = () => {
             uriBuffer.writeUInt32LE(uriBytes.length, 0);
             uriBuffer.set(uriBytes, 4);
 
+            // initial_buy_lamports is Option<u64>
+            // Option<u64> layout: [1 (Some) or 0 (None)] + [u64 data if Some]
             const initialBuyLamports = BigInt(Math.floor(initialBuyAmount * 1e9));
-            const initialBuyBuffer = Buffer.alloc(8);
-            initialBuyBuffer.writeBigUInt64LE(initialBuyLamports);
+            const initialBuyBuffer = Buffer.alloc(9);
+            if (initialBuyLamports > 0n) {
+                initialBuyBuffer.writeUInt8(1, 0); // Some
+                initialBuyBuffer.writeBigUInt64LE(initialBuyLamports, 1);
+            } else {
+                initialBuyBuffer.writeUInt8(0, 0); // None
+            }
 
             const data = Buffer.concat([
                 discriminator,
@@ -119,11 +134,14 @@ export const useLaunchToken = () => {
             const instruction = new TransactionInstruction({
                 keys: [
                     { pubkey: publicKey, isSigner: true, isWritable: true },
-                    { pubkey: mintKeypair.publicKey, isSigner: true, isWritable: true },
                     { pubkey: curvePda, isSigner: false, isWritable: true },
+                    { pubkey: mintKeypair.publicKey, isSigner: true, isWritable: true },
                     { pubkey: vaultPda, isSigner: false, isWritable: true },
-                    { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
+                    { pubkey: publicKey, isSigner: false, isWritable: true }, // creatorTokenAccount - actually needs to be derived but for now using publickey for ATA creation if needed or contract handles it
+                    { pubkey: TREASURY_WALLET, isSigner: false, isWritable: true },
                     { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+                    { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
+                    { pubkey: new PublicKey('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'), isSigner: false, isWritable: false }, // Associated Token Program
                     { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
                 ],
                 programId: PROGRAM_ID,
@@ -131,8 +149,7 @@ export const useLaunchToken = () => {
             });
 
             const transaction = new Transaction().add(instruction);
-            
-            // Get latest blockhash
+
             const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
             transaction.recentBlockhash = blockhash;
             transaction.feePayer = publicKey;
