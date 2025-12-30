@@ -23,12 +23,15 @@ interface XProfile {
     connectedAt: string;
 }
 
-// Mock data
-const mockPortfolio = [
-    { id: "1", name: "PepeSol", ticker: "$PSOL", balance: "1,234,567", value: "$456.78", pnl: "+23.5%" },
-    { id: "2", name: "MoonCat", ticker: "$MCAT", balance: "890,000", value: "$312.45", pnl: "+156.2%" },
-    { id: "3", name: "FireDog", ticker: "$FDOG", balance: "2,500,000", value: "$89.12", pnl: "-12.3%" },
-];
+// Portfolio token interface
+interface PortfolioToken {
+    mint: string;
+    name: string;
+    symbol: string;
+    balance: string;
+    value: string;
+    image_uri?: string;
+}
 
 type TabType = "wallets" | "created" | "portfolio" | "settings";
 
@@ -52,6 +55,10 @@ export default function ProfilePage() {
     const [showXConnectModal, setShowXConnectModal] = useState(false);
     const [xUsername, setXUsername] = useState("");
     const [isVerifyingX, setIsVerifyingX] = useState(false);
+
+    // Portfolio state
+    const [portfolio, setPortfolio] = useState<PortfolioToken[]>([]);
+    const [portfolioLoading, setPortfolioLoading] = useState(false);
 
     // Load wallets from localStorage on mount
     useEffect(() => {
@@ -92,6 +99,33 @@ export default function ProfilePage() {
             localStorage.setItem(`fusefun_xprofile_${publicKey.toBase58()}`, JSON.stringify(xProfile));
         }
     }, [xProfile, publicKey]);
+
+    // Fetch portfolio data
+    useEffect(() => {
+        async function fetchPortfolio() {
+            if (!publicKey) return;
+
+            setPortfolioLoading(true);
+            try {
+                const response = await fetch(`/api/portfolio?wallet=${publicKey.toBase58()}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setPortfolio(data.tokens || []);
+                } else {
+                    setPortfolio([]);
+                }
+            } catch (err) {
+                console.error("Error fetching portfolio:", err);
+                setPortfolio([]);
+            } finally {
+                setPortfolioLoading(false);
+            }
+        }
+
+        if (activeTab === "portfolio") {
+            fetchPortfolio();
+        }
+    }, [publicKey, activeTab]);
 
     // Connect X profile (simplified verification - in production, use OAuth)
     const connectXProfile = async () => {
@@ -424,39 +458,57 @@ export default function ProfilePage() {
                 {activeTab === "portfolio" && (
                     <div className="border border-white/10 bg-black/20">
                         {/* Header */}
-                        <div className="grid grid-cols-5 gap-4 px-4 py-3 border-b border-white/10 text-xs text-muted-foreground font-medium uppercase tracking-wider">
+                        <div className="grid grid-cols-4 gap-4 px-4 py-3 border-b border-white/10 text-xs text-muted-foreground font-medium uppercase tracking-wider">
                             <div>Token</div>
                             <div className="text-right">Balance</div>
                             <div className="text-right">Value</div>
-                            <div className="text-right">PnL</div>
                             <div className="text-right">Action</div>
                         </div>
 
                         {/* Rows */}
-                        {mockPortfolio.length === 0 ? (
+                        {portfolioLoading ? (
+                            <div className="px-4 py-12 text-center">
+                                <p className="text-muted-foreground text-sm">Loading portfolio...</p>
+                            </div>
+                        ) : portfolio.length === 0 ? (
                             <div className="px-4 py-12 text-center">
                                 <p className="text-muted-foreground text-sm">No tokens in portfolio</p>
                             </div>
                         ) : (
-                            mockPortfolio.map((token) => (
+                            portfolio.map((token) => (
                                 <div
-                                    key={token.id}
-                                    className="grid grid-cols-5 gap-4 px-4 py-4 border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors"
+                                    key={token.mint}
+                                    className="grid grid-cols-4 gap-4 px-4 py-4 border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors"
                                 >
-                                    <div>
-                                        <div className="font-medium text-sm">{token.name}</div>
-                                        <div className="text-xs text-blue-400 font-mono">{token.ticker}</div>
+                                    <div className="flex items-center gap-3">
+                                        {token.image_uri ? (
+                                            <img
+                                                src={token.image_uri}
+                                                alt={token.name}
+                                                className="w-8 h-8 object-cover border border-white/10"
+                                                onError={(e) => {
+                                                    e.currentTarget.style.display = 'none';
+                                                }}
+                                            />
+                                        ) : (
+                                            <div className="w-8 h-8 bg-primary/20 border border-primary/30 flex items-center justify-center text-xs font-bold">
+                                                {token.symbol?.slice(0, 2) || "?"}
+                                            </div>
+                                        )}
+                                        <div>
+                                            <div className="font-medium text-sm">{token.name}</div>
+                                            <div className="text-xs text-blue-400 font-mono">${token.symbol}</div>
+                                        </div>
                                     </div>
-                                    <div className="text-right font-mono text-sm">{token.balance}</div>
-                                    <div className="text-right font-medium text-sm">{token.value}</div>
-                                    <div className={`text-right font-medium text-sm ${token.pnl.startsWith("+") ? "text-green-400" : "text-red-400"
-                                        }`}>
-                                        {token.pnl}
-                                    </div>
-                                    <div className="text-right">
-                                        <button className="px-3 py-1.5 text-xs font-medium bg-white/5 hover:bg-primary hover:text-black border border-white/10 hover:border-primary transition-all">
+                                    <div className="text-right font-mono text-sm flex items-center justify-end">{token.balance}</div>
+                                    <div className="text-right font-medium text-sm flex items-center justify-end">{token.value}</div>
+                                    <div className="text-right flex items-center justify-end">
+                                        <a
+                                            href={`/trade/${token.mint}`}
+                                            className="px-3 py-1.5 text-xs font-medium bg-white/5 hover:bg-primary hover:text-black border border-white/10 hover:border-primary transition-all"
+                                        >
                                             Trade
-                                        </button>
+                                        </a>
                                     </div>
                                 </div>
                             ))

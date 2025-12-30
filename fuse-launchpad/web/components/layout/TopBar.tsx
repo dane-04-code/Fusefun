@@ -64,9 +64,9 @@ export function TopBar() {
                 <div className="flex items-center justify-between h-12 px-4">
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2 group shrink-0">
-                        {/* Fuse Logo - uses mix-blend-mode to remove white background */}
+                        {/* Fuse Logo - Transparent PNG */}
                         <img
-                            src="/fuse-logo-v3.png"
+                            src="/fuse-logo.png"
                             alt="Fuse"
                             className="h-10 w-auto object-contain drop-shadow-[0_0_8px_rgba(0,255,255,0.4)] hover:scale-105 transition-all duration-300"
                             onError={(e) => {
