@@ -131,17 +131,28 @@ export const useLaunchToken = () => {
                 initialBuyBuffer
             ]);
 
+            // Deriving ATA for creator
+            const ASSOCIATED_TOKEN_PROGRAM_ID = new PublicKey('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL');
+            const [creatorAta] = PublicKey.findProgramAddressSync(
+                [
+                    publicKey.toBuffer(),
+                    TOKEN_PROGRAM_ID.toBuffer(),
+                    mintKeypair.publicKey.toBuffer(),
+                ],
+                ASSOCIATED_TOKEN_PROGRAM_ID
+            );
+
             const instruction = new TransactionInstruction({
                 keys: [
                     { pubkey: publicKey, isSigner: true, isWritable: true },
                     { pubkey: curvePda, isSigner: false, isWritable: true },
                     { pubkey: mintKeypair.publicKey, isSigner: true, isWritable: true },
                     { pubkey: vaultPda, isSigner: false, isWritable: true },
-                    { pubkey: publicKey, isSigner: false, isWritable: true }, // creatorTokenAccount - actually needs to be derived but for now using publickey for ATA creation if needed or contract handles it
+                    { pubkey: creatorAta, isSigner: false, isWritable: true },
                     { pubkey: TREASURY_WALLET, isSigner: false, isWritable: true },
                     { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
                     { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
-                    { pubkey: new PublicKey('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'), isSigner: false, isWritable: false }, // Associated Token Program
+                    { pubkey: ASSOCIATED_TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
                     { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
                 ],
                 programId: PROGRAM_ID,
