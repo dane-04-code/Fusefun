@@ -42,26 +42,20 @@ export default function TradePage() {
   const [amount, setAmount] = useState("")
   const [tradeLoading, setTradeLoading] = useState(false)
   const [activeTab, setActiveTab] = useState<"buy" | "sell">("buy")
-  const [orderType, setOrderType] = useState<"market" | "limit" | "adv">("market")
   const [slippage, setSlippage] = useState("1")
   const [chartReady, setChartReady] = useState(false)
   const [creatorXProfile, setCreatorXProfile] = useState<XProfile | null>(null)
   const [userSolBalance, setUserSolBalance] = useState<number>(0)
   const [userTokenBalance, setUserTokenBalance] = useState<bigint>(0n)
 
-  // Quick amount presets
-  const amountPresets = ["0.1", "0.15", "0.2", "0.3"]
-
   // Fetch user balances
   useEffect(() => {
     const fetchBalances = async () => {
       if (!wallet.publicKey || !mintAddress) return;
       try {
-        // Fetch SOL balance
         const solBalance = await connection.getBalance(wallet.publicKey);
-        setUserSolBalance(solBalance / 1e9); // Convert lamports to SOL
+        setUserSolBalance(solBalance / 1e9);
 
-        // Fetch token balance
         const dummyWallet = {
           publicKey: wallet.publicKey,
           signTransaction: async () => { throw new Error("Read only") },
@@ -77,7 +71,7 @@ export default function TradePage() {
     };
 
     fetchBalances();
-    const interval = setInterval(fetchBalances, 15000); // Refresh every 15 seconds
+    const interval = setInterval(fetchBalances, 15000);
     return () => clearInterval(interval);
   }, [wallet.publicKey, mintAddress, connection]);
 
@@ -97,82 +91,93 @@ export default function TradePage() {
         setTokenInfo(info)
       } catch (error) {
         console.error("Error fetching token info:", error)
-        // Use mock data for development
-        setTokenInfo({ ...MOCK_TOKEN, symbol: mintAddress.slice(0, 4).toUpperCase() })
+        setTokenInfo({
+          ...MOCK_TOKEN,
+          mint: new PublicKey(mintAddress),
+          name: "Demo Token",
+          symbol: "DEMO",
+        })
       } finally {
         setLoading(false)
       }
     }
 
     fetchTokenInfo()
-    const interval = setInterval(fetchTokenInfo, 10000)
-    return () => clearInterval(interval)
-  }, [mintAddress, connection, wallet.publicKey])
+  }, [mintAddress, connection, wallet])
 
-  // Fetch creator's X profile
+  // Load TradingView widget
   useEffect(() => {
-    if (tokenInfo?.creator) {
-      try {
-        const creatorAddress = tokenInfo.creator.toBase58()
-        const savedXProfile = localStorage.getItem(`fusefun_xprofile_${creatorAddress}`)
-        if (savedXProfile) {
-          setCreatorXProfile(JSON.parse(savedXProfile))
-        } else {
-          setCreatorXProfile(null)
-        }
-      } catch (e) {
-        console.error("Error loading creator X profile:", e)
-        setCreatorXProfile(null)
-      }
-    }
-  }, [tokenInfo])
+    if (!tokenInfo || !chartContainerRef.current) return
 
-  // Initialize TradingView Widget
-  useEffect(() => {
-    if (!chartContainerRef.current || chartReady) return
-
-    const script = document.createElement('script')
-    script.src = 'https://s3.tradingview.com/tv.js'
-    script.async = true
-    script.onload = () => {
-      if (typeof (window as any).TradingView !== 'undefined') {
+    const loadTradingView = () => {
+      if (typeof window !== 'undefined' && (window as any).TradingView) {
         new (window as any).TradingView.widget({
-          autosize: true,
+          container_id: "tradingview_chart",
           symbol: "BINANCE:SOLUSDT",
-          interval: "1",
+          interval: "5",
           timezone: "Etc/UTC",
           theme: "dark",
           style: "1",
           locale: "en",
+          toolbar_bg: "#000000",
           enable_publishing: false,
           hide_top_toolbar: false,
           hide_legend: false,
           save_image: false,
-          container_id: "tradingview_chart",
-          hide_volume: false,
-          backgroundColor: "rgba(0, 0, 0, 0)",
-        })
-        setChartReady(true)
+          withdateranges: true,
+          allow_symbol_change: false,
+          autosize: true,
+          backgroundColor: "#000000",
+          gridColor: "rgba(255, 255, 255, 0.05)",
+        });
+        setChartReady(true);
       }
-    }
-    document.head.appendChild(script)
+    };
 
-    return () => {
-      if (script.parentNode) {
-        script.parentNode.removeChild(script)
-      }
+    // Load TradingView script
+    if (!(window as any).TradingView) {
+      const script = document.createElement('script');
+      script.src = 'https://s3.tradingview.com/tv.js';
+      script.async = true;
+      script.onload = loadTradingView;
+      document.head.appendChild(script);
+    } else {
+      loadTradingView();
     }
-  }, [chartReady])
+  }, [tokenInfo]);
+
+  // Fetch creator X profile
+  useEffect(() => {
+    const fetchCreatorXProfile = async () => {
+      if (!tokenInfo?.creator) return;
+      try {
+        const creatorAddress = tokenInfo.creator.toBase58();
+        const storedProfiles = localStorage.getItem('fusefun_x_profiles');
+        if (storedProfiles) {
+          const profiles = JSON.parse(storedProfiles);
+          if (profiles[creatorAddress]) {
+            setCreatorXProfile(profiles[creatorAddress]);
+          }
+        }
+      } catch (e) {
+        console.error("Error fetching creator profile:", e);
+      }
+    };
+
+    fetchCreatorXProfile();
+  }, [tokenInfo]);
 
   const handleBuy = async () => {
     if (!wallet.publicKey) {
-      // Prompt wallet connection
-      alert("Please connect your wallet to trade.");
+      alert("Please connect your wallet first!");
       return;
     }
-    if (!tokenInfo) return;
+    if (!tokenInfo) {
+      alert("Token info not loaded!");
+      return;
+    }
     if (!amount || parseFloat(amount) <= 0) {
-      alert("Please enter a valid amount.");
+      alert("Please enter a valid amount!");
       return;
     }
 
@@ -180,12 +185,6 @@ export default function TradePage() {
       setTradeLoading(true);
       const sdk = new FuseSDK(connection, wallet as unknown as anchor.Wallet);
       const solAmount = FuseSDK.parseSolToLamports(amount);
-
-      // Apply slippage tolerance (default 1%)
-      const slippagePercent = parseFloat(slippage) || 1;
-      // For buy: minTokensOut = expected * (1 - slippage)
-      // Since we don't have expected tokens here, we use 0 for now
-      // In production, you'd call getQuoteBuy first
       const minTokensOut = 0n;
 
       const tx = await sdk.buildBuyTx(
@@ -196,8 +195,6 @@ export default function TradePage() {
       );
 
       const signature = await wallet.sendTransaction(tx, connection);
-      console.log("Transaction sent:", signature);
-
       await connection.confirmTransaction(signature, "confirmed");
 
       setAmount("");
@@ -219,22 +216,22 @@ export default function TradePage() {
 
   const handleSell = async () => {
     if (!wallet.publicKey) {
-      alert("Please connect your wallet to trade.");
+      alert("Please connect your wallet first!");
       return;
     }
-    if (!tokenInfo) return;
+    if (!tokenInfo) {
+      alert("Token info not loaded!");
+      return;
+    }
     if (!amount || parseFloat(amount) <= 0) {
-      alert("Please enter a valid amount.");
+      alert("Please enter a valid amount!");
       return;
     }
 
     try {
       setTradeLoading(true);
       const sdk = new FuseSDK(connection, wallet as unknown as anchor.Wallet);
-      // Convert token amount (assuming 6 decimals)
-      const tokenAmount = BigInt(Math.floor(Number(amount) * 1_000_000));
-
-      // Apply slippage tolerance
+      const tokenAmount = BigInt(Math.floor(parseFloat(amount) * 1_000_000));
       const minSolOut = 0n;
 
       const tx = await sdk.buildSellTx(
@@ -245,8 +242,6 @@ export default function TradePage() {
       );
 
       const signature = await wallet.sendTransaction(tx, connection);
-      console.log("Transaction sent:", signature);
-
       await connection.confirmTransaction(signature, "confirmed");
 
       setAmount("");
@@ -268,7 +263,7 @@ export default function TradePage() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-[80vh]">
+      <div className="flex justify-center items-center h-screen bg-black">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
           <p className="text-muted-foreground">Loading token data...</p>
@@ -279,7 +274,7 @@ export default function TradePage() {
 
   if (!tokenInfo) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+      <div className="flex flex-col items-center justify-center h-screen bg-black gap-4">
         <div className="text-6xl">🔍</div>
         <h2 className="text-2xl font-bold">Token Not Found</h2>
         <p className="text-muted-foreground">Invalid mint address or token doesn&apos;t exist</p>
@@ -288,359 +283,179 @@ export default function TradePage() {
   }
 
   return (
-    <div className="w-full min-h-screen">
-      {/* Top Toolbar */}
-      <div className="border-b border-white/5 bg-black/40 backdrop-blur-xl">
-        <div className="flex items-center gap-2 px-4 py-2 overflow-x-auto">
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-lg">
-            <span className="text-xs text-muted-foreground">1s</span>
-          </div>
-          <button className="flex items-center gap-2 px-3 py-1.5 hover:bg-white/5 rounded-lg text-sm text-muted-foreground hover:text-white transition-colors">
-            📊 Indicators
-          </button>
-          <button className="flex items-center gap-2 px-3 py-1.5 hover:bg-white/5 rounded-lg text-sm text-muted-foreground hover:text-white transition-colors">
-            ⚙️ Display Options
-          </button>
-          <div className="h-4 w-px bg-white/10" />
-          <button className="px-3 py-1.5 hover:bg-white/5 rounded-lg text-sm text-muted-foreground hover:text-white transition-colors">
-            USD/SOL
-          </button>
-          <button className="px-3 py-1.5 hover:bg-white/5 rounded-lg text-sm text-muted-foreground hover:text-white transition-colors">
-            MarketCap/Price
-          </button>
-          <div className="ml-auto flex items-center gap-3">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-blue-500 flex items-center justify-center text-xs font-bold">
-                {tokenInfo.symbol.charAt(0)}
-              </div>
-              <div>
-                <p className="text-sm font-semibold">{tokenInfo.symbol}/USD</p>
-                <p className="text-xs text-muted-foreground">on Fuse AMM</p>
-              </div>
+    <div className="w-full h-screen bg-black flex flex-col lg:flex-row overflow-hidden">
+      {/* Chart Section - Takes most of the screen */}
+      <div className="flex-1 relative">
+        {/* TradingView Chart Container */}
+        <div
+          id="tradingview_chart"
+          ref={chartContainerRef}
+          className="w-full h-full"
+        />
+
+        {/* Chart Loading State */}
+        {!chartReady && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+              <p className="text-sm text-muted-foreground">Loading TradingView chart...</p>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
-      {/* Main Layout */}
-      <div className="flex flex-col lg:flex-row h-[calc(100vh-180px)]">
-        {/* Chart Section */}
-        <div className="flex-1 relative bg-black/20">
-          {/* TradingView Chart Container */}
-          <div
-            id="tradingview_chart"
-            ref={chartContainerRef}
-            className="w-full h-full min-h-[400px]"
-          />
-
-          {/* Chart Loading State */}
-          {!chartReady && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-              <div className="flex flex-col items-center gap-4">
-                <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
-                <p className="text-sm text-muted-foreground">Loading chart...</p>
-              </div>
-            </div>
-          )}
-
-          {/* Chart Timeframe Selector */}
-          <div className="absolute bottom-4 left-4 flex items-center gap-1 bg-black/60 backdrop-blur-md rounded-lg p-1">
-            {["1m", "5m", "15m", "1h", "4h", "1d"].map((tf) => (
-              <button
-                key={tf}
-                className="px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-white hover:bg-white/10 rounded transition-colors"
-              >
-                {tf}
-              </button>
-            ))}
+      {/* Trading Panel - Right Side */}
+      <div className="w-full lg:w-[360px] flex flex-col bg-black/60 border-l border-white/10 overflow-y-auto">
+        {/* Token Header */}
+        <div className="flex items-center gap-3 p-4 border-b border-white/10">
+          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-blue-500 flex items-center justify-center font-bold text-lg">
+            {tokenInfo.symbol.charAt(0)}
+          </div>
+          <div className="flex-1">
+            <h1 className="font-bold text-lg">{tokenInfo.name}</h1>
+            <p className="text-sm text-muted-foreground">${tokenInfo.symbol}</p>
           </div>
         </div>
 
-        {/* Trading Panel */}
-        <div className="w-full lg:w-[340px] border-l border-white/5 bg-black/40 backdrop-blur-xl flex flex-col">
-          {/* Token Stats Header */}
-          <div className="grid grid-cols-4 gap-1 p-3 border-b border-white/5 text-center text-xs">
-            <div>
-              <p className="text-muted-foreground">5m Vol</p>
-              <p className="font-semibold text-white">$8.17K</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground">Buys</p>
-              <p className="font-semibold text-primary">60 / $2.91K</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground">Sells</p>
-              <p className="font-semibold text-red-400">40 / $5.26K</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground">Net Vol</p>
-              <p className="font-semibold text-red-400">-$2.35K</p>
-            </div>
+        {/* Buy/Sell Toggle */}
+        <div className="grid grid-cols-2 p-3 gap-2">
+          <button
+            onClick={() => setActiveTab("buy")}
+            className={`py-3 rounded-lg font-semibold text-sm transition-all ${activeTab === "buy"
+              ? "bg-primary text-black shadow-lg shadow-primary/30"
+              : "bg-white/5 text-muted-foreground hover:bg-white/10"
+              }`}
+          >
+            Buy
+          </button>
+          <button
+            onClick={() => setActiveTab("sell")}
+            className={`py-3 rounded-lg font-semibold text-sm transition-all ${activeTab === "sell"
+              ? "bg-red-500 text-white shadow-lg shadow-red-500/30"
+              : "bg-white/5 text-muted-foreground hover:bg-white/10"
+              }`}
+          >
+            Sell
+          </button>
+        </div>
+
+        {/* Amount Section */}
+        <div className="px-3 pb-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-muted-foreground uppercase tracking-wider">Amount</span>
+            <span className="text-xs text-muted-foreground">
+              {activeTab === "buy"
+                ? `Balance: ${userSolBalance.toFixed(4)} SOL`
+                : `Balance: ${FuseSDK.formatTokens(userTokenBalance)} ${tokenInfo?.symbol || 'tokens'}`
+              }
+            </span>
           </div>
 
-          {/* Buy/Sell Toggle */}
-          <div className="grid grid-cols-2 p-3 gap-2">
-            <button
-              onClick={() => setActiveTab("buy")}
-              className={`py-2.5 rounded-lg font-semibold text-sm transition-all ${activeTab === "buy"
-                ? "bg-primary text-black shadow-lg shadow-primary/30"
-                : "bg-white/5 text-muted-foreground hover:bg-white/10"
-                }`}
-            >
-              Buy
-            </button>
-            <button
-              onClick={() => setActiveTab("sell")}
-              className={`py-2.5 rounded-lg font-semibold text-sm transition-all ${activeTab === "sell"
-                ? "bg-red-500 text-white shadow-lg shadow-red-500/30"
-                : "bg-white/5 text-muted-foreground hover:bg-white/10"
-                }`}
-            >
-              Sell
-            </button>
+          {/* Amount Input */}
+          <div className="relative">
+            <input
+              type="number"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder={activeTab === "buy" ? "Enter SOL amount" : "Enter token amount"}
+              className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-4 text-lg font-semibold focus:outline-none focus:border-primary/50 transition-colors placeholder:text-muted-foreground/50"
+            />
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+              {activeTab === "buy" ? "SOL" : tokenInfo.symbol}
+            </span>
           </div>
 
-          {/* Order Type Selector */}
-          <div className="flex items-center gap-1 px-3 pb-3">
-            {(["market", "limit", "adv"] as const).map((type) => (
-              <button
-                key={type}
-                onClick={() => setOrderType(type)}
-                className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${orderType === type
-                  ? "bg-white/10 text-white"
-                  : "text-muted-foreground hover:text-white"
-                  }`}
-              >
-                {type.charAt(0).toUpperCase() + type.slice(1)}
-              </button>
-            ))}
-          </div>
-
-          {/* Amount Section */}
-          <div className="px-3 pb-3 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">AMOUNT</span>
-              <span className="text-xs text-muted-foreground">
-                {activeTab === "buy"
-                  ? `◎ ${userSolBalance.toFixed(4)} SOL`
-                  : `${FuseSDK.formatTokens(userTokenBalance)} ${tokenInfo?.symbol || 'tokens'}`
-                }
-              </span>
-            </div>
-
-            {/* Preset Amounts */}
-            <div className="grid grid-cols-4 gap-2">
-              {amountPresets.map((preset) => (
-                <button
-                  key={preset}
-                  onClick={() => setAmount(preset)}
-                  className={`py-2 rounded-lg text-sm font-medium transition-all ${amount === preset
-                    ? "bg-primary/20 text-primary border border-primary/30"
-                    : "bg-white/5 text-white hover:bg-white/10"
-                    }`}
-                >
-                  {preset}
-                </button>
-              ))}
-              <button className="py-2 rounded-lg text-sm bg-white/5 hover:bg-white/10 transition-colors">
-                ✏️
-              </button>
-            </div>
-
-            {/* Custom Amount Input */}
-            <div className="relative">
+          {/* Slippage */}
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">Slippage Tolerance</span>
+            <div className="flex items-center gap-1">
               <input
                 type="number"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder="0.00"
-                className="w-full bg-black/30 border border-white/10 rounded-lg px-4 py-3 text-right text-lg font-semibold focus:outline-none focus:border-primary/50 transition-colors"
+                value={slippage}
+                onChange={(e) => setSlippage(e.target.value)}
+                className="w-12 bg-white/5 border border-white/10 rounded px-2 py-1 text-center text-xs"
               />
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">
-                ◎
+              <span className="text-muted-foreground">%</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Button */}
+        <div className="px-3 pb-4">
+          <button
+            onClick={activeTab === "buy" ? handleBuy : handleSell}
+            disabled={tradeLoading || !wallet.publicKey || !amount}
+            className={`w-full py-4 rounded-xl font-bold text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${activeTab === "buy"
+              ? "bg-gradient-to-r from-primary to-emerald-500 text-black shadow-lg shadow-primary/30 hover:shadow-primary/50"
+              : "bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-lg shadow-red-500/30 hover:shadow-red-500/50"
+              }`}
+          >
+            {tradeLoading ? (
+              <span className="flex items-center justify-center gap-2">
+                <div className="w-5 h-5 border-2 border-current/30 border-t-current rounded-full animate-spin" />
+                Processing...
               </span>
-            </div>
+            ) : !wallet.publicKey ? (
+              "Connect Wallet"
+            ) : (
+              `${activeTab === "buy" ? "Buy" : "Sell"} ${tokenInfo.symbol}`
+            )}
+          </button>
+        </div>
 
-            {/* Slippage & Options */}
-            <div className="flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2">
-                <span className="text-muted-foreground">⚙️ {slippage}%</span>
-                <span className="text-primary">🛡️ 0.0↓▲</span>
-                <span className="text-primary">🎯 0.0↑▲</span>
-              </div>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" className="sr-only" />
-                <span className="text-muted-foreground">✖ Off</span>
-              </label>
-            </div>
-
-            {/* Advanced Strategy */}
-            <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer hover:text-white transition-colors">
-              <input type="checkbox" className="w-4 h-4 bg-white/5 border-white/20 rounded" />
-              Advanced Trading Strategy
-            </label>
-          </div>
-
-          {/* Action Button */}
-          <div className="px-3 pb-3">
-            <button
-              onClick={activeTab === "buy" ? handleBuy : handleSell}
-              disabled={tradeLoading || !wallet.publicKey || !amount}
-              className={`w-full py-4 rounded-xl font-bold text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${activeTab === "buy"
-                ? "bg-gradient-to-r from-primary to-emerald-500 text-black shadow-lg shadow-primary/30 hover:shadow-primary/50"
-                : "bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-lg shadow-red-500/30 hover:shadow-red-500/50"
-                }`}
-            >
-              {tradeLoading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <div className="w-5 h-5 border-2 border-current/30 border-t-current rounded-full animate-spin" />
-                  Processing...
-                </span>
-              ) : (
-                `${activeTab === "buy" ? "Buy" : "Sell"} ${tokenInfo.symbol}`
-              )}
-            </button>
-          </div>
-
-          {/* Position Stats */}
-          <div className="grid grid-cols-4 gap-1 px-3 pb-3 text-center text-xs">
-            <div className="bg-white/5 rounded-lg p-2">
-              <p className="text-muted-foreground">Bought</p>
-              <p className="font-semibold text-primary">$0</p>
-            </div>
-            <div className="bg-white/5 rounded-lg p-2">
-              <p className="text-muted-foreground">Sold</p>
-              <p className="font-semibold text-red-400">$0</p>
-            </div>
-            <div className="bg-white/5 rounded-lg p-2">
-              <p className="text-muted-foreground">Holding</p>
-              <p className="font-semibold">$0</p>
-            </div>
-            <div className="bg-white/5 rounded-lg p-2">
-              <p className="text-muted-foreground">PnL</p>
-              <p className="font-semibold text-muted-foreground">+$0 (+0%)</p>
-            </div>
-          </div>
-
-          {/* Quick Presets */}
-          <div className="grid grid-cols-3 gap-2 px-3 pb-3">
-            <button className="py-2 bg-primary/20 text-primary rounded-lg text-xs font-semibold">
-              PRESET 1
-            </button>
-            <button className="py-2 bg-white/5 text-muted-foreground rounded-lg text-xs font-semibold hover:bg-white/10 transition-colors">
-              PRESET 2
-            </button>
-            <button className="py-2 bg-white/5 text-muted-foreground rounded-lg text-xs font-semibold hover:bg-white/10 transition-colors">
-              PRESET 3
-            </button>
-          </div>
-
-          {/* Token Info Section */}
-          <div className="flex-1 overflow-y-auto border-t border-white/5">
-            <div className="flex items-center justify-between px-3 py-2 border-b border-white/5">
-              <span className="text-sm font-semibold">Token Info</span>
-              <button className="text-muted-foreground hover:text-white transition-colors">
-                🔍
-              </button>
-            </div>
-
-            {/* Creator Section with X Verification */}
-            <div className="px-3 py-3 border-b border-white/5">
-              <p className="text-xs text-muted-foreground mb-2">Creator</p>
-              <div className="flex items-center gap-3">
-                {creatorXProfile ? (
-                  <>
-                    <div className="relative">
-                      <img
-                        src={creatorXProfile.profileImage}
-                        alt={creatorXProfile.displayName}
-                        className="w-10 h-10 object-cover border border-[#1DA1F2]/50"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
-                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#1DA1F2] rounded-full flex items-center justify-center">
-                        <XIcon className="w-2.5 h-2.5 text-white" />
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium text-sm">{creatorXProfile.displayName}</span>
-                        <div className="flex items-center gap-1 px-1.5 py-0.5 bg-[#1DA1F2]/20 border border-[#1DA1F2]/30 text-[#1DA1F2] text-[10px] font-medium">
-                          ✓ Verified
-                        </div>
-                      </div>
-                      <a
-                        href={`https://x.com/${creatorXProfile.username}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-[#1DA1F2] hover:underline"
-                      >
-                        @{creatorXProfile.username}
-                      </a>
-                    </div>
-                  </>
-                ) : (
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-white/5 border border-white/10 flex items-center justify-center rounded-lg">
-                      <span className="text-lg">👤</span>
-                    </div>
-                    <div>
-                      <p className="text-sm font-mono text-muted-foreground">
-                        {tokenInfo?.creator.toBase58().slice(0, 4)}...{tokenInfo?.creator.toBase58().slice(-4)}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground/60">Not verified</p>
+        {/* Token Info */}
+        <div className="border-t border-white/10 p-4 space-y-4">
+          {/* Creator */}
+          <div>
+            <p className="text-xs text-muted-foreground mb-2">Creator</p>
+            <div className="flex items-center gap-3">
+              {creatorXProfile ? (
+                <>
+                  <div className="relative">
+                    <img
+                      src={creatorXProfile.profileImage}
+                      alt={creatorXProfile.displayName}
+                      className="w-8 h-8 object-cover rounded-full border border-[#1DA1F2]/50"
+                    />
+                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#1DA1F2] rounded-full flex items-center justify-center">
+                      <XIcon className="w-2.5 h-2.5 text-white" />
                     </div>
                   </div>
-                )}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-2 p-3 text-xs">
-              <div className="bg-white/5 rounded-lg p-2 text-center">
-                <p className="text-primary font-bold">27.44%</p>
-                <p className="text-muted-foreground">Top 10 H.</p>
-              </div>
-              <div className="bg-white/5 rounded-lg p-2 text-center">
-                <p className="text-primary font-bold">3.25%</p>
-                <p className="text-muted-foreground">Dev H.</p>
-              </div>
-              <div className="bg-white/5 rounded-lg p-2 text-center">
-                <p className="text-primary font-bold">3.25%</p>
-                <p className="text-muted-foreground">Snipers H.</p>
-              </div>
-              <div className="bg-white/5 rounded-lg p-2 text-center">
-                <p className="text-primary font-bold">2.84%</p>
-                <p className="text-muted-foreground">Insiders</p>
-              </div>
-              <div className="bg-white/5 rounded-lg p-2 text-center">
-                <p className="text-primary font-bold">0.03%</p>
-                <p className="text-muted-foreground">Bundlers</p>
-              </div>
-              <div className="bg-white/5 rounded-lg p-2 text-center">
-                <p className="text-primary font-bold">100%</p>
-                <p className="text-muted-foreground">LP Burned</p>
-              </div>
-            </div>
-
-            {/* Bonding Curve Progress */}
-            <div className="px-3 pb-3">
-              <div className="bg-white/5 rounded-lg p-3">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs text-muted-foreground">Bonding Progress</span>
-                  <span className="text-xs font-semibold text-primary">{tokenInfo.bondingProgress.toFixed(1)}%</span>
-                </div>
-                <div className="h-2 bg-black/30 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-primary to-blue-500 rounded-full transition-all duration-500"
-                    style={{ width: `${tokenInfo.bondingProgress}%` }}
-                  />
-                </div>
-                <p className="text-[10px] text-muted-foreground mt-2">
-                  When complete, all liquidity migrates to Raydium
+                  <div>
+                    <span className="font-medium text-sm">{creatorXProfile.displayName}</span>
+                    <a
+                      href={`https://x.com/${creatorXProfile.username}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block text-xs text-[#1DA1F2] hover:underline"
+                    >
+                      @{creatorXProfile.username}
+                    </a>
+                  </div>
+                </>
+              ) : (
+                <p className="text-sm font-mono text-muted-foreground">
+                  {tokenInfo?.creator.toBase58().slice(0, 4)}...{tokenInfo?.creator.toBase58().slice(-4)}
                 </p>
-              </div>
+              )}
             </div>
+          </div>
+
+          {/* Bonding Curve Progress */}
+          <div className="bg-white/5 rounded-lg p-3">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs text-muted-foreground">Bonding Progress</span>
+              <span className="text-xs font-semibold text-primary">{tokenInfo.bondingProgress.toFixed(1)}%</span>
+            </div>
+            <div className="h-2 bg-black/50 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-primary to-blue-500 rounded-full transition-all duration-500"
+                style={{ width: `${tokenInfo.bondingProgress}%` }}
+              />
+            </div>
+            <p className="text-[10px] text-muted-foreground mt-2">
+              When complete, liquidity migrates to Raydium
+            </p>
           </div>
         </div>
       </div>
