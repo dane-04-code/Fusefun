@@ -28,104 +28,96 @@ export default function RewardsPage() {
     };
 
     return (
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-5xl mx-auto">
             {/* Header */}
-            <div className="text-center mb-10">
-                <div className="inline-flex items-center gap-2 bg-purple-500/10 border border-purple-500/30 rounded-full px-4 py-2 mb-4">
-                    <span className="text-xl">🎁</span>
-                    <span className="text-sm text-purple-300 font-medium">Earn Rewards</span>
-                </div>
-                <h1 className="text-3xl md:text-4xl font-heading font-bold mb-3">
-                    Invite Friends, <span className="gradient-text">Earn Rewards</span>
-                </h1>
-                <p className="text-muted-foreground max-w-xl mx-auto">
-                    Share your referral link and earn rewards when your friends trade on Fusey.
-                    The more they trade, the more you earn!
+            <div className="mb-8">
+                <h1 className="text-2xl font-bold mb-2">Rewards</h1>
+                <p className="text-sm text-muted-foreground">
+                    Share your referral link and earn rewards when your friends trade.
                 </p>
             </div>
 
-            {/* Referral Link Card */}
-            <div className="glass-card rounded-2xl p-6 mb-8">
-                <div className="flex flex-col md:flex-row items-center gap-4">
-                    <div className="flex-1 w-full">
-                        <label className="text-sm text-muted-foreground mb-2 block">Your Referral Link</label>
-                        <div className="flex items-center gap-2">
-                            <input
-                                type="text"
-                                value={referralLink}
-                                readOnly
-                                className="flex-1 px-4 py-3 bg-muted/50 border border-border rounded-xl text-foreground text-sm font-mono"
-                            />
-                            <button
-                                onClick={copyToClipboard}
-                                disabled={!connected}
-                                className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                {copied ? "Copied!" : "Copy"}
-                            </button>
-                        </div>
-                    </div>
+            {/* Referral Link Section */}
+            <div className="bg-black/40 border border-white/10 p-6 mb-6">
+                <div className="text-xs text-muted-foreground uppercase tracking-wider mb-3">Your Referral Link</div>
+                <div className="flex items-center gap-3">
+                    <input
+                        type="text"
+                        value={referralLink}
+                        readOnly
+                        className="flex-1 px-4 py-3 bg-black/60 border border-white/10 text-sm font-mono text-foreground focus:outline-none"
+                    />
+                    <button
+                        onClick={copyToClipboard}
+                        disabled={!connected}
+                        className="px-6 py-3 bg-primary text-white text-sm font-medium hover:bg-primary/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {copied ? "Copied" : "Copy"}
+                    </button>
                 </div>
 
                 {/* Share Buttons */}
-                <div className="flex items-center gap-3 mt-4">
-                    <span className="text-sm text-muted-foreground">Share on:</span>
-                    <button className="p-2 rounded-lg bg-[#1DA1F2]/20 text-[#1DA1F2] hover:bg-[#1DA1F2]/30 transition-colors">
-                        <TwitterIcon className="w-5 h-5" />
+                <div className="flex items-center gap-3 mt-4 pt-4 border-t border-white/5">
+                    <span className="text-xs text-muted-foreground">Share:</span>
+                    <button className="p-2 bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                        <TwitterIcon className="w-4 h-4 text-white/60" />
                     </button>
-                    <button className="p-2 rounded-lg bg-[#0088cc]/20 text-[#0088cc] hover:bg-[#0088cc]/30 transition-colors">
-                        <TelegramIcon className="w-5 h-5" />
+                    <button className="p-2 bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                        <TelegramIcon className="w-4 h-4 text-white/60" />
                     </button>
                 </div>
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                <div className="glass-card rounded-2xl p-6 text-center">
-                    <div className="text-3xl font-bold text-green-400 mb-1">{referralStats.totalEarnings}</div>
-                    <div className="text-sm text-muted-foreground">Total Earnings</div>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div className="bg-black/40 border border-white/10 p-5">
+                    <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Total Earnings</div>
+                    <div className="text-2xl font-bold text-green-400">{referralStats.totalEarnings}</div>
                 </div>
-                <div className="glass-card rounded-2xl p-6 text-center">
-                    <div className="text-3xl font-bold text-yellow-400 mb-1">{referralStats.pendingRewards}</div>
-                    <div className="text-sm text-muted-foreground">Pending Rewards</div>
+                <div className="bg-black/40 border border-white/10 p-5">
+                    <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Pending</div>
+                    <div className="text-2xl font-bold text-yellow-400">{referralStats.pendingRewards}</div>
                 </div>
-                <div className="glass-card rounded-2xl p-6 text-center">
-                    <div className="text-3xl font-bold text-blue-400 mb-1">{referralStats.referralCount}</div>
-                    <div className="text-sm text-muted-foreground">Total Referrals</div>
+                <div className="bg-black/40 border border-white/10 p-5">
+                    <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Referrals</div>
+                    <div className="text-2xl font-bold text-blue-400">{referralStats.referralCount}</div>
                 </div>
-                <div className="glass-card rounded-2xl p-6 text-center">
-                    <div className="relative inline-block">
-                        <svg className="w-16 h-16 transform -rotate-90">
-                            <circle cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="4" fill="none" className="text-muted" />
-                            <circle cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="4" fill="none"
-                                strokeDasharray={`${80 * 1.76} 176`} className="text-green-400" />
-                        </svg>
-                        <div className="absolute inset-0 flex items-center justify-center text-lg font-bold">{referralStats.conversionRate}</div>
-                    </div>
-                    <div className="text-sm text-muted-foreground mt-2">Conversion Rate</div>
+                <div className="bg-black/40 border border-white/10 p-5">
+                    <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Conversion</div>
+                    <div className="text-2xl font-bold text-primary">{referralStats.conversionRate}</div>
                 </div>
             </div>
 
             {/* How It Works */}
-            <div className="glass-card rounded-2xl p-6">
-                <h3 className="text-lg font-heading font-bold mb-6 text-center">How It Works</h3>
+            <div className="bg-black/40 border border-white/10 p-6">
+                <div className="text-xs text-muted-foreground uppercase tracking-wider mb-6">How It Works</div>
                 <div className="grid md:grid-cols-3 gap-6">
                     {[
-                        { step: "1", icon: "🔗", title: "Share Your Link", desc: "Copy and share your unique referral link with friends" },
-                        { step: "2", icon: "🎯", title: "Friends Join", desc: "When they sign up and trade using your link, you get credit" },
-                        { step: "3", icon: "💰", title: "Earn Rewards", desc: "Earn a percentage of their trading fees as rewards" },
-                    ].map((step) => (
-                        <div key={step.step} className="text-center">
-                            <div className="w-12 h-12 rounded-full bg-primary/20 text-primary font-bold text-lg flex items-center justify-center mx-auto mb-4">
-                                {step.step}
-                            </div>
-                            <div className="text-3xl mb-3">{step.icon}</div>
-                            <h4 className="font-semibold mb-2">{step.title}</h4>
-                            <p className="text-sm text-muted-foreground">{step.desc}</p>
+                        { step: "01", title: "Share Your Link", desc: "Copy and share your unique referral link with friends" },
+                        { step: "02", title: "Friends Join", desc: "When they sign up and trade using your link, you get credit" },
+                        { step: "03", title: "Earn Rewards", desc: "Earn a percentage of their trading fees as rewards" },
+                    ].map((item) => (
+                        <div key={item.step} className="border-l border-white/10 pl-4">
+                            <div className="text-xs text-primary font-mono mb-2">{item.step}</div>
+                            <h4 className="text-sm font-medium mb-1">{item.title}</h4>
+                            <p className="text-xs text-muted-foreground">{item.desc}</p>
                         </div>
                     ))}
                 </div>
             </div>
+
+            {/* Claim Section */}
+            {connected && (
+                <div className="mt-6 bg-black/40 border border-white/10 p-6 flex items-center justify-between">
+                    <div>
+                        <div className="text-sm font-medium mb-1">Ready to claim</div>
+                        <div className="text-xs text-muted-foreground">Your pending rewards are available for withdrawal</div>
+                    </div>
+                    <button className="px-6 py-2 bg-green-500/20 border border-green-500/30 text-green-400 text-sm font-medium hover:bg-green-500/30 transition-colors">
+                        Claim {referralStats.pendingRewards}
+                    </button>
+                </div>
+            )}
         </div>
     );
 }
