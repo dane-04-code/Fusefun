@@ -252,11 +252,11 @@ export class FuseSDK {
   constructor(
     connection: Connection,
     wallet: anchor.Wallet,
-    treasuryAddress: string = '11111111111111111111111111111111' // Replace with real treasury
+    treasuryAddress: string = '4j1591eHGUZvRQgAGKSW2sriMQkDinSDRnA7oXdCHyT1' // Updated treasury to receive fees
   ) {
     this.connection = connection;
     this.treasury = new PublicKey(treasuryAddress);
-    
+
     const provider = new anchor.AnchorProvider(
       connection,
       wallet,
@@ -413,8 +413,8 @@ export class FuseSDK {
       tokenAmount
     );
 
-    const grossSolOut = (curveState.virtualSolReserves * tokenAmount) / 
-                        (curveState.virtualTokenReserves + tokenAmount);
+    const grossSolOut = (curveState.virtualSolReserves * tokenAmount) /
+      (curveState.virtualTokenReserves + tokenAmount);
     const fee = grossSolOut - solOut;
 
     const currentPrice = FuseSDK.calculatePrice(
@@ -450,13 +450,13 @@ export class FuseSDK {
     try {
       const [curvePda] = FuseSDK.getCurvePDA(mint);
       const accountInfo = await this.connection.getAccountInfo(curvePda);
-      
+
       if (!accountInfo) return null;
 
       // Deserialize account data (simplified - in production use Anchor's IDL)
       // This is a basic example - actual deserialization depends on account layout
       const data = accountInfo.data;
-      
+
       // Skip discriminator (8 bytes)
       let offset = 8;
 
@@ -608,7 +608,7 @@ export class FuseSDK {
         rent: anchor.web3.SYSVAR_RENT_PUBKEY,
       })
       .transaction();
-    
+
     return tx;
   }
 
@@ -631,7 +631,7 @@ export class FuseSDK {
         systemProgram: SystemProgram.programId,
       })
       .transaction();
-    
+
     return tx;
   }
 
@@ -654,7 +654,7 @@ export class FuseSDK {
         systemProgram: SystemProgram.programId,
       })
       .transaction();
-    
+
     return tx;
   }
 
@@ -691,15 +691,15 @@ export class FuseSDK {
     // let referrerWallet = null; // Removed as contract update failed
 
     try {
-        // @ts-ignore - dynamic anchor program
-        const userProfileAccount = await this.program.account.userProfile.fetchNullable(userProfilePda);
-        if (userProfileAccount && userProfileAccount.referrer) {
-            const referrerWallet = userProfileAccount.referrer as PublicKey;
-            const [refProfilePda] = FuseSDK.getUserProfilePDA(referrerWallet);
-            referrerProfile = refProfilePda;
-        }
+      // @ts-ignore - dynamic anchor program
+      const userProfileAccount = await this.program.account.userProfile.fetchNullable(userProfilePda);
+      if (userProfileAccount && userProfileAccount.referrer) {
+        const referrerWallet = userProfileAccount.referrer as PublicKey;
+        const [refProfilePda] = FuseSDK.getUserProfilePDA(referrerWallet);
+        referrerProfile = refProfilePda;
+      }
     } catch (e) {
-        // Ignore error if profile doesn't exist
+      // Ignore error if profile doesn't exist
     }
 
     const tx = await this.program.methods
@@ -720,7 +720,7 @@ export class FuseSDK {
         rent: anchor.web3.SYSVAR_RENT_PUBKEY,
       })
       .transaction();
-    
+
     return tx;
   }
 
@@ -743,15 +743,15 @@ export class FuseSDK {
     let referrerWallet = null;
 
     try {
-        // @ts-ignore - dynamic anchor program
-        const userProfileAccount = await this.program.account.userProfile.fetchNullable(userProfilePda);
-        if (userProfileAccount && userProfileAccount.referrer) {
-            referrerWallet = userProfileAccount.referrer as PublicKey;
-            const [refProfilePda] = FuseSDK.getUserProfilePDA(referrerWallet);
-            referrerProfile = refProfilePda;
-        }
+      // @ts-ignore - dynamic anchor program
+      const userProfileAccount = await this.program.account.userProfile.fetchNullable(userProfilePda);
+      if (userProfileAccount && userProfileAccount.referrer) {
+        referrerWallet = userProfileAccount.referrer as PublicKey;
+        const [refProfilePda] = FuseSDK.getUserProfilePDA(referrerWallet);
+        referrerProfile = refProfilePda;
+      }
     } catch (e) {
-        // Ignore error if profile doesn't exist
+      // Ignore error if profile doesn't exist
     }
 
     const tx = await this.program.methods
@@ -774,7 +774,7 @@ export class FuseSDK {
   }
 
   // Helper Methods
-  
+
   /**
    * Format lamports to SOL string
    */
@@ -788,7 +788,7 @@ export class FuseSDK {
   static formatTokens(amount: bigint | number, decimals: number = 6): string {
     const divisor = 10 ** decimals;
     const formatted = Number(amount) / divisor;
-    
+
     if (formatted >= 1_000_000_000) {
       return (formatted / 1_000_000_000).toFixed(2) + 'B';
     } else if (formatted >= 1_000_000) {
