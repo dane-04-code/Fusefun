@@ -66,9 +66,9 @@ export function TopBar() {
                     <Link href="/" className="flex items-center gap-2 group shrink-0">
                         {/* Fuse Logo - uses mix-blend-mode to remove white background */}
                         <img
-                            src="/fuse-logo-v2.png"
+                            src="/fuse-logo-v3.png"
                             alt="Fuse"
-                            className="h-10 w-auto mix-blend-lighten drop-shadow-[0_0_8px_rgba(0,255,255,0.5)] hover:scale-105 transition-all duration-300"
+                            className="h-10 w-auto object-contain drop-shadow-[0_0_8px_rgba(0,255,255,0.4)] hover:scale-105 transition-all duration-300"
                             onError={(e) => {
                                 // Fallback to text logo if image not found
                                 e.currentTarget.style.display = 'none';
