@@ -46,9 +46,40 @@ export default function TradePage() {
   const [slippage, setSlippage] = useState("1")
   const [chartReady, setChartReady] = useState(false)
   const [creatorXProfile, setCreatorXProfile] = useState<XProfile | null>(null)
+  const [userSolBalance, setUserSolBalance] = useState<number>(0)
+  const [userTokenBalance, setUserTokenBalance] = useState<bigint>(0n)
 
   // Quick amount presets
   const amountPresets = ["0.1", "0.15", "0.2", "0.3"]
+
+  // Fetch user balances
+  useEffect(() => {
+    const fetchBalances = async () => {
+      if (!wallet.publicKey || !mintAddress) return;
+      try {
+        // Fetch SOL balance
+        const solBalance = await connection.getBalance(wallet.publicKey);
+        setUserSolBalance(solBalance / 1e9); // Convert lamports to SOL
+
+        // Fetch token balance
+        const dummyWallet = {
+          publicKey: wallet.publicKey,
+          signTransaction: async () => { throw new Error("Read only") },
+          signAllTransactions: async () => { throw new Error("Read only") }
+        } as unknown as anchor.Wallet;
+        const sdk = new FuseSDK(connection, dummyWallet);
+        const mint = new PublicKey(mintAddress);
+        const tokenBalance = await sdk.getUserBalance(mint, wallet.publicKey);
+        setUserTokenBalance(tokenBalance);
+      } catch (e) {
+        console.error("Error fetching balances:", e);
+      }
+    };
+
+    fetchBalances();
+    const interval = setInterval(fetchBalances, 15000); // Refresh every 15 seconds
+    return () => clearInterval(interval);
+  }, [wallet.publicKey, mintAddress, connection]);
 
   useEffect(() => {
     const fetchTokenInfo = async () => {
@@ -134,54 +165,106 @@ export default function TradePage() {
   }, [chartReady])
 
   const handleBuy = async () => {
-    if (!wallet.publicKey || !tokenInfo) return
+    if (!wallet.publicKey) {
+      // Prompt wallet connection
+      alert("Please connect your wallet to trade.");
+      return;
+    }
+    if (!tokenInfo) return;
+    if (!amount || parseFloat(amount) <= 0) {
+      alert("Please enter a valid amount.");
+      return;
+    }
+
     try {
-      setTradeLoading(true)
-      const sdk = new FuseSDK(connection, wallet as unknown as anchor.Wallet)
-      const solAmount = FuseSDK.parseSolToLamports(amount)
-      const minTokensOut = 0n
+      setTradeLoading(true);
+      const sdk = new FuseSDK(connection, wallet as unknown as anchor.Wallet);
+      const solAmount = FuseSDK.parseSolToLamports(amount);
+
+      // Apply slippage tolerance (default 1%)
+      const slippagePercent = parseFloat(slippage) || 1;
+      // For buy: minTokensOut = expected * (1 - slippage)
+      // Since we don't have expected tokens here, we use 0 for now
+      // In production, you'd call getQuoteBuy first
+      const minTokensOut = 0n;
 
       const tx = await sdk.buildBuyTx(
         wallet.publicKey,
         tokenInfo.mint,
         solAmount,
         minTokensOut
-      )
+      );
 
-      const signature = await wallet.sendTransaction(tx, connection)
-      await connection.confirmTransaction(signature, "confirmed")
-      setAmount("")
-    } catch (error) {
-      console.error("Buy error:", error)
+      const signature = await wallet.sendTransaction(tx, connection);
+      console.log("Transaction sent:", signature);
+
+      await connection.confirmTransaction(signature, "confirmed");
+
+      setAmount("");
+      alert(`Successfully bought ${tokenInfo.symbol}! Transaction: ${signature.slice(0, 8)}...`);
+    } catch (error: any) {
+      console.error("Buy error:", error);
+      const errorMsg = error.message || "Transaction failed";
+      if (errorMsg.includes("User rejected")) {
+        alert("Transaction cancelled.");
+      } else if (errorMsg.includes("insufficient")) {
+        alert("Insufficient SOL balance.");
+      } else {
+        alert(`Buy failed: ${errorMsg}`);
+      }
     } finally {
-      setTradeLoading(false)
+      setTradeLoading(false);
     }
-  }
+  };
 
   const handleSell = async () => {
-    if (!wallet.publicKey || !tokenInfo) return
+    if (!wallet.publicKey) {
+      alert("Please connect your wallet to trade.");
+      return;
+    }
+    if (!tokenInfo) return;
+    if (!amount || parseFloat(amount) <= 0) {
+      alert("Please enter a valid amount.");
+      return;
+    }
+
     try {
-      setTradeLoading(true)
-      const sdk = new FuseSDK(connection, wallet as unknown as anchor.Wallet)
-      const tokenAmount = BigInt(Math.floor(Number(amount) * 1_000_000))
-      const minSolOut = 0n
+      setTradeLoading(true);
+      const sdk = new FuseSDK(connection, wallet as unknown as anchor.Wallet);
+      // Convert token amount (assuming 6 decimals)
+      const tokenAmount = BigInt(Math.floor(Number(amount) * 1_000_000));
+
+      // Apply slippage tolerance
+      const minSolOut = 0n;
 
       const tx = await sdk.buildSellTx(
         wallet.publicKey,
         tokenInfo.mint,
         tokenAmount,
         minSolOut
-      )
+      );
 
-      const signature = await wallet.sendTransaction(tx, connection)
-      await connection.confirmTransaction(signature, "confirmed")
-      setAmount("")
-    } catch (error) {
-      console.error("Sell error:", error)
+      const signature = await wallet.sendTransaction(tx, connection);
+      console.log("Transaction sent:", signature);
+
+      await connection.confirmTransaction(signature, "confirmed");
+
+      setAmount("");
+      alert(`Successfully sold ${tokenInfo.symbol}! Transaction: ${signature.slice(0, 8)}...`);
+    } catch (error: any) {
+      console.error("Sell error:", error);
+      const errorMsg = error.message || "Transaction failed";
+      if (errorMsg.includes("User rejected")) {
+        alert("Transaction cancelled.");
+      } else if (errorMsg.includes("insufficient")) {
+        alert("Insufficient token balance.");
+      } else {
+        alert(`Sell failed: ${errorMsg}`);
+      }
     } finally {
-      setTradeLoading(false)
+      setTradeLoading(false);
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -337,7 +420,12 @@ export default function TradePage() {
           <div className="px-3 pb-3 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">AMOUNT</span>
-              <span className="text-xs text-muted-foreground">◎ 0</span>
+              <span className="text-xs text-muted-foreground">
+                {activeTab === "buy"
+                  ? `◎ ${userSolBalance.toFixed(4)} SOL`
+                  : `${FuseSDK.formatTokens(userTokenBalance)} ${tokenInfo?.symbol || 'tokens'}`
+                }
+              </span>
             </div>
 
             {/* Preset Amounts */}

@@ -713,11 +713,8 @@ export class FuseSDK {
         treasury: this.treasury,
         userProfile: userProfilePda,
         referrerProfile: referrerProfile,
-        // referrerWallet: referrerWallet, // Removed as contract update failed
-        systemProgram: SystemProgram.programId,
         tokenProgram: TOKEN_PROGRAM_ID,
-        associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-        rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+        systemProgram: SystemProgram.programId,
       })
       .transaction();
 
