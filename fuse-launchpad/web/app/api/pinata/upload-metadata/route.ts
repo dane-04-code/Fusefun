@@ -1,38 +1,99 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:3001";
+// Pinata configuration from environment
+const PINATA_API_KEY = process.env.PINATA_API_KEY || "";
+const PINATA_SECRET_KEY = process.env.PINATA_SECRET_KEY || "";
+const PINATA_JWT = process.env.PINATA_JWT || "";
+
+const pinataConfigured = !!(PINATA_API_KEY && PINATA_SECRET_KEY) || !!PINATA_JWT;
 
 export async function POST(request: NextRequest) {
     try {
-        const body = await request.json();
+        // Check Pinata configuration
+        if (!pinataConfigured) {
+            return NextResponse.json(
+                { error: "Pinata not configured. Please set PINATA_API_KEY and PINATA_SECRET_KEY or PINATA_JWT environment variables." },
+                { status: 503 }
+            );
+        }
 
-        const response = await fetch(`${BACKEND_URL}/api/pinata/upload-metadata`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
+        const body = await request.json();
+        const { name, symbol, description, imageUrl, twitter, telegram, website } = body;
+
+        // Validate required fields
+        if (!name || !symbol) {
+            return NextResponse.json(
+                { error: "Name and symbol are required" },
+                { status: 400 }
+            );
+        }
+
+        console.log(`[Pinata] Uploading metadata for: ${name} (${symbol})`);
+
+        // Build metadata object (following Metaplex standard)
+        const metadata = {
+            name,
+            symbol,
+            description: description || "",
+            image: imageUrl || "",
+            external_url: website || "",
+            attributes: [],
+            properties: {
+                files: imageUrl ? [{ uri: imageUrl, type: "image/png" }] : [],
+                category: "image",
+                creators: []
             },
-            body: JSON.stringify(body),
+            // Additional social links
+            social: {
+                twitter: twitter || "",
+                telegram: telegram || "",
+                website: website || ""
+            }
+        };
+
+        // Use JWT if available, otherwise use API key/secret
+        const headers: HeadersInit = PINATA_JWT
+            ? { "Authorization": `Bearer ${PINATA_JWT}`, "Content-Type": "application/json" }
+            : { "pinata_api_key": PINATA_API_KEY, "pinata_secret_api_key": PINATA_SECRET_KEY, "Content-Type": "application/json" };
+
+        const response = await fetch("https://api.pinata.cloud/pinning/pinJSONToIPFS", {
+            method: "POST",
+            headers,
+            body: JSON.stringify({
+                pinataContent: metadata,
+                pinataMetadata: {
+                    name: `${symbol}-metadata.json`,
+                    keyvalues: {
+                        type: "token-metadata",
+                        tokenSymbol: symbol,
+                        uploadedAt: new Date().toISOString()
+                    }
+                }
+            })
         });
 
-        // Handle non-OK responses
         if (!response.ok) {
-            let errorMessage = "Metadata upload failed";
-            try {
-                const errorData = await response.json();
-                errorMessage = errorData.error || errorData.message || errorMessage;
-            } catch {
-                errorMessage = response.statusText || errorMessage;
-            }
+            const errorText = await response.text();
+            console.error("[Pinata] API error:", errorText);
             return NextResponse.json(
-                { error: errorMessage },
+                { error: `Pinata API error: ${response.status}` },
                 { status: response.status }
             );
         }
 
-        const data = await response.json();
-        return NextResponse.json(data);
+        const result = await response.json();
+        const ipfsHash = result.IpfsHash;
+        const ipfsUrl = `https://gateway.pinata.cloud/ipfs/${ipfsHash}`;
+
+        console.log(`[Pinata] Metadata uploaded successfully: ${ipfsHash}`);
+
+        return NextResponse.json({
+            success: true,
+            ipfsHash,
+            url: ipfsUrl,
+        });
     } catch (error) {
-        console.error("Pinata metadata proxy error:", error);
+        console.error("Pinata metadata upload error:", error);
         return NextResponse.json(
             { error: error instanceof Error ? error.message : "Internal server error" },
             { status: 500 }
