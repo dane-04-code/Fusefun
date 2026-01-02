@@ -1,6 +1,14 @@
 import { useState, useCallback } from 'react';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { Keypair, PublicKey, SystemProgram, Transaction, TransactionInstruction, SYSVAR_RENT_PUBKEY } from '@solana/web3.js';
+import {
+    Keypair,
+    PublicKey,
+    SystemProgram,
+    Transaction,
+    TransactionInstruction,
+    SYSVAR_RENT_PUBKEY,
+    ComputeBudgetProgram
+} from '@solana/web3.js';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 
 // Program ID from your existing configuration
@@ -8,6 +16,9 @@ const PROGRAM_ID = new PublicKey('63mGs2kvQNm1g5S31WbYVq9mTgnfHKzD9iJB3ZWvQN1d')
 const TREASURY_WALLET = new PublicKey('4j1591eHGUZvRQgAGKSW2sriMQkDinSDRnA7oXdCHyT1');
 const CURVE_SEED = 'curve';
 const VAULT_SEED = 'vault';
+
+// Priority fee in microlamports (higher = faster inclusion)
+const PRIORITY_FEE = 50000; // 0.00005 SOL per compute unit
 
 interface UploadResult {
     imageUrl: string;
@@ -40,7 +51,6 @@ export const useLaunchToken = () => {
             if (typeof imageFile === 'string') {
                 imageUrl = imageFile;
             } else {
-                // Upload Image to Pinata
                 const formData = new FormData();
                 formData.append('file', imageFile);
 
@@ -60,7 +70,6 @@ export const useLaunchToken = () => {
 
             setStatus('Uploading metadata...');
 
-            // Upload Metadata to Pinata
             const metadata = { name, symbol, description, imageUrl, twitter, telegram, website };
 
             const metadataRes = await fetch('/api/pinata/upload-metadata', {
@@ -82,16 +91,14 @@ export const useLaunchToken = () => {
         }
     }, []);
 
-    // Step 2: Create and send transaction (fast - blockhash stays fresh)
+    // Step 2: Create and send transaction with retry logic
     const createToken = useCallback(async (
         name: string,
         symbol: string,
         metadataUri: string,
         initialBuyAmount: number
-    ) => {
+    ): Promise<{ signature: string; mint: string }> => {
         if (!publicKey || !signTransaction) throw new Error('Wallet not connected');
-
-        setStatus('Preparing transaction...');
 
         const mintKeypair = Keypair.generate();
 
@@ -167,39 +174,83 @@ export const useLaunchToken = () => {
             data
         });
 
-        const transaction = new Transaction().add(instruction);
+        // Create transaction with priority fee for faster inclusion
+        const transaction = new Transaction();
 
-        // Get FRESH blockhash RIGHT before signing
-        setStatus('Getting fresh blockhash...');
-        const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
-        transaction.recentBlockhash = blockhash;
-        transaction.feePayer = publicKey;
+        // Add priority fee instruction
+        transaction.add(
+            ComputeBudgetProgram.setComputeUnitPrice({
+                microLamports: PRIORITY_FEE,
+            })
+        );
 
-        // Sign with mint keypair first
-        transaction.partialSign(mintKeypair);
+        // Add main instruction
+        transaction.add(instruction);
 
-        // NOW prompt user to sign (they should approve quickly!)
-        setStatus('Please approve in your wallet...');
-        const signedTx = await signTransaction(transaction);
+        // Retry loop - try up to 3 times with fresh blockhash each time
+        let lastError: Error | null = null;
 
-        // Send immediately after signing
-        setStatus('Sending transaction...');
-        const signature = await connection.sendRawTransaction(signedTx.serialize(), {
-            skipPreflight: false,
-            maxRetries: 5,
-        });
+        for (let attempt = 1; attempt <= 3; attempt++) {
+            try {
+                setStatus(`Attempt ${attempt}/3: Getting fresh blockhash...`);
 
-        setStatus('Confirming transaction...');
-        await connection.confirmTransaction({
-            signature,
-            blockhash,
-            lastValidBlockHeight
-        }, 'confirmed');
+                // Get FRESH blockhash for each attempt
+                const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
+                transaction.recentBlockhash = blockhash;
+                transaction.feePayer = publicKey;
 
-        return { signature, mint: mintKeypair.publicKey.toString() };
+                // Clear any previous signatures and re-sign
+                transaction.signatures = [];
+                transaction.partialSign(mintKeypair);
+
+                setStatus(`Attempt ${attempt}/3: Please approve in wallet...`);
+                const signedTx = await signTransaction(transaction);
+
+                setStatus(`Attempt ${attempt}/3: Sending transaction...`);
+                const signature = await connection.sendRawTransaction(signedTx.serialize(), {
+                    skipPreflight: false,
+                    maxRetries: 3,
+                    preflightCommitment: 'confirmed',
+                });
+
+                setStatus(`Attempt ${attempt}/3: Confirming...`);
+
+                // Use a timeout for confirmation
+                const confirmPromise = connection.confirmTransaction({
+                    signature,
+                    blockhash,
+                    lastValidBlockHeight
+                }, 'confirmed');
+
+                const timeoutPromise = new Promise((_, reject) => {
+                    setTimeout(() => reject(new Error('Confirmation timeout')), 60000);
+                });
+
+                await Promise.race([confirmPromise, timeoutPromise]);
+
+                return { signature, mint: mintKeypair.publicKey.toString() };
+
+            } catch (err: any) {
+                console.error(`Attempt ${attempt} failed:`, err);
+                lastError = err;
+
+                // If user rejected, don't retry
+                if (err.message?.includes('User rejected') || err.message?.includes('cancelled')) {
+                    throw err;
+                }
+
+                // Wait a bit before retrying
+                if (attempt < 3) {
+                    setStatus(`Attempt ${attempt} failed, retrying...`);
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                }
+            }
+        }
+
+        throw lastError || new Error('Failed after 3 attempts');
     }, [publicKey, signTransaction, connection]);
 
-    // Combined function that does both steps
+    // Combined function
     const launchToken = async (
         name: string,
         symbol: string,
@@ -221,7 +272,7 @@ export const useLaunchToken = () => {
                 name, symbol, description, imageFile, twitter, telegram, website
             );
 
-            // Step 2: Create token (fast, fresh blockhash)
+            // Step 2: Create token with retry logic
             const result = await createToken(name, symbol, metadataUri, initialBuyAmount);
 
             setStatus('Token created successfully!');
