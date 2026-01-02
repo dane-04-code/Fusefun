@@ -16,7 +16,7 @@ const cors = require('cors');
 const WebSocket = require('ws');
 const crypto = require('crypto');
 const multer = require('multer');
-const { PinataSDK } = require('pinata');
+const FormData = require('form-data');
 const { Connection, PublicKey } = require('@solana/web3.js');
 
 const { initDb, run: dbRun, get: dbGet, all: dbAll } = require('./db');
@@ -110,18 +110,12 @@ const subscribedMints = new Set();
 // Get your API keys at https://pinata.cloud/
 const PINATA_API_KEY = process.env.PINATA_API_KEY || '';
 const PINATA_SECRET_KEY = process.env.PINATA_SECRET_KEY || '';
+const PINATA_JWT = process.env.PINATA_JWT || '';
 
-let pinata = null;
-if (PINATA_API_KEY && PINATA_SECRET_KEY) {
-    try {
-        pinata = new PinataSDK({
-            pinataJwt: PINATA_API_KEY,
-            pinataGateway: 'gateway.pinata.cloud'
-        });
-        console.log('[Pinata] Initialized successfully');
-    } catch (error) {
-        console.error('[Pinata] Initialization error:', error.message);
-    }
+const pinataConfigured = !!(PINATA_API_KEY && PINATA_SECRET_KEY) || !!PINATA_JWT;
+
+if (pinataConfigured) {
+    console.log('[Pinata] Configured successfully');
 } else {
     console.warn('[Pinata] API keys not configured - image/metadata uploads disabled');
 }
@@ -465,7 +459,7 @@ app.get('/api/referrals/debug/dump', async (req, res) => {
 // ============================================
 
 /**
- * Upload image to IPFS via Pinata
+ * Upload image to IPFS via Pinata REST API
  * POST /api/pinata/upload-image
  * Content-Type: multipart/form-data
  * Body: { file: <image file> }
@@ -473,7 +467,7 @@ app.get('/api/referrals/debug/dump', async (req, res) => {
  */
 app.post('/api/pinata/upload-image', upload.single('file'), async (req, res) => {
     try {
-        if (!pinata) {
+        if (!pinataConfigured) {
             return res.status(503).json({ error: 'Pinata not configured' });
         }
 
@@ -483,17 +477,45 @@ app.post('/api/pinata/upload-image', upload.single('file'), async (req, res) => 
 
         console.log(`[Pinata] Uploading image: ${req.file.originalname} (${req.file.size} bytes)`);
 
-        // Upload to Pinata
-        const uploadResult = await pinata.upload.file(req.file)
-            .addMetadata({
-                name: req.file.originalname,
-                keyValues: {
-                    type: 'token-image',
-                    uploadedAt: new Date().toISOString()
-                }
-            });
+        // Create form data for Pinata API
+        const formData = new FormData();
+        formData.append('file', req.file.buffer, {
+            filename: req.file.originalname,
+            contentType: req.file.mimetype
+        });
 
-        const ipfsHash = uploadResult.IpfsHash;
+        // Add pinata metadata
+        const pinataMetadata = JSON.stringify({
+            name: req.file.originalname,
+            keyvalues: {
+                type: 'token-image',
+                uploadedAt: new Date().toISOString()
+            }
+        });
+        formData.append('pinataMetadata', pinataMetadata);
+
+        // Use JWT if available, otherwise use API key/secret
+        const headers = PINATA_JWT
+            ? { 'Authorization': `Bearer ${PINATA_JWT}` }
+            : { 'pinata_api_key': PINATA_API_KEY, 'pinata_secret_api_key': PINATA_SECRET_KEY };
+
+        const response = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
+            method: 'POST',
+            headers: {
+                ...headers,
+                ...formData.getHeaders()
+            },
+            body: formData
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('[Pinata] API error:', errorText);
+            throw new Error(`Pinata API error: ${response.status}`);
+        }
+
+        const result = await response.json();
+        const ipfsHash = result.IpfsHash;
         const ipfsUrl = `https://gateway.pinata.cloud/ipfs/${ipfsHash}`;
 
         console.log(`[Pinata] Image uploaded successfully: ${ipfsHash}`);
@@ -514,7 +536,7 @@ app.post('/api/pinata/upload-image', upload.single('file'), async (req, res) => 
 });
 
 /**
- * Upload metadata JSON to IPFS via Pinata
+ * Upload metadata JSON to IPFS via Pinata REST API
  * POST /api/pinata/upload-metadata
  * Content-Type: application/json
  * Body: { name, symbol, description, imageUrl }
@@ -522,7 +544,7 @@ app.post('/api/pinata/upload-image', upload.single('file'), async (req, res) => 
  */
 app.post('/api/pinata/upload-metadata', async (req, res) => {
     try {
-        if (!pinata) {
+        if (!pinataConfigured) {
             return res.status(503).json({ error: 'Pinata not configured' });
         }
 
@@ -553,18 +575,35 @@ app.post('/api/pinata/upload-metadata', async (req, res) => {
             }
         };
 
-        // Upload JSON to Pinata
-        const uploadResult = await pinata.upload.json(metadata)
-            .addMetadata({
-                name: `${symbol}-metadata.json`,
-                keyValues: {
-                    type: 'token-metadata',
-                    tokenSymbol: symbol,
-                    uploadedAt: new Date().toISOString()
-                }
-            });
+        // Use JWT if available, otherwise use API key/secret
+        const headers = PINATA_JWT
+            ? { 'Authorization': `Bearer ${PINATA_JWT}`, 'Content-Type': 'application/json' }
+            : { 'pinata_api_key': PINATA_API_KEY, 'pinata_secret_api_key': PINATA_SECRET_KEY, 'Content-Type': 'application/json' };
 
-        const ipfsHash = uploadResult.IpfsHash;
+        const response = await fetch('https://api.pinata.cloud/pinning/pinJSONToIPFS', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+                pinataContent: metadata,
+                pinataMetadata: {
+                    name: `${symbol}-metadata.json`,
+                    keyvalues: {
+                        type: 'token-metadata',
+                        tokenSymbol: symbol,
+                        uploadedAt: new Date().toISOString()
+                    }
+                }
+            })
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('[Pinata] API error:', errorText);
+            throw new Error(`Pinata API error: ${response.status}`);
+        }
+
+        const result = await response.json();
+        const ipfsHash = result.IpfsHash;
         const ipfsUrl = `https://gateway.pinata.cloud/ipfs/${ipfsHash}`;
 
         console.log(`[Pinata] Metadata uploaded successfully: ${ipfsHash}`);
@@ -591,9 +630,9 @@ app.post('/api/pinata/upload-metadata', async (req, res) => {
  */
 app.get('/api/pinata/status', (req, res) => {
     res.json({
-        configured: !!pinata,
-        ready: !!pinata,
-        gateway: pinata ? 'gateway.pinata.cloud' : null
+        configured: pinataConfigured,
+        ready: pinataConfigured,
+        gateway: pinataConfigured ? 'gateway.pinata.cloud' : null
     });
 });
 
