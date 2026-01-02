@@ -158,12 +158,16 @@ export const useLaunchToken = () => {
 
             const transaction = new Transaction().add(instruction);
 
-            const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+            // Get a fresh blockhash right before sending (use 'finalized' for longer validity)
+            const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('finalized');
             transaction.recentBlockhash = blockhash;
             transaction.feePayer = publicKey;
 
+            // Pre-sign with mint keypair before wallet prompt
+            transaction.partialSign(mintKeypair);
+
             const signature = await sendTransaction(transaction, connection, {
-                signers: [mintKeypair]
+                maxRetries: 3,
             });
 
             await connection.confirmTransaction({
