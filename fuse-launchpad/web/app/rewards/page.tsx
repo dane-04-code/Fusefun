@@ -1,26 +1,29 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useWallet } from "@solana/wallet-adapter-react";
+import { useWallet, useConnection } from "@solana/wallet-adapter-react";
+import { useReferral } from "@/components/providers/ReferralProvider";
+import { FuseSDK } from "@/sdk/fuse-sdk";
+import * as anchor from "@coral-xyz/anchor";
 
 interface ReferralStats {
     totalEarnings: number;
     pendingRewards: number;
     referralCount: number;
-    conversionRate: number;
 }
 
 export default function RewardsPage() {
     const { connected, publicKey } = useWallet();
+    const { connection } = useConnection();
+    const { getReferralLink, isRegistered, registerAndLinkReferrer, isLoading: registrationLoading } = useReferral();
+
     const [copied, setCopied] = useState(false);
     const [stats, setStats] = useState<ReferralStats | null>(null);
     const [loading, setLoading] = useState(false);
 
-    const referralLink = connected && publicKey
-        ? `https://fusey.fun/?ref=${publicKey.toBase58().slice(0, 8)}`
-        : "Connect wallet to get link";
+    const referralLink = getReferralLink();
 
-    // Fetch referral stats when wallet is connected
+    // Fetch referral stats from on-chain when wallet is connected
     useEffect(() => {
         async function fetchStats() {
             if (!connected || !publicKey) {
@@ -30,17 +33,26 @@ export default function RewardsPage() {
 
             setLoading(true);
             try {
-                const response = await fetch(`/api/referrals/stats?wallet=${publicKey.toBase58()}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    setStats(data);
+                const dummyWallet = {
+                    publicKey: publicKey,
+                    signTransaction: async () => { throw new Error("Read only") },
+                    signAllTransactions: async () => { throw new Error("Read only") }
+                } as unknown as anchor.Wallet;
+
+                const sdk = new FuseSDK(connection, dummyWallet);
+                const userProfile = await sdk.getUserProfile(publicKey);
+
+                if (userProfile) {
+                    setStats({
+                        totalEarnings: Number(userProfile.totalReferralFees) / 1e9, // Convert lamports to SOL
+                        pendingRewards: 0, // Referral fees are paid instantly on-chain
+                        referralCount: userProfile.referralCount,
+                    });
                 } else {
-                    // No stats yet for this wallet
                     setStats({
                         totalEarnings: 0,
                         pendingRewards: 0,
                         referralCount: 0,
-                        conversionRate: 0,
                     });
                 }
             } catch (error) {
@@ -49,7 +61,6 @@ export default function RewardsPage() {
                     totalEarnings: 0,
                     pendingRewards: 0,
                     referralCount: 0,
-                    conversionRate: 0,
                 });
             } finally {
                 setLoading(false);
@@ -57,7 +68,7 @@ export default function RewardsPage() {
         }
 
         fetchStats();
-    }, [connected, publicKey]);
+    }, [connected, publicKey, connection]);
 
     const copyToClipboard = () => {
         if (connected) {
@@ -67,20 +78,48 @@ export default function RewardsPage() {
         }
     };
 
-    // Format currency
-    const formatUSD = (value: number) => {
-        return `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const handleRegister = async () => {
+        const success = await registerAndLinkReferrer();
+        if (success) {
+            alert("Successfully registered! You can now earn referral rewards.");
+        }
+    };
+
+    // Format SOL
+    const formatSOL = (value: number) => {
+        return `${value.toLocaleString("en-US", { minimumFractionDigits: 4, maximumFractionDigits: 4 })} SOL`;
     };
 
     return (
         <div className="max-w-5xl mx-auto">
             {/* Header */}
             <div className="mb-8">
-                <h1 className="text-2xl font-bold mb-2">Rewards</h1>
+                <h1 className="text-2xl font-bold mb-2">Referral Rewards</h1>
                 <p className="text-sm text-muted-foreground">
-                    Share your referral link and earn rewards when your friends trade.
+                    Share your referral link and earn 10% of trading fees from everyone you refer.
                 </p>
             </div>
+
+            {/* Registration CTA - Show if not registered */}
+            {connected && !isRegistered && (
+                <div className="bg-primary/10 border border-primary/30 p-6 mb-6">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <div className="text-sm font-medium mb-1">Register to Start Earning</div>
+                            <div className="text-xs text-muted-foreground">
+                                Create your on-chain profile to track referral earnings
+                            </div>
+                        </div>
+                        <button
+                            onClick={handleRegister}
+                            disabled={registrationLoading}
+                            className="px-6 py-2 bg-primary text-black text-sm font-medium hover:bg-primary/80 transition-colors disabled:opacity-50"
+                        >
+                            {registrationLoading ? "Registering..." : "Register Now"}
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* Referral Link Section */}
             <div className="bg-black/40 border border-white/10 p-6 mb-6">
@@ -95,45 +134,46 @@ export default function RewardsPage() {
                     <button
                         onClick={copyToClipboard}
                         disabled={!connected}
-                        className="px-6 py-3 bg-primary text-white text-sm font-medium hover:bg-primary/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-6 py-3 bg-primary text-black text-sm font-medium hover:bg-primary/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {copied ? "Copied" : "Copy"}
+                        {copied ? "Copied!" : "Copy"}
                     </button>
                 </div>
 
                 {/* Share Buttons */}
                 <div className="flex items-center gap-3 mt-4 pt-4 border-t border-white/5">
                     <span className="text-xs text-muted-foreground">Share:</span>
-                    <button className="p-2 bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                    <a
+                        href={connected ? `https://twitter.com/intent/tweet?text=Trade%20on%20Fuse%20and%20get%20the%20fairest%20launches%20on%20Solana!&url=${encodeURIComponent(referralLink)}` : "#"}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
+                    >
                         <TwitterIcon className="w-4 h-4 text-white/60" />
-                    </button>
-                    <button className="p-2 bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                    </a>
+                    <a
+                        href={connected ? `https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=Trade%20on%20Fuse%20-%20the%20fairest%20launchpad%20on%20Solana!` : "#"}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
+                    >
                         <TelegramIcon className="w-4 h-4 text-white/60" />
-                    </button>
+                    </a>
                 </div>
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div className="bg-black/40 border border-white/10 p-5">
                     <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Total Earnings</div>
                     {loading ? (
                         <div className="text-2xl font-bold text-white/30">--</div>
                     ) : (
                         <div className="text-2xl font-bold text-green-400">
-                            {connected && stats ? formatUSD(stats.totalEarnings) : "$0.00"}
+                            {connected && stats ? formatSOL(stats.totalEarnings) : "0.0000 SOL"}
                         </div>
                     )}
-                </div>
-                <div className="bg-black/40 border border-white/10 p-5">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Pending</div>
-                    {loading ? (
-                        <div className="text-2xl font-bold text-white/30">--</div>
-                    ) : (
-                        <div className="text-2xl font-bold text-yellow-400">
-                            {connected && stats ? formatUSD(stats.pendingRewards) : "$0.00"}
-                        </div>
-                    )}
+                    <p className="text-xs text-muted-foreground mt-1">Paid directly to your wallet</p>
                 </div>
                 <div className="bg-black/40 border border-white/10 p-5">
                     <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Referrals</div>
@@ -144,16 +184,12 @@ export default function RewardsPage() {
                             {connected && stats ? stats.referralCount : 0}
                         </div>
                     )}
+                    <p className="text-xs text-muted-foreground mt-1">People using your link</p>
                 </div>
                 <div className="bg-black/40 border border-white/10 p-5">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Conversion</div>
-                    {loading ? (
-                        <div className="text-2xl font-bold text-white/30">--</div>
-                    ) : (
-                        <div className="text-2xl font-bold text-primary">
-                            {connected && stats ? `${stats.conversionRate}%` : "0%"}
-                        </div>
-                    )}
+                    <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Reward Rate</div>
+                    <div className="text-2xl font-bold text-primary">10%</div>
+                    <p className="text-xs text-muted-foreground mt-1">Of trading fees</p>
                 </div>
             </div>
 
@@ -163,8 +199,8 @@ export default function RewardsPage() {
                 <div className="grid md:grid-cols-3 gap-6">
                     {[
                         { step: "01", title: "Share Your Link", desc: "Copy and share your unique referral link with friends" },
-                        { step: "02", title: "Friends Join", desc: "When they sign up and trade using your link, you get credit" },
-                        { step: "03", title: "Earn Rewards", desc: "Earn a percentage of their trading fees as rewards" },
+                        { step: "02", title: "They Trade", desc: "When they trade using your link, you're linked as their referrer" },
+                        { step: "03", title: "Earn Instantly", desc: "Get 10% of protocol fees paid directly to your wallet" },
                     ].map((item) => (
                         <div key={item.step} className="border-l border-white/10 pl-4">
                             <div className="text-xs text-primary font-mono mb-2">{item.step}</div>
@@ -174,19 +210,6 @@ export default function RewardsPage() {
                     ))}
                 </div>
             </div>
-
-            {/* Claim Section */}
-            {connected && stats && stats.pendingRewards > 0 && (
-                <div className="mt-6 bg-black/40 border border-white/10 p-6 flex items-center justify-between">
-                    <div>
-                        <div className="text-sm font-medium mb-1">Ready to claim</div>
-                        <div className="text-xs text-muted-foreground">Your pending rewards are available for withdrawal</div>
-                    </div>
-                    <button className="px-6 py-2 bg-green-500/20 border border-green-500/30 text-green-400 text-sm font-medium hover:bg-green-500/30 transition-colors">
-                        Claim {formatUSD(stats.pendingRewards)}
-                    </button>
-                </div>
-            )}
         </div>
     );
 }

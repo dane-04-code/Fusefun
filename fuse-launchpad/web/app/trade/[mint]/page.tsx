@@ -5,6 +5,7 @@ import { useParams } from "next/navigation"
 import { useConnection, useWallet } from "@solana/wallet-adapter-react"
 import { PublicKey } from "@solana/web3.js"
 import { FuseSDK, TokenInfo } from "@/sdk/fuse-sdk"
+import { useReferral } from "@/components/providers/ReferralProvider"
 import * as anchor from "@coral-xyz/anchor"
 
 // X Profile interface
@@ -166,6 +167,9 @@ export default function TradePage() {
 
     fetchCreatorXProfile();
   }, [tokenInfo]);
+
+  // Get referral context for auto-registration
+  const { isRegistered, registerAndLinkReferrer, referrerAddress } = useReferral();
 
   const handleBuy = async () => {
     if (!wallet.publicKey) {

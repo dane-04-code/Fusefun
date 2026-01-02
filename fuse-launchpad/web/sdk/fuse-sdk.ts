@@ -579,6 +579,33 @@ export class FuseSDK {
     }
   }
 
+  /**
+   * Get user's on-chain profile (for referral stats)
+   */
+  async getUserProfile(user: PublicKey): Promise<{
+    authority: PublicKey;
+    username: string;
+    referrer: PublicKey | null;
+    referralCount: number;
+    totalReferralFees: bigint;
+  } | null> {
+    try {
+      const [userProfilePda] = FuseSDK.getUserProfilePDA(user);
+      // @ts-ignore - IDL typing
+      const account = await this.program.account.userProfile.fetch(userProfilePda);
+      return {
+        authority: account.authority as PublicKey,
+        username: account.username as string,
+        referrer: account.referrer as PublicKey | null,
+        referralCount: (account.referralCount as any)?.toNumber?.() || Number(account.referralCount) || 0,
+        totalReferralFees: BigInt((account.totalReferralFees as any)?.toString?.() || account.totalReferralFees || 0),
+      };
+    } catch (e) {
+      // User not registered yet
+      return null;
+    }
+  }
+
   // =====================
   // TRANSACTION BUILDERS
   // =====================
