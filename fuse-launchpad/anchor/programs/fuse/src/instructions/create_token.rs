@@ -148,10 +148,7 @@ pub fn handler(
         CREATION_FEE_LAMPORTS,
     )?;
 
-    msg!("🚀 Token Created: {} ({})", name, symbol);
-    msg!("   Mint: {}", ctx.accounts.mint.key());
-    msg!("   Curve: {}", curve.key());
-    msg!("   Creation Fee: {} lamports", CREATION_FEE_LAMPORTS);
+    msg!("Created: {} ({}) Mint: {}", name, symbol, ctx.accounts.mint.key());
 
     // =====================
     // OPTIONAL: INITIAL BUY
@@ -201,7 +198,7 @@ pub fn handler(
             );
             token::transfer(transfer_ctx, tokens_out)?;
 
-            msg!("   Initial Buy: {} lamports → {} tokens", lamports, tokens_out);
+            msg!("Init Buy: {} l → {} t", lamports, tokens_out);
         }
     }
 

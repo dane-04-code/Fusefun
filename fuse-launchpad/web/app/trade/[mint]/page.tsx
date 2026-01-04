@@ -7,6 +7,7 @@ import { PublicKey } from "@solana/web3.js"
 import { FuseSDK, TokenInfo } from "@/sdk/fuse-sdk"
 import { useReferral } from "@/components/providers/ReferralProvider"
 import * as anchor from "@coral-xyz/anchor"
+import { BondingCurveChart } from "@/components/dashboard/BondingCurveChart"
 
 // X Profile interface
 interface XProfile {
@@ -106,46 +107,7 @@ export default function TradePage() {
     fetchTokenInfo()
   }, [mintAddress, connection, wallet])
 
-  // Load TradingView widget
-  useEffect(() => {
-    if (!tokenInfo || !chartContainerRef.current) return
 
-    const loadTradingView = () => {
-      if (typeof window !== 'undefined' && (window as any).TradingView) {
-        new (window as any).TradingView.widget({
-          container_id: "tradingview_chart",
-          symbol: "BINANCE:SOLUSDT",
-          interval: "5",
-          timezone: "Etc/UTC",
-          theme: "dark",
-          style: "1",
-          locale: "en",
-          toolbar_bg: "#000000",
-          enable_publishing: false,
-          hide_top_toolbar: false,
-          hide_legend: false,
-          save_image: false,
-          withdateranges: true,
-          allow_symbol_change: false,
-          autosize: true,
-          backgroundColor: "#000000",
-          gridColor: "rgba(255, 255, 255, 0.05)",
-        });
-        setChartReady(true);
-      }
-    };
-
-    // Load TradingView script
-    if (!(window as any).TradingView) {
-      const script = document.createElement('script');
-      script.src = 'https://s3.tradingview.com/tv.js';
-      script.async = true;
-      script.onload = loadTradingView;
-      document.head.appendChild(script);
-    } else {
-      loadTradingView();
-    }
-  }, [tokenInfo]);
 
   // Fetch creator X profile
   useEffect(() => {
@@ -289,22 +251,12 @@ export default function TradePage() {
   return (
     <div className="w-full h-screen bg-black flex flex-col lg:flex-row overflow-hidden">
       {/* Chart Section - Takes most of the screen */}
-      <div className="flex-1 relative">
-        {/* TradingView Chart Container */}
-        <div
-          id="tradingview_chart"
-          ref={chartContainerRef}
-          className="w-full h-full"
-        />
-
-        {/* Chart Loading State */}
-        {!chartReady && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-            <div className="flex flex-col items-center gap-4">
-              <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
-              <p className="text-sm text-muted-foreground">Loading TradingView chart...</p>
-            </div>
-          </div>
+      <div className="flex-1 relative bg-black/40">
+        {tokenInfo && (
+          <BondingCurveChart
+            currentPrice={tokenInfo.price}
+            symbol={tokenInfo.symbol}
+          />
         )}
       </div>
 

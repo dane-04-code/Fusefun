@@ -129,7 +129,7 @@ pub fn handler(ctx: Context<Migrate>) -> Result<()> {
         **curve_config.to_account_info().try_borrow_mut_lamports()? -= creator_fees;
         **ctx.accounts.creator.try_borrow_mut_lamports()? += creator_fees;
         
-        msg!("💰 Creator Paid: {} lamports", creator_fees);
+        msg!("Creator Paid: {}", creator_fees);
         curve_config.creator_fee_accumulated = 0;
     }
 
@@ -144,7 +144,7 @@ pub fn handler(ctx: Context<Migrate>) -> Result<()> {
         **curve_config.to_account_info().try_borrow_mut_lamports()? -= sol_to_transfer;
         **ctx.accounts.migration_authority.to_account_info().try_borrow_mut_lamports()? += sol_to_transfer;
         
-        msg!("💧 SOL Liquidity: {} lamports → Migration Authority", sol_to_transfer);
+        msg!("SOL Liq: {}", sol_to_transfer);
     }
 
     // =====================
@@ -168,7 +168,7 @@ pub fn handler(ctx: Context<Migrate>) -> Result<()> {
         );
         token::transfer(transfer_ctx, tokens_for_lp)?;
         
-        msg!("💧 Token Liquidity: {} tokens → Migration Authority", tokens_for_lp);
+        msg!("Token Liq: {}", tokens_for_lp);
     }
 
     // =====================
@@ -239,7 +239,7 @@ pub fn handler(ctx: Context<Migrate>) -> Result<()> {
         timestamp: clock.unix_timestamp,
     });
 
-    msg!("🎓 GRADUATED! Token is now on DEX");
+    msg!("GRADUATED!");
 
     Ok(())
 }

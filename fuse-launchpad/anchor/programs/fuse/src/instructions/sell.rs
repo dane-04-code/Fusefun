@@ -166,7 +166,7 @@ pub fn handler(ctx: Context<Sell>, amount_in: u64, min_sol_out: u64) -> Result<(
     if let Some(user_profile) = &ctx.accounts.user_profile {
         if let Some(referrer_key) = user_profile.referrer {
             // Validate referrer accounts are passed correctly
-            if let Some(referrer_profile) = &ctx.accounts.referrer_profile {
+            if let Some(referrer_profile) = &mut ctx.accounts.referrer_profile {
                 if let Some(referrer_wallet) = &ctx.accounts.referrer_wallet {
                     if referrer_profile.authority == referrer_key && referrer_wallet.key() == referrer_key {
                         // Calculate 10% of protocol fee
@@ -180,7 +180,7 @@ pub fn handler(ctx: Context<Sell>, amount_in: u64, min_sol_out: u64) -> Result<(
                         // Update referrer stats
                         referrer_profile.total_referral_fees = referrer_profile.total_referral_fees.checked_add(referral_fee).unwrap_or(referrer_profile.total_referral_fees);
 
-                        msg!("Referral fee paid: {} lamports to {}", referral_fee, referrer_key);
+                        msg!("Ref fee paid: {} to {}", referral_fee, referrer_key);
                     }
                 }
             }

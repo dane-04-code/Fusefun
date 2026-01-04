@@ -197,7 +197,7 @@ pub fn handler(ctx: Context<Buy>, amount_in: u64, min_tokens_out: u64) -> Result
                     // Update referrer stats
                     referrer_profile.total_referral_fees = referrer_profile.total_referral_fees.checked_add(referral_fee).unwrap_or(referrer_profile.total_referral_fees);
                     
-                    msg!("Referral fee paid: {} lamports to {}", referral_fee, referrer_key);
+                    msg!("Ref fee paid: {} to {}", referral_fee, referrer_key);
                 }
             }
         }
@@ -268,7 +268,7 @@ pub fn handler(ctx: Context<Buy>, amount_in: u64, min_tokens_out: u64) -> Result
             market_cap,
             timestamp: clock.unix_timestamp,
         });
-        msg!("🎓 GRADUATION THRESHOLD REACHED! Ready for migration.");
+        msg!("🎓 GRADUATED!");
     }
 
     // =====================
