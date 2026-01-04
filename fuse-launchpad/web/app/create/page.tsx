@@ -20,7 +20,7 @@ interface TokenForm {
 }
 
 export default function CreateTokenPage() {
-    const { connected } = useWallet();
+    const { connected, publicKey } = useWallet();
     const { setVisible } = useWalletModal();
     const router = useRouter();
     const { launchToken, isLaunching, isUploading, status } = useLaunchToken();
@@ -175,6 +175,30 @@ export default function CreateTokenPage() {
             );
 
             console.log("Token launched successfully!", signature);
+
+            // Register token with backend so it appears on the landing page
+            try {
+                await fetch("/api/tokens", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        mint,
+                        name: form.name,
+                        symbol: form.ticker,
+                        description: form.description,
+                        image: form.image,
+                        twitter: form.twitter,
+                        telegram: form.telegram,
+                        website: form.website,
+                        creator: publicKey?.toString() || "unknown",
+                    }),
+                });
+                console.log("Token registered with backend");
+            } catch (regErr) {
+                console.warn("Failed to register token with backend:", regErr);
+                // Don't fail the whole launch if registration fails
+            }
+
             setLaunchedToken({ mint });
             setShowCelebration(true);
         } catch (err: unknown) {

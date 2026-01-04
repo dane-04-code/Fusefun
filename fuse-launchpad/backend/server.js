@@ -73,7 +73,7 @@ const getRpcUrl = () => {
 const connection = new Connection(getRpcUrl(), 'confirmed');
 console.log(`Using RPC: ${getRpcUrl().replace(/api-key=.*/, 'api-key=***')}`);
 
-const PROGRAM_ID = new PublicKey('63mGs2kvQNm1g5S31WbYVq9mTgnfHKzD9iJB3ZWvQN1d');
+const PROGRAM_ID = new PublicKey('CT4bS24PZXLzxuGMiHPLs3tpWYu72aVJ83UMgSNUeKY2');
 
 // ============================================
 // BONDING CURVE CONSTANTS (matching Rust program)
