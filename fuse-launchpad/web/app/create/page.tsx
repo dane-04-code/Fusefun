@@ -5,6 +5,7 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { useLaunchToken } from "@/hooks/use-launch-token";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/error-toast";
 
 interface TokenForm {
     name: string;
@@ -21,7 +22,8 @@ export default function CreateTokenPage() {
     const { connected } = useWallet();
     const { setVisible } = useWalletModal();
     const router = useRouter();
-    const { launchToken, isLaunching, error: launchError } = useLaunchToken();
+    const { launchToken, isLaunching, isUploading, status } = useLaunchToken();
+    const { showError, showSuccess } = useToast();
     const [step, setStep] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
     const [imageUploading, setImageUploading] = useState(false);
@@ -150,7 +152,7 @@ export default function CreateTokenPage() {
         }
 
         if (!form.name || !form.ticker || !form.image) {
-            alert("Please fill in all required fields (Name, Ticker, and Image)");
+            showError("Please fill in all required fields (Name, Ticker, and Image)");
             return;
         }
 
@@ -168,10 +170,11 @@ export default function CreateTokenPage() {
             );
 
             console.log("Token launched successfully!", signature);
+            showSuccess("Token Launched!", `Your token ${form.ticker} has been created successfully.`);
             router.push(`/trade/${mint}`);
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error("Launch failed:", err);
-            alert(`Launch failed: ${err.message || "Unknown error"}`);
+            showError(err instanceof Error ? err : new Error("Unknown error"));
         } finally {
             setIsLoading(false);
         }
@@ -448,13 +451,13 @@ export default function CreateTokenPage() {
                         ) : (
                             <button
                                 onClick={handleLaunch}
-                                disabled={isLoading}
+                                disabled={isLoading || isLaunching || isUploading}
                                 className="px-6 py-2.5 bg-primary text-black text-sm font-bold hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center gap-2"
                             >
-                                {isLoading ? (
+                                {(isLoading || isLaunching || isUploading) ? (
                                     <>
                                         <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                                        Launching...
+                                        {status || "Launching..."}
                                     </>
                                 ) : connected ? (
                                     "Launch Token"
