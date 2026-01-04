@@ -15,7 +15,7 @@ use instructions::*;
 use events::*;
 use raydium_interface::*;
 
-declare_id!("63mGs2kvQNm1g5S31WbYVq9mTgnfHKzD9iJB3ZWvQN1d");
+declare_id!("CT4bS24PZXLzxuGMiHPLs3tpWYu72aVJ83UMgSNUeKY2");
 
 #[program]
 pub mod fuse_launchpad {

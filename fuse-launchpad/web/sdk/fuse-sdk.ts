@@ -30,7 +30,7 @@ import { BN } from 'bn.js';
 // =====================
 // PROGRAM CONSTANTS
 // =====================
-export const PROGRAM_ID = new PublicKey('63mGs2kvQNm1g5S31WbYVq9mTgnfHKzD9iJB3ZWvQN1d');
+export const PROGRAM_ID = new PublicKey('CT4bS24PZXLzxuGMiHPLs3tpWYu72aVJ83UMgSNUeKY2');
 export const CURVE_SEED = Buffer.from('curve');
 export const VAULT_SEED = Buffer.from('vault');
 export const USER_SEED = Buffer.from('user');

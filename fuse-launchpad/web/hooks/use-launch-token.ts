@@ -12,7 +12,7 @@ import {
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 
 // Program ID from your existing configuration
-const PROGRAM_ID = new PublicKey('63mGs2kvQNm1g5S31WbYVq9mTgnfHKzD9iJB3ZWvQN1d');
+const PROGRAM_ID = new PublicKey('CT4bS24PZXLzxuGMiHPLs3tpWYu72aVJ83UMgSNUeKY2');
 const TREASURY_WALLET = new PublicKey('4j1591eHGUZvRQgAGKSW2sriMQkDinSDRnA7oXdCHyT1');
 const CURVE_SEED = 'curve';
 const VAULT_SEED = 'vault';

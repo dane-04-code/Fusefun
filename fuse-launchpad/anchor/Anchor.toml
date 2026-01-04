@@ -1,15 +1,15 @@
 [toolchain]
-anchor_version = "0.30.1"
+anchor_version = "0.32.1"
 
 [features]
 seeds = false
 skip-lint = false
 
 [programs.localnet]
-fuse = "63mGs2kvQNm1g5S31WbYVq9mTgnfHKzD9iJB3ZWvQN1d"
+fuse = "CT4bS24PZXLzxuGMiHPLs3tpWYu72aVJ83UMgSNUeKY2"
 
 [programs.devnet]
-fuse = "63mGs2kvQNm1g5S31WbYVq9mTgnfHKzD9iJB3ZWvQN1d"
+fuse = "CT4bS24PZXLzxuGMiHPLs3tpWYu72aVJ83UMgSNUeKY2"
 
 [registry]
 url = "https://api.apr.dev"
