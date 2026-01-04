@@ -76,7 +76,7 @@ export function BondingCurveChart({ currentPrice, symbol }: BondingCurveChartPro
         if (seriesRef.current && currentPrice) {
             const now = Math.floor(Date.now() / 1000)
             seriesRef.current.update({
-                time: now,
+                time: now as any,
                 value: currentPrice,
             })
         }
