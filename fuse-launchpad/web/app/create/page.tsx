@@ -6,6 +6,7 @@ import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { useLaunchToken } from "@/hooks/use-launch-token";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/error-toast";
+import { LaunchCelebration } from "@/components/ui/launch-celebration";
 
 interface TokenForm {
     name: string;
@@ -23,13 +24,17 @@ export default function CreateTokenPage() {
     const { setVisible } = useWalletModal();
     const router = useRouter();
     const { launchToken, isLaunching, isUploading, status } = useLaunchToken();
-    const { showError, showSuccess } = useToast();
+    const { showError } = useToast();
     const [step, setStep] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
     const [imageUploading, setImageUploading] = useState(false);
     const [imageError, setImageError] = useState<string | null>(null);
     const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Celebration state
+    const [showCelebration, setShowCelebration] = useState(false);
+    const [launchedToken, setLaunchedToken] = useState<{ mint: string } | null>(null);
 
     const [form, setForm] = useState<TokenForm>({
         name: "",
@@ -170,8 +175,8 @@ export default function CreateTokenPage() {
             );
 
             console.log("Token launched successfully!", signature);
-            showSuccess("Token Launched!", `Your token ${form.ticker} has been created successfully.`);
-            router.push(`/trade/${mint}`);
+            setLaunchedToken({ mint });
+            setShowCelebration(true);
         } catch (err: unknown) {
             console.error("Launch failed:", err);
             showError(err instanceof Error ? err : new Error("Unknown error"));
@@ -552,6 +557,21 @@ export default function CreateTokenPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Launch Celebration Modal */}
+            <LaunchCelebration
+                isVisible={showCelebration}
+                tokenName={form.name}
+                tokenTicker={form.ticker}
+                tokenImage={form.imagePreview}
+                mint={launchedToken?.mint || ""}
+                onClose={() => {
+                    setShowCelebration(false);
+                    if (launchedToken?.mint) {
+                        router.push(`/trade/${launchedToken.mint}`);
+                    }
+                }}
+            />
         </div>
     );
 }
