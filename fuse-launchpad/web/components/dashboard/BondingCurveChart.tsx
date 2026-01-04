@@ -50,9 +50,9 @@ export function BondingCurveChart({ currentPrice, symbol }: BondingCurveChartPro
         // Initial data point
         const now = Math.floor(Date.now() / 1000)
         areaSeries.setData([
-            { time: now - 60, value: currentPrice * 0.98 }, // Fake history point 1
-            { time: now - 30, value: currentPrice * 0.99 }, // Fake history point 2
-            { time: now, value: currentPrice },
+            { time: (now - 60) as any, value: currentPrice * 0.98 }, // Fake history point 1
+            { time: (now - 30) as any, value: currentPrice * 0.99 }, // Fake history point 2
+            { time: now as any, value: currentPrice },
         ])
 
         chart.timeScale().fitContent()
