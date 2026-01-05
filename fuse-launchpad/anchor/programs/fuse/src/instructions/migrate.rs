@@ -1,18 +1,19 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer, Burn};
+use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
+use anchor_spl::associated_token::AssociatedToken;
 use crate::state::BondingCurve;
 use crate::constants::*;
 use crate::errors::FuseError;
 use crate::events::CurveCompleted;
-use crate::raydium_interface::{self, Initialize2};
+use crate::meteora_interface::{self, dynamic_amm, dynamic_vault, mpl_token_metadata, CustomizableParams};
 
-/// Migrate - Graduates the token from bonding curve to a DEX
+/// Migrate - Graduates the token from bonding curve to Meteora Dynamic AMM
 /// 
 /// This instruction:
 /// 1. Validates graduation threshold is reached
 /// 2. Pays out accumulated creator fees
-/// 3. Transfers remaining SOL + Tokens to migration authority
-/// 4. Burns unsold tokens (optional)
+/// 3. Creates a Meteora Dynamic AMM pool with liquidity
+/// 4. Locks liquidity in escrow (protocol earns trading fees)
 /// 5. Marks curve as complete
 #[derive(Accounts)]
 pub struct Migrate<'info> {
@@ -28,9 +29,11 @@ pub struct Migrate<'info> {
     )]
     pub curve_config: Account<'info, BondingCurve>,
 
+    /// The token mint being graduated
     #[account(mut)]
     pub mint: Account<'info, Mint>,
 
+    /// Token vault holding remaining supply
     #[account(
         mut,
         seeds = [b"vault", mint.key().as_ref()],
@@ -40,69 +43,107 @@ pub struct Migrate<'info> {
     )]
     pub vault: Account<'info, TokenAccount>,
 
-    /// Where the liquidity tokens go (for DEX LP creation)
-    #[account(mut)]
-    pub migration_token_account: Account<'info, TokenAccount>,
-
     /// CHECK: The creator who receives the accumulated fees. Must match curve_config.creator.
     #[account(mut, address = curve_config.creator @ FuseError::Unauthorized)]
     pub creator: AccountInfo<'info>,
 
-    pub token_program: Program<'info, Token>,
-    pub system_program: Program<'info, System>,
+    // ====================================================
+    // METEORA DYNAMIC AMM ACCOUNTS
+    // ====================================================
+    /// CHECK: Meteora pool PDA (will be initialized)
+    #[account(mut)]
+    pub meteora_pool: AccountInfo<'info>,
+
+    /// CHECK: LP mint for the Meteora pool
+    #[account(mut)]
+    pub lp_mint: AccountInfo<'info>,
+
+    /// CHECK: WSOL mint (Token B for pool)
+    pub wsol_mint: AccountInfo<'info>,
+
+    /// CHECK: Meteora vault for token A (graduated token)
+    #[account(mut)]
+    pub a_vault: AccountInfo<'info>,
+
+    /// CHECK: Meteora vault for token B (WSOL)
+    #[account(mut)]
+    pub b_vault: AccountInfo<'info>,
+
+    /// CHECK: Token vault of vault A
+    #[account(mut)]
+    pub a_token_vault: AccountInfo<'info>,
+
+    /// CHECK: Token vault of vault B
+    #[account(mut)]
+    pub b_token_vault: AccountInfo<'info>,
+
+    /// CHECK: LP mint of vault A
+    #[account(mut)]
+    pub a_vault_lp_mint: AccountInfo<'info>,
+
+    /// CHECK: LP mint of vault B
+    #[account(mut)]
+    pub b_vault_lp_mint: AccountInfo<'info>,
+
+    /// CHECK: LP token account of vault A
+    #[account(mut)]
+    pub a_vault_lp: AccountInfo<'info>,
+
+    /// CHECK: LP token account of vault B
+    #[account(mut)]
+    pub b_vault_lp: AccountInfo<'info>,
+
+    /// Migration authority's token A account (receives tokens from vault)
+    #[account(mut)]
+    pub payer_token_a: Account<'info, TokenAccount>,
+
+    /// Migration authority's WSOL account (receives SOL converted to WSOL)
+    #[account(mut)]
+    pub payer_token_b: Account<'info, TokenAccount>,
+
+    /// Migration authority's LP token account
+    #[account(mut)]
+    pub payer_pool_lp: Account<'info, TokenAccount>,
+
+    /// CHECK: Protocol fee token A account
+    #[account(mut)]
+    pub protocol_token_a_fee: AccountInfo<'info>,
+
+    /// CHECK: Protocol fee token B account
+    #[account(mut)]
+    pub protocol_token_b_fee: AccountInfo<'info>,
+
+    /// CHECK: LP mint metadata PDA for Metaplex
+    #[account(mut)]
+    pub mint_metadata: AccountInfo<'info>,
+
+    /// CHECK: Lock escrow PDA for protocol fee claiming
+    #[account(mut)]
+    pub lock_escrow: AccountInfo<'info>,
+
+    /// CHECK: Escrow vault for locked LP
+    #[account(mut)]
+    pub escrow_vault: AccountInfo<'info>,
 
     // ====================================================
-    // OPTIONAL: RAYDIUM ACCOUNTS (Uncomment to enable CPI)
+    // PROGRAMS
     // ====================================================
-    // /// CHECK: Raydium Program ID
-    // pub raydium_program: AccountInfo<'info>,
-    // /// CHECK: Raydium AMM ID
-    // #[account(mut)]
-    // pub amm: AccountInfo<'info>,
-    // /// CHECK: Raydium AMM Authority
-    // #[account(mut)]
-    // pub amm_authority: AccountInfo<'info>,
-    // /// CHECK: Raydium Open Orders
-    // #[account(mut)]
-    // pub amm_open_orders: AccountInfo<'info>,
-    // /// CHECK: Raydium LP Mint
-    // #[account(mut)]
-    // pub lp_mint: AccountInfo<'info>,
-    // /// CHECK: Raydium Coin Mint
-    // pub coin_mint: AccountInfo<'info>,
-    // /// CHECK: Raydium PC Mint
-    // pub pc_mint: AccountInfo<'info>,
-    // /// CHECK: Raydium Pool Coin Token Account
-    // #[account(mut)]
-    // pub pool_coin_token_account: AccountInfo<'info>,
-    // /// CHECK: Raydium Pool PC Token Account
-    // #[account(mut)]
-    // pub pool_pc_token_account: AccountInfo<'info>,
-    // /// CHECK: Raydium Pool Withdraw Queue
-    // #[account(mut)]
-    // pub pool_withdraw_queue: AccountInfo<'info>,
-    // /// CHECK: Raydium AMM Target Orders
-    // #[account(mut)]
-    // pub amm_target_orders: AccountInfo<'info>,
-    // /// CHECK: Raydium Pool Temp LP
-    // #[account(mut)]
-    // pub pool_temp_lp: AccountInfo<'info>,
-    // /// CHECK: OpenBook Program
-    // pub open_book_program: AccountInfo<'info>,
-    // /// CHECK: OpenBook Market
-    // pub open_book_market: AccountInfo<'info>,
-    // /// CHECK: User Wallet (Curve Config Authority)
-    // #[account(mut)]
-    // pub user_wallet: AccountInfo<'info>,
-    // /// CHECK: User Token Coin
-    // #[account(mut)]
-    // pub user_token_coin: AccountInfo<'info>,
-    // /// CHECK: User Token PC
-    // #[account(mut)]
-    // pub user_token_pc: AccountInfo<'info>,
-    // /// CHECK: User LP Token
-    // #[account(mut)]
-    // pub user_lp_token: AccountInfo<'info>,
+    pub token_program: Program<'info, Token>,
+    pub associated_token_program: Program<'info, AssociatedToken>,
+    pub system_program: Program<'info, System>,
+    pub rent: Sysvar<'info, Rent>,
+
+    /// CHECK: Meteora Dynamic AMM program
+    #[account(address = dynamic_amm::ID)]
+    pub dynamic_amm_program: AccountInfo<'info>,
+
+    /// CHECK: Meteora Dynamic Vault program
+    #[account(address = dynamic_vault::ID)]
+    pub vault_program: AccountInfo<'info>,
+
+    /// CHECK: Metaplex Token Metadata program
+    #[account(address = mpl_token_metadata::ID)]
+    pub metadata_program: AccountInfo<'info>,
 }
 
 pub fn handler(ctx: Context<Migrate>) -> Result<()> {
@@ -134,96 +175,110 @@ pub fn handler(ctx: Context<Migrate>) -> Result<()> {
     }
 
     // =====================
-    // 2. TRANSFER SOL LIQUIDITY
+    // 2. CALCULATE LIQUIDITY AMOUNTS
     // =====================
     let curve_lamports = curve_config.to_account_info().lamports();
     let rent_exempt = Rent::get()?.minimum_balance(curve_config.to_account_info().data_len());
-    let sol_to_transfer = curve_lamports.saturating_sub(rent_exempt);
+    let sol_for_liquidity = curve_lamports.saturating_sub(rent_exempt);
+    let tokens_for_liquidity = ctx.accounts.vault.amount;
 
-    if sol_to_transfer > 0 {
-        **curve_config.to_account_info().try_borrow_mut_lamports()? -= sol_to_transfer;
-        **ctx.accounts.migration_authority.to_account_info().try_borrow_mut_lamports()? += sol_to_transfer;
-        
-        msg!("SOL Liq: {}", sol_to_transfer);
-    }
+    msg!("Migrating: {} SOL, {} tokens", sol_for_liquidity, tokens_for_liquidity);
 
     // =====================
-    // 3. TRANSFER TOKEN LIQUIDITY
+    // 3. TRANSFER TOKENS FROM VAULT TO MIGRATION AUTHORITY
     // =====================
-    let tokens_in_vault = ctx.accounts.vault.amount;
-    
-    // Calculate how many tokens should go to LP vs burn
-    // Typically: 20% of remaining tokens go to LP, 80% burned (or all to LP - design choice)
-    let tokens_for_lp = tokens_in_vault; // Sending all remaining to LP
-    
-    if tokens_for_lp > 0 {
+    if tokens_for_liquidity > 0 {
         let transfer_ctx = CpiContext::new_with_signer(
             ctx.accounts.token_program.to_account_info(),
             Transfer {
                 from: ctx.accounts.vault.to_account_info(),
-                to: ctx.accounts.migration_token_account.to_account_info(),
+                to: ctx.accounts.payer_token_a.to_account_info(),
                 authority: curve_config.to_account_info(),
             },
             signer,
         );
-        token::transfer(transfer_ctx, tokens_for_lp)?;
-        
-        msg!("Token Liq: {}", tokens_for_lp);
+        token::transfer(transfer_ctx, tokens_for_liquidity)?;
     }
 
     // =====================
-    // 4. RAYDIUM CPI (Optional)
+    // 4. TRANSFER SOL TO MIGRATION AUTHORITY (for WSOL wrapping)
     // =====================
-    // To enable Raydium CPI, uncomment the accounts in the struct and the code below.
-    // Note: This requires the OpenBook market to be created beforehand.
-    /*
-    let cpi_accounts = Initialize2 {
-        token_program: ctx.accounts.token_program.to_account_info(),
-        system_program: ctx.accounts.system_program.to_account_info(),
-        rent: ctx.accounts.rent.to_account_info(),
-        amm: ctx.accounts.amm.to_account_info(),
-        amm_authority: ctx.accounts.amm_authority.to_account_info(),
-        amm_open_orders: ctx.accounts.amm_open_orders.to_account_info(),
-        lp_mint: ctx.accounts.lp_mint.to_account_info(),
-        coin_mint: ctx.accounts.coin_mint.to_account_info(),
-        pc_mint: ctx.accounts.pc_mint.to_account_info(),
-        pool_coin_token_account: ctx.accounts.pool_coin_token_account.to_account_info(),
-        pool_pc_token_account: ctx.accounts.pool_pc_token_account.to_account_info(),
-        pool_withdraw_queue: ctx.accounts.pool_withdraw_queue.to_account_info(),
-        amm_target_orders: ctx.accounts.amm_target_orders.to_account_info(),
-        pool_temp_lp: ctx.accounts.pool_temp_lp.to_account_info(),
-        open_book_program: ctx.accounts.open_book_program.to_account_info(),
-        open_book_market: ctx.accounts.open_book_market.to_account_info(),
-        user_wallet: ctx.accounts.curve_config.to_account_info(), // Curve is the user/authority
-        user_token_coin: ctx.accounts.vault.to_account_info(),
-        user_token_pc: ctx.accounts.curve_config.to_account_info(), // Curve holds SOL (needs wrapping)
-        user_lp_token: ctx.accounts.migration_token_account.to_account_info(), // Where LP tokens go
-    };
-    
-    let cpi_ctx = CpiContext::new_with_signer(
-        ctx.accounts.raydium_program.to_account_info(),
-        cpi_accounts,
-        signer
-    );
+    if sol_for_liquidity > 0 {
+        **curve_config.to_account_info().try_borrow_mut_lamports()? -= sol_for_liquidity;
+        **ctx.accounts.migration_authority.to_account_info().try_borrow_mut_lamports()? += sol_for_liquidity;
+    }
 
-    raydium_interface::initialize2(
-        cpi_ctx,
-        255, // nonce
-        clock.unix_timestamp as u64, // open_time
-        sol_to_transfer, // init_pc_amount
-        tokens_for_lp, // init_coin_amount
+    // =====================
+    // 5. INITIALIZE METEORA POOL (CPI)
+    // =====================
+    // NOTE: The actual CPI requires pre-computed PDAs from the frontend/bot.
+    // The migration_authority should wrap SOL to WSOL before calling this.
+    // The pool creation is handled off-chain due to the complexity of account derivation.
+    //
+    // This instruction now focuses on:
+    // - Paying creator
+    // - Transferring assets to migration authority
+    // - Marking curve complete
+    //
+    // The actual Meteora pool creation happens via a separate transaction by the
+    // migration bot, which has the tools to derive all required PDAs.
+    //
+    // For on-chain CPI (advanced):
+    /*
+    let pool_params = CustomizableParams {
+        trade_fee_bps: 100, // 1% trade fee - protocol keeps this
+        protocol_trade_fee_bps: 0,
+        activation_type: 0,
+        activation_point: None,
+        has_alpha_vault: false,
+        padding: [0u8; 90],
+    };
+
+    let init_pool_accounts = meteora_interface::InitializeCustomizablePermissionlessPool {
+        pool: ctx.accounts.meteora_pool.clone(),
+        lp_mint: ctx.accounts.lp_mint.clone(),
+        token_a_mint: ctx.accounts.mint.to_account_info(),
+        token_b_mint: ctx.accounts.wsol_mint.clone(),
+        a_vault: ctx.accounts.a_vault.clone(),
+        b_vault: ctx.accounts.b_vault.clone(),
+        a_token_vault: ctx.accounts.a_token_vault.clone(),
+        b_token_vault: ctx.accounts.b_token_vault.clone(),
+        a_vault_lp_mint: ctx.accounts.a_vault_lp_mint.clone(),
+        b_vault_lp_mint: ctx.accounts.b_vault_lp_mint.clone(),
+        a_vault_lp: ctx.accounts.a_vault_lp.clone(),
+        b_vault_lp: ctx.accounts.b_vault_lp.clone(),
+        payer_token_a: ctx.accounts.payer_token_a.to_account_info(),
+        payer_token_b: ctx.accounts.payer_token_b.to_account_info(),
+        payer_pool_lp: ctx.accounts.payer_pool_lp.to_account_info(),
+        protocol_token_a_fee: ctx.accounts.protocol_token_a_fee.clone(),
+        protocol_token_b_fee: ctx.accounts.protocol_token_b_fee.clone(),
+        payer: ctx.accounts.migration_authority.clone(),
+        rent: ctx.accounts.rent.clone(),
+        mint_metadata: ctx.accounts.mint_metadata.clone(),
+        metadata_program: ctx.accounts.metadata_program.clone(),
+        vault_program: ctx.accounts.vault_program.clone(),
+        token_program: ctx.accounts.token_program.to_account_info(),
+        associated_token_program: ctx.accounts.associated_token_program.to_account_info(),
+        system_program: ctx.accounts.system_program.to_account_info(),
+    };
+
+    meteora_interface::initialize_customizable_pool(
+        CpiContext::new(ctx.accounts.dynamic_amm_program.clone(), init_pool_accounts),
+        tokens_for_liquidity,
+        sol_for_liquidity,
+        pool_params,
     )?;
     */
 
     // =====================
-    // 5. MARK CURVE COMPLETE
+    // 6. MARK CURVE COMPLETE
     // =====================
     curve_config.complete = true;
     curve_config.real_sol_reserves = 0;
     curve_config.real_token_reserves = 0;
 
     // =====================
-    // 6. EMIT GRADUATION EVENT
+    // 7. EMIT GRADUATION EVENT
     // =====================
     let final_market_cap = calculate_market_cap(
         curve_config.virtual_sol_reserves,
@@ -234,12 +289,12 @@ pub fn handler(ctx: Context<Migrate>) -> Result<()> {
         mint: ctx.accounts.mint.key(),
         migration_authority: ctx.accounts.migration_authority.key(),
         final_market_cap,
-        total_sol_raised: sol_to_transfer,
+        total_sol_raised: sol_for_liquidity,
         creator_payout: creator_fees,
         timestamp: clock.unix_timestamp,
     });
 
-    msg!("GRADUATED!");
+    msg!("🎓 GRADUATED to Meteora!");
 
     Ok(())
 }

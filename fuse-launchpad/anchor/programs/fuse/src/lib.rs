@@ -6,14 +6,14 @@ pub mod errors;
 pub mod constants;
 pub mod instructions;
 pub mod events;
-pub mod raydium_interface;
+pub mod meteora_interface;
 
 use state::*;
 use errors::*;
 use constants::*;
 use instructions::*;
 use events::*;
-use raydium_interface::*;
+use meteora_interface::*;
 
 declare_id!("CT4bS24PZXLzxuGMiHPLs3tpWYu72aVJ83UMgSNUeKY2");
 

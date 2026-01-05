@@ -197,7 +197,7 @@ export const IDL: anchor.Idl = {
 export const VIRTUAL_SOL_RESERVES = 30_000_000_000n; // 30 SOL
 export const VIRTUAL_TOKEN_RESERVES = 1_073_000_000_000_000n; // 1.073B tokens
 export const TOTAL_SUPPLY = 1_000_000_000_000_000n; // 1B tokens
-export const GRADUATION_SOL_THRESHOLD = 85_000_000_000n; // ~85 SOL
+export const GRADUATION_SOL_THRESHOLD = 1_000_000_000n; // 1 SOL (TESTING ONLY - change back to 85 SOL for production)
 export const FEE_BASIS_POINTS = 100n; // 1% (bonding curve fee)
 
 // Platform Fee Configuration
@@ -720,13 +720,13 @@ export class FuseSDK {
     const [userProfilePda] = FuseSDK.getUserProfilePDA(user);
 
     let referrerProfile = null;
-    // let referrerWallet = null; // Removed as contract update failed
+    let referrerWallet = null;
 
     try {
       // @ts-ignore - dynamic anchor program
       const userProfileAccount = await this.program.account.userProfile.fetchNullable(userProfilePda);
       if (userProfileAccount && userProfileAccount.referrer) {
-        const referrerWallet = userProfileAccount.referrer as PublicKey;
+        referrerWallet = userProfileAccount.referrer as PublicKey;
         const [refProfilePda] = FuseSDK.getUserProfilePDA(referrerWallet);
         referrerProfile = refProfilePda;
       }
@@ -745,6 +745,7 @@ export class FuseSDK {
         treasury: this.treasury,
         userProfile: userProfilePda,
         referrerProfile: referrerProfile,
+        referrerWallet: referrerWallet,
         tokenProgram: TOKEN_PROGRAM_ID,
         systemProgram: SystemProgram.programId,
       })
