@@ -748,6 +748,18 @@ export class FuseSDK {
       })
       .transaction();
 
+    // Check if user ATA exists and create if needed
+    const userAtaInfo = await this.connection.getAccountInfo(userAta);
+    if (!userAtaInfo) {
+      const createAtaIx = createAssociatedTokenAccountInstruction(
+        user, // payer
+        userAta, // ata address
+        user, // owner
+        mint // mint
+      );
+      tx.instructions.unshift(createAtaIx);
+    }
+
     // Add platform fee transfer instruction
     const platformFee = (solAmount * PLATFORM_FEE_BPS) / 10000n;
     if (platformFee > 0n) {
