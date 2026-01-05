@@ -16,6 +16,7 @@ import {
   SystemProgram,
   LAMPORTS_PER_SOL,
   TransactionInstruction,
+  ComputeBudgetProgram,
 } from '@solana/web3.js';
 import {
   TOKEN_PROGRAM_ID,
@@ -759,6 +760,12 @@ export class FuseSDK {
       );
       tx.instructions.unshift(createAtaIx);
     }
+
+    // Add Compute Budget instructions (Priority Fee + Compute Limit)
+    // Devnet might need higher limits for Anchor programs
+    const computeBudgetIx = ComputeBudgetProgram.setComputeUnitLimit({ units: 400_000 });
+    const priorityFeeIx = ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 1000 }); // Low priority fee for devnet
+    tx.instructions.unshift(computeBudgetIx, priorityFeeIx);
 
     // Add platform fee transfer instruction
     const platformFee = (solAmount * PLATFORM_FEE_BPS) / 10000n;
