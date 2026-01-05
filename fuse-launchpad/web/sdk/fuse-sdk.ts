@@ -88,7 +88,6 @@ export const IDL: anchor.Idl = {
         { "name": "treasury", "isMut": true, "isSigner": false },
         { "name": "userProfile", "isMut": true, "isSigner": false, "isOptional": true },
         { "name": "referrerProfile", "isMut": true, "isSigner": false, "isOptional": true },
-        { "name": "referrerWallet", "isMut": true, "isSigner": false, "isOptional": true },
         { "name": "tokenProgram", "isMut": false, "isSigner": false },
         { "name": "systemProgram", "isMut": false, "isSigner": false }
       ],
@@ -108,7 +107,6 @@ export const IDL: anchor.Idl = {
         { "name": "treasury", "isMut": true, "isSigner": false },
         { "name": "userProfile", "isMut": true, "isSigner": false, "isOptional": true },
         { "name": "referrerProfile", "isMut": true, "isSigner": false, "isOptional": true },
-        { "name": "referrerWallet", "isMut": true, "isSigner": false, "isOptional": true },
         { "name": "tokenProgram", "isMut": false, "isSigner": false },
         { "name": "systemProgram", "isMut": false, "isSigner": false }
       ],
@@ -745,7 +743,6 @@ export class FuseSDK {
         treasury: this.treasury,
         userProfile: userProfilePda,
         referrerProfile: referrerProfile,
-        referrerWallet: referrerWallet,
         tokenProgram: TOKEN_PROGRAM_ID,
         systemProgram: SystemProgram.programId,
       })
