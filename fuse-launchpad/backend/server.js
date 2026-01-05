@@ -20,6 +20,7 @@ const FormData = require('form-data');
 const { Connection, PublicKey } = require('@solana/web3.js');
 
 const { initDb, run: dbRun, get: dbGet, all: dbAll } = require('./db');
+const { MigrationService } = require('./migration-service');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -84,7 +85,7 @@ const VIRTUAL_TOKEN_RESERVES = 1_073_000_000_000_000n; // 1.073B tokens (6 decim
 const REAL_TOKEN_RESERVES = 793_100_000_000_000n; // 793.1M tokens available for trading
 const TOTAL_SUPPLY = 1_000_000_000_000_000n; // 1B tokens (6 decimals)
 const FEE_BPS = 100n; // 1% fee
-const GRADUATION_SOL_THRESHOLD = 85_000_000_000n; // 85 SOL
+const GRADUATION_SOL_THRESHOLD = 1_000_000_000n; // 1 SOL (TESTING ONLY - change back to 85 SOL for production)
 
 // SQLite DB handle (initialized at startup)
 let db;
@@ -1244,6 +1245,9 @@ app.post('/api/tokens', async (req, res) => {
     const tokenData = req.body;
     if (!tokenData.mint) return res.status(400).json({ error: 'Mint required' });
 
+    const now = Date.now();
+
+    // Store in memory for real-time access
     tokenStore.set(tokenData.mint, {
         ...tokenData,
         // Normalize common fields
@@ -1256,10 +1260,31 @@ app.post('/api/tokens', async (req, res) => {
         telegram: tokenData.telegram || '',
         website: tokenData.website || '',
         creator: tokenData.creator,
-        createdAt: Date.now(),
+        createdAt: now,
         marketCap: tokenData.initialBuyAmount || 0, // Initial mcap estimate
         replies: 0
     });
+
+    // Also save to SQLite database for persistence
+    try {
+        await dbRun(db, `
+            INSERT OR REPLACE INTO tokens (mint, name, symbol, uri, image_uri, creator, created_at, market_cap)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `, [
+            tokenData.mint,
+            tokenData.name || '',
+            tokenData.symbol || '',
+            tokenData.uri || '',
+            tokenData.image || '',
+            tokenData.creator || '',
+            now,
+            tokenData.initialBuyAmount || 0
+        ]);
+        console.log(`Token ${tokenData.mint} saved to database`);
+    } catch (dbError) {
+        console.error('Failed to save token to database:', dbError);
+        // Continue anyway - token is in memory
+    }
 
     // Initialize empty trades/chart
     tradesStore.set(tokenData.mint, []);
@@ -2006,6 +2031,10 @@ const server = app.listen(PORT, async () => {
 
     console.log(`FUSE API server running on port ${PORT}`);
     console.log(`Helius integration: ${HELIUS_API_KEY ? 'ENABLED' : 'DISABLED (set HELIUS_API_KEY)'}`);
+
+    // Initialize Meteora Migration Service
+    const migrationService = new MigrationService(connection, broadcastToAll);
+    global.migrationService = migrationService;
 });
 
 // Initialize WebSocket server
@@ -2062,6 +2091,46 @@ function broadcastTrade(trade) {
         }
     }
 }
+
+/**
+ * Broadcast message to ALL connected clients (for system events like graduation)
+ */
+function broadcastToAll(data) {
+    const message = JSON.stringify(data);
+    for (const [client] of wsClients.entries()) {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(message);
+        }
+    }
+}
+
+// ============================================
+// MIGRATION STATUS API
+// ============================================
+
+app.get('/api/migration/status', (req, res) => {
+    const service = global.migrationService;
+    if (!service) {
+        return res.json({ enabled: false, reason: 'Service not initialized' });
+    }
+    res.json(service.getStatus());
+});
+
+app.post('/api/migration/manual', async (req, res) => {
+    const { mint, solAmount, tokenAmount } = req.body;
+    const service = global.migrationService;
+
+    if (!service || !service.enabled) {
+        return res.status(400).json({ error: 'Migration service not enabled' });
+    }
+
+    try {
+        const result = await service.manualMigrate(mint, solAmount, tokenAmount);
+        res.json({ success: true, pool: result?.toBase58() || null });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
 // ============================================
 // DEMO DATA (for testing without real blockchain)
