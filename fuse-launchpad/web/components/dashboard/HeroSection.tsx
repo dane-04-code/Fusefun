@@ -103,6 +103,7 @@ export function HeroSection() {
                 </p>
                 <div className="mt-6 max-w-2xl mx-auto text-left px-4 sm:px-0">
                     <span className="text-sm font-bold text-green-400">CA:</span>
+                    <span className="ml-2 text-sm text-muted-foreground/80 break-all select-all font-mono">4qLF7LRcAKLUvcrJqu5MwyABMSkQAQDn5aqqw77Vpump</span>
                 </div>
             </div>
 
