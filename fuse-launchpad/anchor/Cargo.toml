@@ -9,6 +9,7 @@ overflow-checks = true
 lto = "fat"
 codegen-units = 1
 strip = true
+
 [profile.release.build-override]
 opt-level = "z"
 incremental = false

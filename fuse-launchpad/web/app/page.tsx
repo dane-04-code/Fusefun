@@ -37,20 +37,6 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Mock token for testing the trading panel
-  const MOCK_TOKEN: ApiToken = {
-    mint: "FUSExxxMOCKxxxTOKENxxx1234567890abcdef",
-    name: "Fuse Demo",
-    symbol: "FDEMO",
-    image_uri: "/fuse-logo.png",
-    creator: "4j1591eHGUZvRQgAGKSW2sriMQkDinSDRnA7oXdCHyT1",
-    created_at: new Date().toISOString(),
-    market_cap: 42069,
-    progress: 45.5,
-    description: "A demo token to test the trading interface",
-    volume_24h: 1234,
-  };
-
   // Fetch tokens from the API
   useEffect(() => {
     async function fetchTokens() {
@@ -62,17 +48,11 @@ export default function Home() {
         }
         const data = await response.json();
         const fetchedTokens = data.tokens || data || [];
-        // If no tokens returned, use the mock token
-        if (fetchedTokens.length === 0) {
-          setTokens([MOCK_TOKEN]);
-        } else {
-          setTokens(fetchedTokens);
-        }
+        setTokens(fetchedTokens);
       } catch (err) {
         console.error("Error fetching tokens:", err);
-        // On error, still show the mock token so trading panel can be tested
-        setTokens([MOCK_TOKEN]);
-        setError(null); // Clear error since we have mock data
+        setError("Failed to fetch tokens");
+        setTokens([]);
       } finally {
         setLoading(false);
       }
