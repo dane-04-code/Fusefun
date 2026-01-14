@@ -101,6 +101,9 @@ export function HeroSection() {
                 <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
                     Create and trade on the fairest memecoin launchpad on Solana.
                 </p>
+                <div className="mt-6 max-w-2xl mx-auto text-left px-4 sm:px-0">
+                    <span className="text-sm font-bold text-green-400">CA:</span>
+                </div>
             </div>
 
             {/* 4-Column Grid */}
